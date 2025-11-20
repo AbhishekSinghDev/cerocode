@@ -8,11 +8,14 @@ import { HowItWorks } from "@/components/landing-page/how-it-works";
 import { Navbar } from "@/components/landing-page/navbar";
 import { Pricing } from "@/components/landing-page/pricing";
 import { Testimonials } from "@/components/landing-page/testimonials";
+import { getSession } from "@/server/better-auth/server";
 
-export default function Home() {
+export default async function Home() {
+  const session = await getSession();
+
   return (
     <div className="min-h-screen">
-      <Navbar />
+      <Navbar session={session} />
       <main>
         <Hero />
         <Features />

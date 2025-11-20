@@ -2,22 +2,58 @@
 
 import { Button } from "@/components/ui/button";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
   Sheet,
   SheetContent,
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { NAV_LINKS } from "@/lib/constant";
-import { IconMenu, IconMoon, IconSun } from "@tabler/icons-react";
+import { authClient } from "@/server/better-auth/client";
+import type { Session } from "@/server/better-auth/config";
+import {
+  IconLogout,
+  IconMenu,
+  IconMoon,
+  IconSun,
+  IconUser,
+} from "@tabler/icons-react";
 import type { Route } from "next";
 import { useTheme } from "next-themes";
+import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { toast } from "sonner";
 import Logo from "../shared/logo";
 
-export function Navbar() {
+type NavbarProps = {
+  session: Session | null;
+};
+
+export function Navbar({ session }: NavbarProps) {
   const { theme, setTheme } = useTheme();
   const [isOpen, setIsOpen] = useState(false);
+
+  const router = useRouter();
+
+  const handleSignOut = async () => {
+    await authClient.signOut({
+      fetchOptions: {
+        onSuccess: () => {
+          router.refresh();
+          toast.success("Signed out successfully");
+        },
+      },
+    });
+  };
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -63,9 +99,47 @@ export function Navbar() {
             <span className="sr-only">Toggle theme</span>
           </Button>
 
-          <Button asChild className="bg-[#FF6B6B] hover:bg-[#FF6B6B]/90">
-            <Link href="#install">Get Started</Link>
-          </Button>
+          {session?.user ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                {session.user.image && session.user.image.length > 1 ? (
+                  <div className="relative aspect-square h-8 w-8 rounded-full overflow-hidden">
+                    <Image
+                      src={session.user.image}
+                      alt={session.user.name || "User Avatar"}
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                ) : (
+                  <Button variant="outline" size="icon" className="ml-2">
+                    <IconUser className="h-8 w-8" />
+
+                    <span className="sr-only">User menu</span>
+                  </Button>
+                )}
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel className="flex flex-col space-y-1">
+                  <span className="text-sm font-medium">
+                    {session.user.name || "User"}
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    {session.user.email}
+                  </span>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleSignOut}>
+                  <IconLogout className="mr-2 h-4 w-4" />
+                  Sign Out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <Button asChild className="bg-[#FF6B6B] hover:bg-[#FF6B6B]/90">
+              <Link href="/login">Sign In</Link>
+            </Button>
+          )}
         </div>
 
         {/* Mobile Navigation */}
@@ -150,14 +224,34 @@ export function Navbar() {
 
                 {/* Footer with CTA */}
                 <div className="border-t px-4 py-4 space-y-3">
-                  <Button
-                    asChild
-                    className="bg-[#FF6B6B] hover:bg-[#FF6B6B]/90 w-full text-base font-medium h-10"
-                  >
-                    <Link href="#install" onClick={() => setIsOpen(false)}>
-                      Get Started
-                    </Link>
-                  </Button>
+                  {session?.user ? (
+                    <>
+                      <div className="px-2 py-2 text-sm">
+                        <p className="font-medium">
+                          {session.user.name || "User"}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {session.user.email}
+                        </p>
+                      </div>
+                      <Button
+                        onClick={handleSignOut}
+                        className="bg-[#FF6B6B] hover:bg-[#FF6B6B]/90 w-full text-base font-medium h-10"
+                      >
+                        <IconLogout className="mr-2 h-5 w-5" />
+                        Sign Out
+                      </Button>
+                    </>
+                  ) : (
+                    <Button
+                      asChild
+                      className="bg-[#FF6B6B] hover:bg-[#FF6B6B]/90 w-full text-base font-medium h-10"
+                    >
+                      <Link href="/login" onClick={() => setIsOpen(false)}>
+                        Sign In
+                      </Link>
+                    </Button>
+                  )}
                 </div>
               </div>
             </SheetContent>
