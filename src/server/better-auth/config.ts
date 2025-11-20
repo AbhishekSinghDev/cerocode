@@ -1,6 +1,8 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 
+import { deviceAuthorization } from "better-auth/plugins";
+
 import { env } from "@/env";
 import { db } from "@/server/db";
 
@@ -27,6 +29,12 @@ export const auth = betterAuth({
       clientSecret: env.BETTER_AUTH_GITHUB_CLIENT_SECRET,
     },
   },
+  plugins: [
+    deviceAuthorization({
+      expiresIn: "30m",
+      interval: "5s",
+    }),
+  ],
 });
 
 export type Session = typeof auth.$Infer.Session;
