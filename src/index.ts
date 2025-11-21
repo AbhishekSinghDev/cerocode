@@ -1,10 +1,13 @@
 #!/usr/bin/env node
 
-import "dotenv/config";
-import { init } from "./lib/init";
+import { CLIService } from "./core/cli/cli.service";
 
-function main() {
-  init();
+async function main() {
+  const cli = new CLIService();
+  await cli.run();
 }
 
-main();
+main().catch((error) => {
+  console.error("Fatal error:", error);
+  process.exit(1);
+});

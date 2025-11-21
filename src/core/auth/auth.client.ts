@@ -1,8 +1,10 @@
 import { createAuthClient } from "better-auth/client";
 import { deviceAuthorizationClient } from "better-auth/client/plugins";
-import { env } from "../env";
+import { ConfigService } from "../config/config.service.js";
+
+const configService = ConfigService.getInstance();
 
 export const authClient = createAuthClient({
-  baseURL: env.NEXT_SERVER_URL || "https://cero.abhisheksingh.me",
+  baseURL: configService.apiUrl,
   plugins: [deviceAuthorizationClient()],
 });
