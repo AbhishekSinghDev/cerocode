@@ -3,6 +3,7 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
+    "dev:inngest": "npx inngest-cli@latest dev --no-discovery -u http://localhost:3000/api/inngest",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types"
@@ -10,5 +11,11 @@
   "packageManager": "pnpm@10.23.0",
   "engines": {
     "node": ">=18"
+  },
+  "pnpm": {
+    "overrides": {
+      "@types/react": "19.2.6",
+      "@types/react-dom": "19.2.3"
+    }
   }
 }
