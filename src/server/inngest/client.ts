@@ -5,6 +5,6 @@ import { Inngest } from "inngest";
 
 export const inngest = new Inngest<Events>({
   id: "cero-web",
-  eventKey: env.INNGEST_SIGNING_KEY,
+  eventKey: env.INNGEST_EVENT_KEY,
   middleware: [realtimeMiddleware()],
 });
