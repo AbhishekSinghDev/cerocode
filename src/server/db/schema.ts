@@ -7,24 +7,27 @@ import {
   timestamp,
 } from "drizzle-orm/pg-core";
 
+import { createId } from "@paralleldrive/cuid2";
+import { timestamps } from "./helper";
+
+// Tables
 export const user = pgTable("user", {
-  id: text("id").primaryKey(),
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => createId()),
   name: text("name").notNull(),
   email: text("email").notNull().unique(),
   emailVerified: boolean("email_verified")
     .$defaultFn(() => false)
     .notNull(),
   image: text("image"),
-  createdAt: timestamp("created_at")
-    .$defaultFn(() => /* @__PURE__ */ new Date())
-    .notNull(),
-  updatedAt: timestamp("updated_at")
-    .$defaultFn(() => /* @__PURE__ */ new Date())
-    .notNull(),
+  ...timestamps,
 });
 
 export const session = pgTable("session", {
-  id: text("id").primaryKey(),
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => createId()),
   expiresAt: timestamp("expires_at").notNull(),
   token: text("token").notNull().unique(),
   createdAt: timestamp("created_at").notNull(),
@@ -37,7 +40,9 @@ export const session = pgTable("session", {
 });
 
 export const account = pgTable("account", {
-  id: text("id").primaryKey(),
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => createId()),
   accountId: text("account_id").notNull(),
   providerId: text("provider_id").notNull(),
   userId: text("user_id")
@@ -50,25 +55,23 @@ export const account = pgTable("account", {
   refreshTokenExpiresAt: timestamp("refresh_token_expires_at"),
   scope: text("scope"),
   password: text("password"),
-  createdAt: timestamp("created_at").notNull(),
-  updatedAt: timestamp("updated_at").notNull(),
+  ...timestamps,
 });
 
 export const verification = pgTable("verification", {
-  id: text("id").primaryKey(),
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => createId()),
   identifier: text("identifier").notNull(),
   value: text("value").notNull(),
   expiresAt: timestamp("expires_at").notNull(),
-  createdAt: timestamp("created_at").$defaultFn(
-    () => /* @__PURE__ */ new Date()
-  ),
-  updatedAt: timestamp("updated_at").$defaultFn(
-    () => /* @__PURE__ */ new Date()
-  ),
+  ...timestamps,
 });
 
 export const deviceCode = pgTable("device_code", {
-  id: text("id").primaryKey(),
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => createId()),
   deviceCode: text("device_code").notNull(),
   userCode: text("user_code").notNull(),
   userId: text("user_id"),
@@ -78,17 +81,37 @@ export const deviceCode = pgTable("device_code", {
   pollingInterval: integer("polling_interval"),
   clientId: text("client_id"),
   scope: text("scope"),
-  createdAt: timestamp("created_at")
-    .$defaultFn(() => /* @__PURE__ */ new Date())
-    .notNull(),
-  updatedAt: timestamp("updated_at")
-    .$defaultFn(() => /* @__PURE__ */ new Date())
-    .notNull(),
+  ...timestamps,
 });
 
+export const conversation = pgTable("conversation", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => createId()),
+  userId: text("user_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  ...timestamps,
+});
+
+export const message = pgTable("message", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => createId()),
+  conversationId: text("conversation_id")
+    .notNull()
+    .references(() => conversation.id, { onDelete: "cascade" }),
+  shortTitle: text("short_title"),
+  userQuery: text("user_query").notNull(),
+  aiResponse: text("ai_response").notNull(),
+  ...timestamps,
+});
+
+// Relations
 export const userRelations = relations(user, ({ many }) => ({
   account: many(account),
   session: many(session),
+  conversation: many(conversation),
 }));
 
 export const accountRelations = relations(account, ({ one }) => ({
@@ -97,4 +120,15 @@ export const accountRelations = relations(account, ({ one }) => ({
 
 export const sessionRelations = relations(session, ({ one }) => ({
   user: one(user, { fields: [session.userId], references: [user.id] }),
+}));
+
+export const conversationRelations = relations(conversation, ({ many }) => ({
+  message: many(message),
+}));
+
+export const messageRelations = relations(message, ({ one }) => ({
+  conversation: one(conversation, {
+    fields: [message.conversationId],
+    references: [conversation.id],
+  }),
 }));

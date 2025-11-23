@@ -1,7 +1,7 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 
-import { deviceAuthorization } from "better-auth/plugins";
+import { bearer, deviceAuthorization } from "better-auth/plugins";
 
 import { env } from "@/env";
 import { db } from "@/server/db";
@@ -30,11 +30,17 @@ export const auth = betterAuth({
     },
   },
   plugins: [
+    bearer(),
     deviceAuthorization({
       expiresIn: "30m",
       interval: "5s",
     }),
   ],
+  advanced: {
+    database: {
+      generateId: false,
+    },
+  },
 });
 
 export type Session = typeof auth.$Infer.Session;
