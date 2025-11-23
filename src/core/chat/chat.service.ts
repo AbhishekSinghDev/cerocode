@@ -6,6 +6,7 @@ export class ChatService {
 
   async run(
     message: string,
+    authToken: string,
     onToken?: (token: string) => void
   ): Promise<string> {
     const apiUrl = this.configService.apiUrl;
@@ -15,6 +16,7 @@ export class ChatService {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
         },
         body: JSON.stringify({ message }),
       })

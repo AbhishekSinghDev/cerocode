@@ -11,8 +11,9 @@ export async function chatPrompt(
   message: string
 ): Promise<void> {
   const isAuthenticated = await authService.isAuthenticated();
+  const authToken = await authService.getTokens();
 
-  if (!isAuthenticated) {
+  if (!isAuthenticated || !authToken) {
     console.log(chalk.red("✖ Authentication required"));
     console.log(chalk.dim("Run 'cero login' to authenticate."));
     process.exit(1);
@@ -40,7 +41,7 @@ export async function chatPrompt(
   let isFirstToken = true;
 
   const { data: response, error } = await tryCatch(
-    chatService.run(message, (token) => {
+    chatService.run(message, authToken.access_token, (token) => {
       if (isFirstToken) {
         spinner.stopAndPersist({
           symbol: chalk.green("✔"),
@@ -65,5 +66,5 @@ export async function chatPrompt(
   }
 
   console.log(chalk.dim("\n\nChat session completed."));
-  process.exit(0);
+  process.exit(1);
 }
