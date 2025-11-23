@@ -2,15 +2,15 @@
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { INSTALL_COMMAND } from "@/lib/constant";
 import { IconCheck, IconCopy } from "@tabler/icons-react";
 import { useState } from "react";
 
 export function CTABanner() {
   const [copied, setCopied] = useState(false);
-  const installCommand = "npm install -g cero";
 
   const copyToClipboard = async () => {
-    await navigator.clipboard.writeText(installCommand);
+    await navigator.clipboard.writeText(INSTALL_COMMAND);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -50,7 +50,7 @@ export function CTABanner() {
               <div className="flex items-center justify-between gap-4">
                 <div className="flex-1 overflow-x-auto">
                   <code className="text-lg font-mono text-white md:text-2xl">
-                    <span className="text-pink-400">$</span> {installCommand}
+                    <span className="text-pink-400">$</span> {INSTALL_COMMAND}
                   </code>
                 </div>
                 <Button
