@@ -57,8 +57,11 @@ export function Navbar() {
       <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-6">
         {/* Logo */}
         <Link href="/" className="flex items-center space-x-2">
-          <Logo />
-          <span className="text-xl font-bold">CERO</span>
+          <Logo className="h-6 w-6 rounded-md" />
+          <span className="text-xl font-bold">
+            <span className="text-muted-foreground">cero</span>
+            <span className="text-[#FF6B6B]">code</span>
+          </span>
         </Link>
 
         {/* Desktop Navigation */}
