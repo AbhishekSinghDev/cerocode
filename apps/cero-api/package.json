@@ -1,0 +1,36 @@
+{
+  "name": "cero-api",
+  "version": "0.1.4",
+  "type": "module",
+  "scripts": {
+    "build": "next build",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio",
+    "dev": "next dev -p 3001 --turbo",
+    "start": "next start -p 3001",
+    "typecheck": "tsc --noEmit",
+    "clean": "git clean -xdf .cache .next .turbo node_modules"
+  },
+  "dependencies": {
+    "@ai-sdk/google": "catalog:",
+    "@auth/drizzle-adapter": "catalog:",
+    "@inngest/realtime": "catalog:",
+    "@neondatabase/serverless": "catalog:",
+    "@paralleldrive/cuid2": "catalog:",
+    "@t3-oss/env-nextjs": "catalog:",
+    "ai": "catalog:",
+    "better-auth": "catalog:",
+    "date-fns": "catalog:",
+    "drizzle-orm": "catalog:",
+    "inngest": "catalog:",
+    "next": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "drizzle-kit": "catalog:",
+    "typescript": "catalog:"
+  }
+}
