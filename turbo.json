@@ -15,12 +15,17 @@
       "persistent": false
     },
     "format": {
-      "outputs": [".cache/.prettiercache"],
+      "outputs": [".cache/.biomecache"],
+      "outputLogs": "new-only"
+    },
+    "check": {
+      "dependsOn": ["^topo"],
+      "outputs": [".cache/.biomecache"],
       "outputLogs": "new-only"
     },
     "lint": {
       "dependsOn": ["^topo", "^build"],
-      "outputs": [".cache/.eslintcache"]
+      "outputs": [".cache/.biomecache"]
     },
     "typecheck": {
       "dependsOn": ["^topo", "^build"],

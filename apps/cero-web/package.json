@@ -4,7 +4,9 @@
   "private": true,
   "scripts": {
     "build": "next build",
-    "check": "eslint .",
+    "lint": "biome lint .",
+    "format": "biome format --write .",
+    "check": "biome check --write .",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
@@ -72,8 +74,7 @@
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
-    "eslint": "^9",
-    "eslint-config-next": "16.0.3",
+    "@biomejs/biome": "catalog:",
     "tailwindcss": "catalog:",
     "typescript": "catalog:"
   }

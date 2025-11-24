@@ -13,7 +13,10 @@
     "build:watch": "tsup src/index.ts --format esm --watch",
     "start": "NODE_ENV=production node dist/index.js",
     "clean": "rm -rf dist node_modules",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "lint": "biome lint .",
+    "format": "biome format --write .",
+    "check": "biome check --write ."
   },
   "keywords": [
     "cli",
@@ -35,7 +38,8 @@
     "@types/node": "catalog:",
     "tsup": "catalog:",
     "tsx": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "@biomejs/biome": "catalog:"
   },
   "dependencies": {
     "better-auth": "catalog:",

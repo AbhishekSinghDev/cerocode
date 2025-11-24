@@ -1,0 +1,13 @@
+{
+  "extends": ["../../biome.json"],
+  "files": {
+    "includes": ["**/*.ts", "**/*.js"]
+  },
+  "linter": {
+    "rules": {
+      "suspicious": {
+        "noConsole": "off"
+      }
+    }
+  }
+}

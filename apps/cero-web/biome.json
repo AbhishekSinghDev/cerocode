@@ -1,0 +1,17 @@
+{
+  "extends": ["../../biome.json"],
+  "files": {
+    "includes": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx"]
+  },
+  "linter": {
+    "rules": {
+      "suspicious": {
+        "noConsole": "off"
+      },
+      "a11y": {
+        "useFocusableInteractive": "off",
+        "useSemanticElements": "off"
+      }
+    }
+  }
+}

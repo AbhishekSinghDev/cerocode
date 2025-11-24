@@ -5,22 +5,31 @@
     "dev": "turbo run dev",
     "dev:inngest": "npx inngest-cli@latest dev --no-discovery -u http://localhost:3001/api/inngest",
     "lint": "turbo run lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "format": "turbo run format",
+    "check": "turbo run check",
     "check-types": "turbo run check-types",
     "clean": "git clean -xdf node_modules",
     "clean:workspaces": "turbo run clean"
   },
   "packageManager": "pnpm@10.23.0",
   "engines": {
-    "node": ">=18"
+    "node": ">=22"
   },
   "pnpm": {
     "overrides": {
       "@types/react": "19.2.6",
       "@types/react-dom": "19.2.3"
-    }
+    },
+    "onlyBuiltDependencies": [
+      "@biomejs/biome",
+      "esbuild",
+      "protobufjs",
+      "sharp",
+      "unrs-resolver"
+    ]
   },
   "devDependencies": {
+    "@biomejs/biome": "catalog:",
     "turbo": "^2.6.1"
   }
 }
