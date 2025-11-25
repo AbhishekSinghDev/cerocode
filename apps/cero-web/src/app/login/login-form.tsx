@@ -5,7 +5,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useTransition } from "react";
 import Logo from "@/components/shared/logo";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { authClient } from "@/lib/auth-client";
 
 const LoginForm = () => {
@@ -39,32 +38,30 @@ const LoginForm = () => {
   if (sessionPending) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <IconLoader2 className="animate-spin h-10 w-10 text-muted-foreground" />
+        <IconLoader2 className="animate-spin h-8 w-8 text-[#00ff41]" />
       </div>
     );
   }
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-gradient-to-b from-background to-muted/20 px-4">
-      {/* Decorative gradient orbs */}
-      <div className="pointer-events-none absolute left-1/4 top-0 -z-10 h-96 w-96 rounded-full bg-[#FF6B6B]/20 blur-3xl" />
-      <div className="pointer-events-none absolute right-1/4 bottom-0 -z-10 h-96 w-96 rounded-full bg-[#06B6D4]/20 blur-3xl" />
+    <div className="relative flex min-h-screen flex-col items-center justify-center px-4">
+      {/* Grid background */}
+      <div className="absolute inset-0 grid-lines" />
 
-      <Card className="w-full max-w-md border-2 border-border/50 bg-card/50 p-8 backdrop-blur">
-        <div className="space-y-6">
+      <div className="relative z-10 w-full max-w-sm">
+        {/* Card */}
+        <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-8 backdrop-blur-sm">
           {/* Header */}
-          <div className="space-y-2 text-center">
-            <div className="flex justify-center mb-4">
-              <Logo className="h-12 w-12" showText={false} />
+          <div className="mb-8 text-center">
+            <div className="mb-6 flex justify-center">
+              <Logo showText={false} size="lg" />
             </div>
-            <h1 className="text-3xl font-bold tracking-tight text-foreground">
+            <h1 className="mb-2 text-2xl font-bold tracking-tight text-foreground">
               Welcome to <span className="text-muted-foreground">cero</span>
-              <span className="text-[#FF6B6B]">code</span>
+              <span className="text-[#00ff41]">code</span>
             </h1>
-            <p className="text-muted-foreground">
-              {redirectUrl
-                ? "Sign in to authorize your device"
-                : "Sign in to continue your journey"}
+            <p className="text-sm text-muted-foreground">
+              {redirectUrl ? "Sign in to authorize your device" : "Sign in to continue"}
             </p>
           </div>
 
@@ -72,27 +69,28 @@ const LoginForm = () => {
           <Button
             onClick={handleGitHubSignIn}
             size="lg"
-            className="w-full bg-[#FF6B6B] cursor-pointer text-base hover:bg-[#FF6B6B]/90"
+            className="w-full cursor-pointer bg-[#00ff41] font-medium text-black hover:bg-[#00ff41]/90"
             disabled={isPending}
           >
             {isPending ? (
               <>
-                <IconLoader2 className="animate-spin mr-2 h-5 w-5" />
+                <IconLoader2 className="mr-2 h-5 w-5 animate-spin" />
                 Authenticating...
               </>
             ) : (
               <>
-                <IconBrandGithub className="mr-2 h-5 w-5" /> Continue with GitHub
+                <IconBrandGithub className="mr-2 h-5 w-5" />
+                Continue with GitHub
               </>
             )}
           </Button>
 
           {/* Footer Text */}
-          <p className="text-center text-sm text-muted-foreground">
+          <p className="mt-6 text-center text-xs text-muted-foreground">
             By continuing, you agree to our Terms of Service and Privacy Policy
           </p>
         </div>
-      </Card>
+      </div>
     </div>
   );
 };

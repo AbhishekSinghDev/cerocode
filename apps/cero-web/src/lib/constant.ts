@@ -1,6 +1,7 @@
 // My Details
 export const ME = {
   name: "Abhishek Singh",
+  email: "support@cerocode.dev",
   portfolioUrl: "https://abhisheksingh.me",
   githubUrl: "https://github.com/AbhishekSinghDev",
 };
@@ -8,7 +9,6 @@ export const ME = {
 // Navigation Links
 export const NAV_LINKS = [
   { href: "#features", label: "Features" },
-  { href: "#pricing", label: "Pricing" },
   { href: "/docs", label: "Docs" },
   {
     href: "https://github.com/AbhishekSinghDev/cerocode",
@@ -17,65 +17,162 @@ export const NAV_LINKS = [
   },
 ];
 
+// Brand/Theme
+export const BRAND = {
+  name: "cerocode",
+  tagline: "AI-powered terminal assistant",
+  colors: {
+    primary: "#00ff41",
+    cyan: "#00d4ff",
+    amber: "#ffb700",
+    purple: "#a855f7",
+  },
+};
+
+// Hero Section
+export const HERO = {
+  badge: "Open Source",
+  headline: "AI in your terminal.",
+  subheadline:
+    "Cero is a terminal-first AI assistant for developers. Chat with AI, get real-time streaming responses, and keep your conversation history synced across devices. All from the comfort of your command line.",
+  highlight: "No API keys required.",
+  platforms: ["macOS", "Windows", "Linux"],
+};
+
+export const INSTALL_COMMAND = "npm install -g cerocode";
+
 // Features Data
-export const FEATURES_TABS = [
+export const FEATURES = [
   {
     id: "chat",
-    title: "Direct LLM Conversations",
+    title: "AI Chat",
     description:
-      "Ask questions and get instant AI responses right in your terminal. Perfect for quick coding help, explanations, and debugging assistance.",
-    code: `$ cero chat "how do I reverse a string in Python?"
-
-✨ Here are three ways to reverse a string in Python:
-
-1. Using slicing (most Pythonic):
-   reversed_str = original_str[::-1]
-
-2. Using reversed() function:
-   reversed_str = ''.join(reversed(original_str))
-
-3. Using a loop:
-   reversed_str = ''
-   for char in original_str:
-       reversed_str = char + reversed_str`,
+      "Ask questions, get answers, debug code—all without leaving your terminal. Responses stream in real-time, just like ChatGPT.",
+    icon: "message-circle",
+    color: "#00ff41",
+    command: "cero chat",
+    status: "Live",
   },
   {
-    id: "agent",
-    title: "Internet Search & Code Execution",
+    id: "interactive-ui",
+    title: "Interactive Terminal UI",
     description:
-      "Enable agent mode to search the web for current information and execute code snippets. Get real-time data and validated solutions.",
-    code: `$ cero agent "what's the latest Next.js version?"
-
-🔍 Searching the web...
-📊 Found 3 sources
-
-Latest Next.js version: 14.0.4 (Released Nov 2023)
-
-Key features:
-• Turbopack improvements (5x faster)
-• Server Actions (stable)
-• Partial Prerendering (preview)
-
-Source: nextjs.org/blog/next-14`,
+      "Proper chat interface in your terminal with input box, sidebar, syntax highlighting, and markdown rendering. Think ChatGPT, but native.",
+    icon: "terminal",
+    color: "#00ff41",
+    command: "cero interactive",
+    status: "In Development",
   },
   {
-    id: "history",
-    title: "Session History & Search",
+    id: "agent-mode",
+    title: "Agent Mode",
     description:
-      "All conversations are automatically saved and searchable. Never lose important insights or code snippets from previous sessions.",
-    code: `$ cero history search "async"
+      "Context-aware AI that understands your codebase. Iterative problem solving, code exploration, and task automation.",
+    icon: "world",
+    color: "#ffb700",
+    command: null,
+    status: "Planned",
+  },
+  {
+    id: "offline-history",
+    title: "Offline-First History",
+    description:
+      "Browse chat history without internet. Search past conversations instantly. Sync across devices. Never lose code snippets.",
+    icon: "history",
+    color: "#00d4ff",
+    command: null,
+    status: "In Development",
+  },
+  {
+    id: "codebase-context",
+    title: "Codebase Context",
+    description:
+      "Full access to your project. Knows your directory, reads relevant files, understands structure. Specific answers, not generic.",
+    icon: "brain",
+    color: "#a855f7",
+    command: null,
+    status: "Planned",
+  },
+  {
+    id: "tool-integration",
+    title: "Tool Integration",
+    description:
+      "Context7 for docs, Brave Search API, URL inspection, Git integration, file operations, and custom tools.",
+    icon: "puzzle",
+    color: "#00d4ff",
+    command: null,
+    status: "Planned",
+  },
+  {
+    id: "multi-model",
+    title: "Multi-Model Support",
+    description:
+      "Choose between GPT-4, Claude, Gemini, and more. Use the best model for your task.",
+    icon: "stack",
+    color: "#00ff41",
+    command: null,
+    status: "Planned",
+  },
+  {
+    id: "crossplatform",
+    title: "Cross-Platform",
+    description:
+      "One codebase, three platforms, zero compromises. Works seamlessly on macOS, Windows, and Linux.",
+    icon: "devices",
+    color: "#00d4ff",
+    command: null,
+    status: "Live",
+  },
 
-Found 5 conversations:
+  {
+    id: "streaming",
+    title: "Real-time Streaming",
+    description:
+      "Responses stream token-by-token as they're generated. No waiting for the entire response—instant feedback.",
+    icon: "bolt",
+    color: "#ffb700",
+    command: null,
+    status: "Live",
+  },
+];
 
-[2 days ago] "explain async/await"
-[1 week ago] "async function error handling"
-[2 weeks ago] "Promise vs async/await"
-
-$ cero history show 1
-
-[Session from 2 days ago]
-You: explain async/await
-AI: Async/await is a way to write...`,
+// Upcoming Features
+export const UPCOMING_FEATURES = [
+  {
+    id: "agent-mode",
+    title: "Agent Mode",
+    description:
+      "Context-aware AI that understands your codebase. Iterative problem solving, code exploration, and task automation.",
+    icon: "world",
+    color: "#ffb700",
+    status: "Planned",
+  },
+  {
+    id: "codebase-context",
+    title: "Codebase Context",
+    description:
+      "Full access to your project. Knows your directory, reads relevant files, understands structure. Specific answers, not generic.",
+    icon: "brain",
+    color: "#a855f7",
+    status: "Planned",
+  },
+  {
+    id: "tool-integration",
+    title: "Tool Integration",
+    description:
+      "Context7 for docs, Brave Search API, URL inspection, Git integration, file operations, and custom tools.",
+    icon: "puzzle",
+    color: "#00d4ff",
+    status: "Planned",
+  },
+  {
+    id: "multi-model",
+    title: "Multi-Model Support",
+    description:
+      "Choose between GPT-4, Claude, Gemini, and more. Use the best model for your task.",
+    icon: "stack",
+    color: "#00ff41",
+    status: "Planned",
   },
 ];
 
@@ -83,258 +180,71 @@ AI: Async/await is a way to write...`,
 export const STEPS = [
   {
     number: "01",
-    title: "Install via npm",
-    description: "Get started in seconds with a simple npm install command",
-    command: "npm install -g cerocode",
-    color: "#FF6B6B",
+    title: "Install and authenticate",
+    description: "One npm install, one browser login. No config files needed.",
+    command: "npm install -g cerocode && cero login",
+    icon: "download",
+    color: "#00ff41",
   },
   {
     number: "02",
-    title: "Authenticate in browser",
-    description: "Secure device code flow - no API keys to manage",
-    command: "cero login",
-    color: "#06B6D4",
+    title: "Launch interactive mode",
+    description:
+      "Open the beautiful terminal UI with chat interface, history sidebar, and markdown support.",
+    command: "cero interactive",
+    icon: "terminal",
+    color: "#00d4ff",
   },
   {
     number: "03",
-    title: "Start chatting",
-    description: "Ask questions, get answers, and boost your productivity",
-    command: 'cero chat "help me code"',
-    color: "#374151",
-  },
-];
-
-// Code Examples
-export const CODE_EXAMPLES = [
-  {
-    id: "chat",
-    title: "Normal Chat",
-    description: "Quick answers to development questions",
-    code: `$ cero chat "what's the difference between let and const?"
-
-✨ Great question! Here's the key difference:
-
-const:
-- Cannot be reassigned after initialization
-- Must be initialized when declared
-- Block-scoped
-- Use for values that won't change
-
-let:
-- Can be reassigned
-- Can be declared without initialization
-- Block-scoped
-- Use for values that will change
-
-Example:
-const API_KEY = 'abc123';  // Can't reassign
-let counter = 0;           // Can reassign
-counter = 1;               // ✅ Works
-API_KEY = 'new';           // ❌ Error!`,
-  },
-  {
-    id: "search",
-    title: "Web Search",
-    description: "Get current information from the internet",
-    code: `$ cero agent "latest tailwind css version and new features"
-
-🔍 Searching the web...
-📊 Found 5 sources
-
-Latest Version: Tailwind CSS v3.4.1 (January 2024)
-
-New Features:
-✨ Dynamic breakpoints
-✨ Extended color palette
-✨ Improved typography plugin
-✨ Container queries support
-✨ New arbitrary variants
-
-Popular Changes:
-- Simplified configuration
-- Better IntelliSense support
-- Reduced bundle size (~10% smaller)
-
-Sources:
-• tailwindcss.com/blog
-• github.com/tailwindlabs
-• Official documentation`,
-  },
-  {
-    id: "execute",
-    title: "Code Execution",
-    description: "Run and test code snippets instantly",
-    code: `$ cero agent "write and test a fibonacci function in python"
-
-🤖 Agent Mode: Creating and testing...
-
-def fibonacci(n):
-    if n <= 1:
-        return n
-    return fibonacci(n-1) + fibonacci(n-2)
-
-▶️ Running tests...
-
-Test 1: fibonacci(5) = 5 ✅
-Test 2: fibonacci(10) = 55 ✅
-Test 3: fibonacci(0) = 0 ✅
-
-💡 Note: This recursive solution works but is O(2^n).
-For better performance, consider using memoization
-or an iterative approach!`,
-  },
-];
-
-// Testimonials
-export const TESTIMONIALS = [
-  {
-    name: "Sarah Chen",
-    role: "Senior Frontend Developer",
-    company: "TechCorp",
-    avatar: "SC",
-    quote:
-      "Finally, a CLI tool that actually understands what I'm asking. The agent mode with web search has saved me hours of documentation diving.",
-    rating: 5,
-  },
-  {
-    name: "Marcus Rodriguez",
-    role: "Full Stack Engineer",
-    company: "StartupXYZ",
-    avatar: "MR",
-    quote:
-      "I've tried every AI coding assistant out there. Cero's simplicity and terminal integration make it my go-to for quick questions and code snippets.",
-    rating: 5,
-  },
-  {
-    name: "Emily Watson",
-    role: "DevOps Engineer",
-    company: "CloudScale",
-    avatar: "EW",
-    quote:
-      "The session history feature is a game-changer. I can revisit past solutions and build a personal knowledge base right in my terminal.",
-    rating: 5,
-  },
-  {
-    name: "Alex Kumar",
-    role: "Backend Developer",
-    company: "DataFlow Inc",
-    avatar: "AK",
-    quote:
-      "No API keys to manage, no complex setup. Just install and start coding smarter. This is how developer tools should work.",
-    rating: 5,
-  },
-];
-
-// Pricing Plans
-export const PRICING_PLANS = [
-  {
-    name: "Free",
-    price: "$0",
-    period: "forever",
-    description: "Perfect for getting started and personal projects",
-    badge: null,
-    features: [
-      "50 messages per day",
-      "Access to GPT-3.5",
-      "Basic chat mode",
-      "Session history (7 days)",
-      "Community support",
-      "All core features",
-    ],
-    cta: "Get Started",
-    highlighted: false,
-  },
-  {
-    name: "Pro",
-    price: "$9",
-    period: "per month",
-    description: "For professional developers who need more power",
-    badge: "Most Popular",
-    features: [
-      "Unlimited messages",
-      "Access to GPT-4 & Claude",
-      "Agent mode with web search",
-      "Unlimited session history",
-      "Priority support",
-      "Code execution",
-      "Advanced search",
-      "Early access to new features",
-    ],
-    cta: "Start Free Trial",
-    highlighted: true,
-  },
-  {
-    name: "Enterprise",
-    price: "Custom",
-    period: "contact us",
-    description: "For teams and organizations with specific needs",
-    badge: null,
-    features: [
-      "Everything in Pro",
-      "Custom model deployment",
-      "On-premise hosting",
-      "SSO & advanced security",
-      "Dedicated support",
-      "SLA guarantee",
-      "Custom integrations",
-      "Team analytics",
-    ],
-    cta: "Contact Sales",
-    highlighted: false,
+    title: "Chat and build smarter",
+    description:
+      "Ask questions, debug code, get real-time streaming responses. All in your terminal.",
+    command: "Ask anything, get instant answers",
+    icon: "message-circle",
+    color: "#ffb700",
   },
 ];
 
 // FAQ Data
 export const FAQ_DATA = [
   {
-    question: "How do I install cero?",
+    question: "Do I need API keys?",
     answer:
-      "Installing cero is simple! Just run 'npm install -g cerocode' in your terminal. Make sure you have Node.js 16+ installed. After installation, run 'cero login' to authenticate, and you're ready to start chatting with AI.",
+      "No. Cero handles all AI infrastructure. Just authenticate once with GitHub and you're ready to go. No API keys to manage.",
   },
   {
-    question: "Do I need my own API keys?",
+    question: "What AI models are available?",
     answer:
-      "No! That's one of the best features of cero. We handle all the API keys and infrastructure for you. Just install, authenticate once with your account, and start using it immediately. No need to sign up for OpenAI, Anthropic, or manage any API keys yourself.",
+      "Currently using Google's Generative AI. Multi-model support (GPT-4, Claude, Gemini) is coming soon.",
   },
   {
-    question: "What models are supported?",
+    question: "Is my data secure?",
     answer:
-      "Free users get access to GPT-3.5 Turbo. Pro users can choose from GPT-4, GPT-4 Turbo, Claude 3 (Haiku, Sonnet, and Opus), and other popular models. Enterprise customers can request custom model deployments or use their own model endpoints.",
+      "Yes. Credentials are stored in your OS's native credential manager (Keychain on macOS, Credential Manager on Windows, libsecret on Linux). We never store passwords or API keys in plain text.",
   },
   {
-    question: "Is my data stored anywhere?",
+    question: "Does it work offline?",
     answer:
-      "We take privacy seriously. Your conversations are stored locally on your machine by default. Session history is encrypted and stored in a local database. For Pro users who enable cloud sync, data is encrypted in transit and at rest. We never use your data to train models, and you can delete all history at any time.",
+      "Cero requires an internet connection to communicate with AI models. Offline-first conversation history is coming soon.",
   },
   {
-    question: "Can I use this in CI/CD?",
-    answer:
-      "Yes! Cero can be used in automated workflows. You can authenticate using environment variables (CERO_API_KEY) and run commands in non-interactive mode. This is great for generating documentation, code reviews, or automated testing. Check our docs for CI/CD examples.",
+    question: "Can I use it in CI/CD pipelines?",
+    answer: "Not yet, but non-interactive mode for automation is on our roadmap.",
   },
   {
-    question: "How does authentication work?",
+    question: "What's coming next?",
     answer:
-      "We use a secure device code flow, similar to GitHub CLI. Run 'cero login', and you'll get a code to enter in your browser. This creates a secure session token stored locally. No passwords are stored on your machine, and you can revoke access anytime from your account dashboard.",
-  },
-  {
-    question: "What's the difference between chat and agent mode?",
-    answer:
-      "Chat mode is for direct LLM conversations - fast, straightforward Q&A. Agent mode (Pro feature) is more powerful: it can search the web for current information, execute code snippets, and perform multi-step reasoning. Use chat for quick questions, agent mode for complex tasks requiring external data.",
-  },
-  {
-    question: "Can I cancel my Pro subscription anytime?",
-    answer:
-      "Absolutely! You can cancel your Pro subscription at any time from your account settings. You'll retain Pro features until the end of your billing period, then automatically switch to the Free tier. No hidden fees, no questions asked. We also offer a 14-day money-back guarantee.",
+      "We're actively building interactive terminal UI, offline history, agent mode with codebase context, and tool integrations. Check our GitHub for detailed roadmap.",
   },
 ];
 
-// Footer Sections
-export const FOOTER_SECTIONS = [
+// Footer Links
+export const FOOTER_LINKS = [
   {
     title: "Product",
     links: [
       { label: "Features", href: "#features" },
-      { label: "Pricing", href: "#pricing" },
       { label: "Documentation", href: "/docs" },
       { label: "Changelog", href: "/changelog" },
     ],
@@ -342,27 +252,18 @@ export const FOOTER_SECTIONS = [
   {
     title: "Resources",
     links: [
-      { label: "Blog", href: "/blog" },
-      { label: "GitHub", href: "https://github.com/yourusername/cero" },
-      { label: "Community", href: "/community" },
-      { label: "Support", href: "/support" },
-    ],
-  },
-  {
-    title: "Company",
-    links: [
-      { label: "About", href: "/about" },
-      { label: "Contact", href: "/contact" },
-      { label: "Careers", href: "/careers" },
-      { label: "Brand", href: "/brand" },
+      {
+        label: "GitHub",
+        href: "https://github.com/AbhishekSinghDev/cerocode",
+        external: true,
+      },
     ],
   },
   {
     title: "Legal",
     links: [
-      { label: "Privacy Policy", href: "/privacy" },
-      { label: "Terms of Service", href: "/terms" },
-      { label: "Cookie Policy", href: "/cookies" },
+      { label: "Privacy", href: "/privacy" },
+      { label: "Terms", href: "/terms" },
       { label: "License", href: "/license" },
     ],
   },
@@ -372,32 +273,9 @@ export const FOOTER_SECTIONS = [
 export const SOCIAL_LINKS = [
   {
     name: "GitHub",
-    href: "https://github.com/yourusername/cero",
+    href: "https://github.com/AbhishekSinghDev/cerocode",
     icon: "brand-github",
   },
-  {
-    name: "Twitter",
-    href: "https://twitter.com/cerodev",
-    icon: "brand-twitter",
-  },
-  {
-    name: "Discord",
-    href: "https://discord.gg/cero",
-    icon: "brand-discord",
-  },
+  { name: "Twitter", href: "https://twitter.com/cerodev", icon: "brand-twitter" },
+  { name: "Discord", href: "https://discord.gg/cero", icon: "brand-discord" },
 ];
-
-// Brand Colors
-export const COLORS = {
-  primary: "#FF6B6B",
-  cyan: "#06B6D4",
-  darkGrey: "#111827",
-  mediumGrey: "#374151",
-};
-
-// Hero Section
-export const HERO_BADGE_TEXT = "Free • Open Source • No API Key Required";
-export const HERO_HEADLINE = "AI-Powered CLI for Developers";
-export const HERO_SUBHEADLINE =
-  "Chat with LLMs, search the web, and execute code—all from your terminal";
-export const INSTALL_COMMAND = "npm install -g cerocode";

@@ -1,6 +1,6 @@
 {
   "name": "cero-web",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "private": true,
   "scripts": {
     "build": "next build",
@@ -52,6 +52,7 @@
     "cmdk": "catalog:",
     "date-fns": "catalog:",
     "embla-carousel-react": "catalog:",
+    "framer-motion": "^12.23.24",
     "input-otp": "catalog:",
     "lucide-react": "catalog:",
     "next": "catalog:",
@@ -69,11 +70,11 @@
     "zod": "catalog:"
   },
   "devDependencies": {
+    "@biomejs/biome": "catalog:",
     "@tailwindcss/postcss": "catalog:",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
-    "@biomejs/biome": "catalog:",
     "tailwindcss": "catalog:",
     "typescript": "catalog:"
   }

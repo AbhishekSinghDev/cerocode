@@ -9,13 +9,6 @@ import Logo from "@/components/shared/logo";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
   Form,
   FormControl,
   FormDescription,
@@ -78,29 +71,28 @@ const DeviceAuthorizationForm = () => {
   }, [searchParams, form, onSubmit]);
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-gradient-to-b from-background to-muted/20 px-4">
-      {/* Decorative gradient orbs */}
-      <div className="pointer-events-none absolute left-1/4 top-0 -z-10 h-96 w-96 rounded-full bg-[#FF6B6B]/20 blur-3xl" />
-      <div className="pointer-events-none absolute right-1/4 bottom-0 -z-10 h-96 w-96 rounded-full bg-[#06B6D4]/20 blur-3xl" />
+    <div className="relative flex min-h-screen flex-col items-center justify-center px-4">
+      {/* Grid background */}
+      <div className="absolute inset-0 grid-lines" />
 
-      <Card className="w-full max-w-md border-2 border-border/50 bg-card/50 backdrop-blur">
-        <CardHeader className="text-center space-y-3">
-          <div className="flex justify-center">
-            <div className="flex items-center justify-center rounded-2xl bg-[#FF6B6B]/10 p-3">
-              <IconDeviceMobile className="h-8 w-8 text-[#FF6B6B]" />
+      <div className="relative z-10 w-full max-w-sm">
+        {/* Card */}
+        <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-8 backdrop-blur-sm">
+          {/* Header */}
+          <div className="mb-8 text-center">
+            <div className="mb-4 flex justify-center">
+              <div className="rounded-2xl bg-[#00ff41]/10 p-3">
+                <IconDeviceMobile className="h-8 w-8 text-[#00ff41]" />
+              </div>
             </div>
+            <h1 className="mb-2 text-xl font-bold">Device Authorization</h1>
+            <p className="text-sm text-muted-foreground">
+              Enter the code displayed on your device
+            </p>
           </div>
-          <div className="space-y-2">
-            <CardTitle className="text-2xl font-bold">Device Authorization</CardTitle>
-            <CardDescription className="text-base">
-              Enter the code displayed on your device to authorize it
-            </CardDescription>
-          </div>
-        </CardHeader>
 
-        <CardContent className="space-y-6">
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <FormField
                 control={form.control}
                 name="userCode"
@@ -112,14 +104,14 @@ const DeviceAuthorizationForm = () => {
                         {...field}
                         placeholder="ABCD-1234"
                         type="text"
-                        className="text-center text-lg tracking-widest font-mono h-12"
+                        className="h-12 border-white/10 bg-white/[0.02] text-center font-mono text-lg tracking-widest focus:border-[#00ff41]/50"
                         disabled={form.formState.isSubmitting}
                         maxLength={9}
                         autoComplete="off"
                         autoFocus
                       />
                     </FormControl>
-                    <FormDescription>
+                    <FormDescription className="text-center">
                       Enter the 8-character code shown on your device
                     </FormDescription>
                     <FormMessage />
@@ -128,7 +120,7 @@ const DeviceAuthorizationForm = () => {
               />
 
               {form.formState.errors.root && (
-                <Alert variant="destructive">
+                <Alert variant="destructive" className="border-red-500/20 bg-red-500/10">
                   <IconAlertCircle className="h-4 w-4" />
                   <AlertDescription>{form.formState.errors.root.message}</AlertDescription>
                 </Alert>
@@ -137,12 +129,12 @@ const DeviceAuthorizationForm = () => {
               <Button
                 type="submit"
                 size="lg"
-                className="w-full bg-[#FF6B6B] hover:bg-[#FF6B6B]/90"
+                className="w-full bg-[#00ff41] font-medium text-black hover:bg-[#00ff41]/90"
                 disabled={form.formState.isSubmitting || !form.formState.isDirty}
               >
                 {form.formState.isSubmitting ? (
                   <>
-                    <IconLoader2 className="animate-spin mr-2 h-5 w-5" />
+                    <IconLoader2 className="mr-2 h-5 w-5 animate-spin" />
                     Verifying...
                   </>
                 ) : (
@@ -152,25 +144,16 @@ const DeviceAuthorizationForm = () => {
             </form>
           </Form>
 
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t" />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-card px-2 text-muted-foreground">Secure Authorization</span>
-            </div>
-          </div>
-
-          <div className="text-center space-y-2">
-            <p className="text-sm text-muted-foreground">
+          <div className="mt-8 text-center">
+            <p className="mb-4 text-xs text-muted-foreground">
               This code will expire in 30 minutes
             </p>
             <div className="flex justify-center">
-              <Logo className="h-5 w-5" />
+              <Logo size="sm" />
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 };

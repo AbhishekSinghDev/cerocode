@@ -1,15 +1,22 @@
 import "@/styles/globals.css";
 
 import type { Metadata } from "next";
-import { Space_Grotesk } from "next/font/google";
+import { JetBrains_Mono, Space_Grotesk } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 
 export const metadata: Metadata = {
-  title: "cero - AI-Powered CLI for Developers",
+  title: "cero - AI-Powered Terminal Assistant",
   description:
-    "Chat with LLMs, search the web, and execute code—all from your terminal. Free, open source, no API keys required.",
+    "AI in your terminal. Chat with LLMs, search the web, execute code—no API keys, no config hell. Free and open source.",
   icons: [{ rel: "icon", url: "/favicon.ico" }],
+  keywords: ["AI", "CLI", "terminal", "developer tools", "LLM", "open source"],
+  authors: [{ name: "Abhishek Singh", url: "https://abhisheksingh.me" }],
+  openGraph: {
+    title: "cero - AI-Powered Terminal Assistant",
+    description: "AI in your terminal. No API keys, no config hell.",
+    type: "website",
+  },
 };
 
 const spaceGrotesk = Space_Grotesk({
@@ -19,22 +26,29 @@ const spaceGrotesk = Space_Grotesk({
   display: "swap",
 });
 
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-jetbrains-mono",
+  display: "swap",
+});
+
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html
-      className={`${spaceGrotesk.className} scroll-smooth`}
+      className={`${spaceGrotesk.className} ${jetbrainsMono.variable} scroll-smooth dark`}
       lang="en"
       suppressHydrationWarning
     >
-      <body>
+      <body className="antialiased">
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"
-          enableSystem
+          forcedTheme="dark"
           disableTransitionOnChange
         >
           {children}
-          <Toaster richColors />
+          <Toaster richColors theme="dark" />
         </ThemeProvider>
       </body>
     </html>

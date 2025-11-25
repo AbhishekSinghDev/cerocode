@@ -1,108 +1,257 @@
 "use client";
 
-import { IconBook, IconDownload } from "@tabler/icons-react";
+import {
+  IconArrowRight,
+  IconBrandGithub,
+  IconCheck,
+  IconTerminal2,
+} from "@tabler/icons-react";
+import { AnimatePresence, motion } from "framer-motion";
+import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { HERO_BADGE_TEXT, HERO_HEADLINE, HERO_SUBHEADLINE } from "@/lib/constant";
-import { Card } from "../ui/card";
+import { HERO, INSTALL_COMMAND } from "@/lib/constant";
+
+// Device Flow Animation States
+type FlowState = "idle" | "typing" | "browser" | "connecting" | "success";
 
 export function Hero() {
-  const [displayedText, setDisplayedText] = useState("");
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const fullText = `$ cero chat "explain async/await"
+  const [flowState, setFlowState] = useState<FlowState>("idle");
+  const [terminalText, setTerminalText] = useState("");
+  const [copied, setCopied] = useState(false);
 
-✨ Async/await is a way to write asynchronous code that looks synchronous.
-It's built on top of Promises and makes async code easier to read.
-
-Here's a simple example:
-
-async function fetchUser() {
-  const response = await fetch('/api/user');
-  const data = await response.json();
-  return data;
-}
-
-The 'await' keyword pauses execution until the Promise resolves!`;
+  // Device flow animation sequence
+  const terminalCommand = "$ cero login";
 
   useEffect(() => {
-    if (currentIndex < fullText.length) {
-      const timeout = setTimeout(() => {
-        setDisplayedText((prev) => prev + fullText[currentIndex]);
-        setCurrentIndex((prev) => prev + 1);
-      }, 30);
+    const sequence = async () => {
+      await new Promise((r) => setTimeout(r, 1000));
+      setFlowState("typing");
 
-      return () => clearTimeout(timeout);
-    }
-  }, [currentIndex]);
+      for (let i = 0; i <= terminalCommand.length; i++) {
+        setTerminalText(terminalCommand.slice(0, i));
+        await new Promise((r) => setTimeout(r, 80));
+      }
+
+      await new Promise((r) => setTimeout(r, 500));
+      setFlowState("browser");
+
+      await new Promise((r) => setTimeout(r, 800));
+      setFlowState("connecting");
+
+      await new Promise((r) => setTimeout(r, 1000));
+      setFlowState("success");
+
+      await new Promise((r) => setTimeout(r, 3000));
+      setTerminalText("");
+      setFlowState("idle");
+    };
+
+    sequence();
+    const interval = setInterval(sequence, 10000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const copyCommand = async () => {
+    await navigator.clipboard.writeText(INSTALL_COMMAND);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   return (
-    <section className="relative overflow-hidden border-b bg-gradient-to-b from-background to-muted/20 px-4 py-20 md:py-32">
-      <div className="container mx-auto">
-        <div className="mx-auto max-w-5xl text-center">
-          {/* Badge */}
-          <Badge
-            variant="outline"
-            className="mb-6 border-[#FF6B6B]/50 bg-[#FF6B6B]/10 text-[#FF6B6B] hover:bg-[#FF6B6B]/20"
+    <section className="relative min-h-[90vh] border-line">
+      {/* Grid background */}
+      <div className="absolute inset-0 grid-lines" />
+
+      <div className="container mx-auto px-4 pt-28 pb-20">
+        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+          {/* Left Column - Content */}
+          <motion.div
+            className="space-y-6"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
           >
-            {HERO_BADGE_TEXT}
-          </Badge>
+            {/* Badge */}
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#00ff41]/10 border border-[#00ff41]/20 text-[#00ff41] text-sm font-medium">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#00ff41] animate-pulse" />
+              {HERO.badge}
+            </div>
 
-          {/* Headline */}
-          <h1 className="mb-6 text-4xl font-bold tracking-tight text-foreground sm:text-5xl md:text-6xl lg:text-7xl">
-            {HERO_HEADLINE} <span className="text-[#FF6B6B]">Developers</span>
-          </h1>
+            {/* Headline */}
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.1]">
+              <span className="text-foreground">AI coding agent</span>
+              <br />
+              <span className="text-[#00ff41]">for terminal.</span>
+            </h1>
 
-          {/* Subheadline */}
-          <p className="mb-12 text-lg text-muted-foreground sm:text-xl md:text-2xl">
-            {HERO_SUBHEADLINE}
-          </p>
+            {/* Subheadline */}
+            <p className="text-lg text-muted-foreground max-w-lg">
+              {HERO.subheadline}
+              <span className="text-[#00ff41]"> {HERO.highlight}</span>
+            </p>
 
-          {/* CTAs */}
-          <div className="mb-16 flex flex-col items-center justify-center gap-4 sm:flex-row">
-            <Button
-              size="lg"
-              className="bg-[#FF6B6B] text-base hover:bg-[#FF6B6B]/90 sm:text-lg"
-              asChild
+            {/* Install Command */}
+            <button
+              type="button"
+              onClick={copyCommand}
+              className="group flex items-center gap-3 px-4 py-3 rounded-lg bg-white/[0.02] border border-white/[0.06] hover:border-[#00ff41]/30 transition-all duration-300"
             >
-              <a href="#install">
-                Install Now
-                <IconDownload className="ml-2 h-5 w-5" />
-              </a>
-            </Button>
-            <Button size="lg" variant="outline" className="text-base sm:text-lg" asChild>
-              <a href="/docs">
-                <IconBook className="mr-2 h-5 w-5" />
-                View Documentation
-              </a>
-            </Button>
-          </div>
+              <IconTerminal2 className="w-4 h-4 text-[#00ff41]" />
+              <code className="font-mono text-sm text-[#00ff41]">{INSTALL_COMMAND}</code>
+              <span className="ml-auto px-2 py-0.5 rounded text-xs bg-white/5 text-muted-foreground group-hover:bg-[#00ff41]/10 group-hover:text-[#00ff41] transition-colors">
+                {copied ? "Copied!" : "Copy"}
+              </span>
+            </button>
 
-          {/* Code Snippet Showcase */}
-          <Card className="mx-auto py-0 max-w-3xl overflow-hidden border-2 border-border/50 bg-card/50 backdrop-blur">
-            <div className="border-b bg-muted/50 px-4 py-2">
-              <div className="flex items-center space-x-2">
-                <div className="h-3 w-3 rounded-full bg-red-500" />
-                <div className="h-3 w-3 rounded-full bg-yellow-500" />
-                <div className="h-3 w-3 rounded-full bg-green-500" />
-                <span className="ml-2 text-xs text-muted-foreground">terminal</span>
+            {/* CTA Buttons */}
+            <div className="flex flex-wrap gap-3 pt-2">
+              <Button
+                size="lg"
+                className="bg-[#00ff41] text-black font-medium hover:bg-[#00ff41]/90 transition-all duration-300"
+                asChild
+              >
+                <Link href="/docs">
+                  Get Started
+                  <IconArrowRight className="ml-2 w-4 h-4" />
+                </Link>
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                className="border-white/10 hover:border-white/20"
+                asChild
+              >
+                <Link
+                  href="https://github.com/AbhishekSinghDev/cerocode"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <IconBrandGithub className="mr-2 w-4 h-4" />
+                  GitHub
+                </Link>
+              </Button>
+            </div>
+
+            {/* Trust Indicators */}
+            <div className="flex items-center gap-4 pt-4 text-sm text-muted-foreground">
+              {HERO.platforms.map((platform) => (
+                <div key={platform} className="flex items-center gap-1.5">
+                  <span className="text-[#00ff41]">✓</span>
+                  <span>{platform}</span>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+
+          {/* Right Column - Terminal Animation */}
+          <motion.div
+            className="relative"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+          >
+            <div className="relative">
+              {/* Terminal Window */}
+              <div className="rounded-xl border border-white/[0.06] bg-black/60 backdrop-blur-sm overflow-hidden shadow-2xl">
+                <div className="flex items-center gap-2 px-4 py-3 border-b border-white/[0.06] bg-white/[0.02]">
+                  <div className="w-3 h-3 rounded-full bg-[#ff5f56]" />
+                  <div className="w-3 h-3 rounded-full bg-[#ffbd2e]" />
+                  <div className="w-3 h-3 rounded-full bg-[#27c93f]" />
+                  <span className="ml-2 text-xs text-muted-foreground font-mono">
+                    terminal
+                  </span>
+                </div>
+                <div className="p-5 font-mono text-sm min-h-[200px]">
+                  <div className="flex items-center">
+                    <span className="text-[#00ff41]">{terminalText || "$ "}</span>
+                    {flowState === "typing" && (
+                      <span className="ml-0.5 animate-pulse text-[#00ff41]">▊</span>
+                    )}
+                  </div>
+
+                  <AnimatePresence>
+                    {(flowState === "browser" ||
+                      flowState === "connecting" ||
+                      flowState === "success") && (
+                      <motion.div
+                        key="browser-message"
+                        initial={{ opacity: 0, y: 5 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="mt-4 text-muted-foreground"
+                      >
+                        <p className="text-[#00d4ff]">→ Opening browser...</p>
+                        <p className="text-muted-foreground/60 text-xs mt-1">
+                          Code: <span className="text-[#ffb700]">CERO-2847</span>
+                        </p>
+                      </motion.div>
+                    )}
+
+                    {flowState === "success" && (
+                      <motion.div
+                        key="success-message"
+                        initial={{ opacity: 0, y: 5 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.2 }}
+                        className="mt-4"
+                      >
+                        <div className="flex items-center gap-2 text-[#00ff41]">
+                          <IconCheck className="w-4 h-4" />
+                          <span>Authenticated!</span>
+                        </div>
+                        <p className="text-[#00ff41] mt-2">
+                          ${" "}
+                          <span className="text-muted-foreground">
+                            cero chat &quot;hello&quot;
+                          </span>
+                        </p>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
               </div>
+
+              {/* Browser popup */}
+              <AnimatePresence>
+                {(flowState === "browser" ||
+                  flowState === "connecting" ||
+                  flowState === "success") && (
+                  <motion.div
+                    initial={{ opacity: 0, x: 30, y: 10, scale: 0.95 }}
+                    animate={{ opacity: 1, x: 20, y: -10, scale: 1 }}
+                    exit={{ opacity: 0, x: 30, scale: 0.95 }}
+                    transition={{ duration: 0.3 }}
+                    className="absolute -top-4 -right-4 w-56 rounded-lg border border-white/[0.06] bg-black/80 backdrop-blur-sm overflow-hidden shadow-xl z-10"
+                  >
+                    <div className="flex items-center gap-1.5 px-3 py-2 border-b border-white/[0.06] bg-white/[0.02]">
+                      <div className="w-2 h-2 rounded-full bg-[#ff5f56]" />
+                      <div className="w-2 h-2 rounded-full bg-[#ffbd2e]" />
+                      <div className="w-2 h-2 rounded-full bg-[#27c93f]" />
+                      <span className="ml-1.5 text-[10px] text-muted-foreground truncate">
+                        cero.dev
+                      </span>
+                    </div>
+                    <div className="p-4 text-center">
+                      <p className="text-xs text-muted-foreground mb-2">Enter code:</p>
+                      <p className="font-mono text-lg text-[#ffb700] font-bold">CERO-2847</p>
+                      {flowState === "success" ? (
+                        <div className="mt-3 flex items-center justify-center gap-1.5 text-[#00ff41] text-xs">
+                          <IconCheck className="w-3 h-3" />
+                          Authorized
+                        </div>
+                      ) : (
+                        <div className="mt-3 py-1.5 rounded bg-[#00ff41] text-black text-xs font-medium">
+                          {flowState === "connecting" ? "Verifying..." : "Authorize"}
+                        </div>
+                      )}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
-            <div className="p-6">
-              <pre className="overflow-x-auto text-left">
-                <code className="text-sm font-mono leading-relaxed">
-                  {displayedText}
-                  <span className="animate-pulse">▊</span>
-                </code>
-              </pre>
-            </div>
-          </Card>
+          </motion.div>
         </div>
       </div>
-
-      {/* Decorative gradient orbs */}
-      <div className="pointer-events-none absolute left-1/4 top-0 -z-10 h-96 w-96 rounded-full bg-[#FF6B6B]/20 blur-3xl" />
-      <div className="pointer-events-none absolute right-1/4 top-1/2 -z-10 h-96 w-96 rounded-full bg-[#06B6D4]/20 blur-3xl" />
     </section>
   );
 }

@@ -1,73 +1,80 @@
 "use client";
 
 import {
-  type Icon,
   IconBrandDiscord,
   IconBrandGithub,
   IconBrandTwitter,
+  IconTerminal2,
 } from "@tabler/icons-react";
-import type { Route } from "next";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
-import { FOOTER_SECTIONS, ME, SOCIAL_LINKS } from "@/lib/constant";
+import { FOOTER_LINKS, ME } from "@/lib/constant";
 import Logo from "../shared/logo";
 
+const socialLinks = [
+  {
+    icon: IconBrandGithub,
+    href: "https://github.com/AbhishekSinghDev/cerocode",
+    label: "GitHub",
+  },
+  { icon: IconBrandTwitter, href: "https://twitter.com/cerodev", label: "Twitter" },
+  { icon: IconBrandDiscord, href: "https://discord.gg/cero", label: "Discord" },
+];
+
 export function Footer() {
-  const footerSections = FOOTER_SECTIONS;
-
-  // Map social links with tabler icons
-  const socialLinksWithIcons = SOCIAL_LINKS.map((link) => {
-    let icon: Icon | undefined;
-    if (link.name === "GitHub") icon = IconBrandGithub;
-    else if (link.name === "Twitter") icon = IconBrandTwitter;
-    else if (link.name === "Discord") icon = IconBrandDiscord;
-    return { ...link, icon };
-  });
-
   return (
-    <footer className="border-t bg-muted/30 px-4 py-12 md:py-16">
-      <div className="container mx-auto">
-        <div className="grid gap-8 lg:grid-cols-5">
+    <footer className="relative border-t border-white/[0.06]">
+      <div className="container mx-auto px-4 py-12">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           {/* Brand Column */}
-          <div className="lg:col-span-2">
-            <Link href="/" className="mb-4 flex items-center space-x-2">
+          <div className="col-span-2 md:col-span-1">
+            <Link href="/" className="inline-block mb-4">
               <Logo />
             </Link>
-            <p className="mb-6 max-w-xs text-sm text-muted-foreground">
-              AI-powered CLI tool for developers. Chat with LLMs, search the web, and execute
-              code—all from your terminal.
+            <p className="text-sm text-muted-foreground leading-relaxed mb-5 max-w-xs">
+              AI-powered terminal assistant for developers.
             </p>
 
-            {/* Newsletter */}
-            <div className="max-w-sm">
-              <h3 className="mb-2 text-sm font-semibold">Stay updated</h3>
-              <p className="mb-3 text-xs text-muted-foreground">
-                Get the latest updates and tips delivered to your inbox.
-              </p>
-              <div className="flex gap-2">
-                <Input type="email" placeholder="Enter your email" className="h-9 text-sm" />
-                <Button size="sm" className="bg-[#FF6B6B] hover:bg-[#FF6B6B]/90">
-                  Subscribe
-                </Button>
-              </div>
+            {/* Social Links */}
+            <div className="flex items-center gap-2">
+              {socialLinks.map((social) => (
+                <a
+                  key={social.label}
+                  href={social.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-8 h-8 rounded-lg bg-white/[0.02] border border-white/[0.06] flex items-center justify-center text-muted-foreground hover:text-[#00ff41] hover:border-[#00ff41]/20 transition-all duration-300"
+                  aria-label={social.label}
+                >
+                  <social.icon className="w-4 h-4" />
+                </a>
+              ))}
             </div>
           </div>
 
           {/* Links Columns */}
-          {footerSections.map((section, index) => (
-            <div key={index}>
-              <h3 className="mb-4 text-sm font-semibold">{section.title}</h3>
-              <ul className="space-y-3">
-                {section.links.map((link, linkIndex) => (
-                  <li key={linkIndex}>
-                    <Link
-                      href={link.href}
-                      className="text-sm text-muted-foreground transition-colors hover:text-foreground"
-                    >
-                      {link.label}
-                    </Link>
+          {FOOTER_LINKS.map((section) => (
+            <div key={section.title}>
+              <h3 className="text-sm font-medium text-foreground mb-4">{section.title}</h3>
+              <ul className="space-y-2.5">
+                {section.links.map((link) => (
+                  <li key={link.label}>
+                    {"external" in link && link.external ? (
+                      <a
+                        href={link.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-sm text-muted-foreground hover:text-[#00ff41] transition-colors"
+                      >
+                        {link.label}
+                      </a>
+                    ) : (
+                      <Link
+                        href={link.href}
+                        className="text-sm text-muted-foreground hover:text-[#00ff41] transition-colors"
+                      >
+                        {link.label}
+                      </Link>
+                    )}
                   </li>
                 ))}
               </ul>
@@ -75,40 +82,24 @@ export function Footer() {
           ))}
         </div>
 
-        <Separator className="my-8" />
-
         {/* Bottom Bar */}
-        <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
-          <p className="text-sm text-muted-foreground">
-            © {new Date().getFullYear()} cerocode. All rights reserved. • Built by{" "}
-            <Link
-              href={ME.portfolioUrl as Route}
+        <div className="mt-12 pt-6 border-t border-white/[0.06] flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <IconTerminal2 className="w-4 h-4 text-[#00ff41]" />
+            <span>Built by</span>
+            <a
+              href={ME.portfolioUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-sm underline transition-colors hover:text-foreground"
+              className="text-foreground hover:text-[#00ff41] transition-colors"
             >
               {ME.name}
-            </Link>
-          </p>
-
-          {/* Social Links */}
-          <div className="flex items-center gap-4">
-            {socialLinksWithIcons.map((social, index) => {
-              const IconComponent = social.icon;
-              return IconComponent ? (
-                <Link
-                  key={index}
-                  href={social.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-muted-foreground transition-colors hover:text-foreground"
-                >
-                  <IconComponent className="h-5 w-5" />
-                  <span className="sr-only">{social.name}</span>
-                </Link>
-              ) : null;
-            })}
+            </a>
           </div>
+
+          <p className="text-sm text-muted-foreground">
+            © {new Date().getFullYear()} cerocode
+          </p>
         </div>
       </div>
     </footer>

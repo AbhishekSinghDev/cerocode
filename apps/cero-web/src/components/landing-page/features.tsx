@@ -1,154 +1,141 @@
 "use client";
 
-import { IconDatabase, IconMessageCircle, IconWorld } from "@tabler/icons-react";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+  IconBolt,
+  IconBrain,
+  IconDevices,
+  IconHistory,
+  IconMessageCircle,
+  IconPuzzle,
+  IconShieldLock,
+  IconStack,
+  IconTerminal,
+  IconTerminal2,
+  IconWorld,
+} from "@tabler/icons-react";
+import { motion } from "framer-motion";
+import { FEATURES } from "@/lib/constant";
+
+const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
+  "message-circle": IconMessageCircle,
+  world: IconWorld,
+  bolt: IconBolt,
+  "shield-lock": IconShieldLock,
+  history: IconHistory,
+  devices: IconDevices,
+  terminal: IconTerminal,
+  brain: IconBrain,
+  puzzle: IconPuzzle,
+  stack: IconStack,
+};
 
 export function Features() {
   return (
-    <section id="features" className="border-b px-4 py-20 md:py-32">
-      <div className="container mx-auto">
-        <div className="mx-auto max-w-5xl">
-          {/* Section Header */}
-          <div className="mb-12 text-center">
-            <h2 className="mb-4 text-3xl font-bold tracking-tight text-foreground sm:text-4xl md:text-5xl">
-              Everything You Need in <span className="text-[#FF6B6B]">One Command</span>
-            </h2>
-            <p className="text-lg text-muted-foreground md:text-xl">
-              Powerful AI capabilities designed for developer workflows
-            </p>
+    <section id="features" className="relative py-24 border-line">
+      <div className="container mx-auto px-4">
+        {/* Section Header */}
+        <motion.div
+          className="max-w-2xl mb-16"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.5 }}
+        >
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#00ff41]/10 border border-[#00ff41]/20 text-[#00ff41] text-sm font-medium mb-6">
+            <IconBrain className="w-4 h-4" />
+            Features
           </div>
+          <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">
+            Everything you need.{" "}
+            <span className="text-[#00ff41]">Nothing you don&apos;t.</span>
+          </h2>
+          <p className="text-muted-foreground">
+            Powerful AI capabilities designed for developers who live in their terminal.
+          </p>
+        </motion.div>
 
-          {/* Features Tabs */}
-          <Tabs defaultValue="chat" className="w-full">
-            <TabsList className="grid w-full grid-cols-3 lg:w-2/3 lg:mx-auto mb-8">
-              <TabsTrigger value="chat" className="text-sm sm:text-base">
-                <IconMessageCircle className="mr-2 h-4 w-4" />
-                Chat Mode
-              </TabsTrigger>
-              <TabsTrigger value="agent" className="text-sm sm:text-base">
-                <IconWorld className="mr-2 h-4 w-4" />
-                Agent Mode
-              </TabsTrigger>
-              <TabsTrigger value="history" className="text-sm sm:text-base">
-                <IconDatabase className="mr-2 h-4 w-4" />
-                History
-              </TabsTrigger>
-            </TabsList>
+        {/* Features Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {FEATURES.map((feature, index) => {
+            const Icon = iconMap[feature.icon] || IconTerminal2;
+            const isUpcoming = feature.status !== "Live";
 
-            {/* Chat Mode */}
-            <TabsContent value="chat" className="mt-8">
-              <Card className="border-2 transition-shadow hover:shadow-lg">
-                <CardHeader>
-                  <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-[#FF6B6B]/10">
-                    <IconMessageCircle className="h-6 w-6 text-[#FF6B6B]" />
+            return (
+              <motion.div
+                key={feature.id}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ duration: 0.4, delay: index * 0.05 }}
+                className={`group relative p-6 rounded-xl bg-white/[0.02] border border-white/[0.06] hover:border-white/[0.12] hover:bg-white/[0.04] transition-all duration-300 ${isUpcoming ? "opacity-80" : ""}`}
+              >
+                {/* Status Badge */}
+                <div className="absolute top-4 right-4">
+                  <span
+                    className="px-2 py-0.5 rounded-full text-[10px] font-medium border"
+                    style={{
+                      backgroundColor: isUpcoming ? `${feature.color}10` : "#00ff4110",
+                      borderColor: isUpcoming ? `${feature.color}30` : "#00ff4130",
+                      color: isUpcoming ? feature.color : "#00ff41",
+                    }}
+                  >
+                    {feature.status}
+                  </span>
+                </div>
+
+                {/* Icon */}
+                <div
+                  className="w-10 h-10 rounded-lg flex items-center justify-center mb-4 transition-transform duration-300 group-hover:scale-110"
+                  style={{ backgroundColor: `${feature.color}15` }}
+                >
+                  <Icon className="w-5 h-5" style={{ color: feature.color }} />
+                </div>
+
+                {/* Content */}
+                <h3 className="text-lg font-semibold mb-2 text-foreground">{feature.title}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  {feature.description}
+                </p>
+
+                {/* Command (only for live features with commands) */}
+                {feature.command && (
+                  <div className="mt-4 pt-4 border-t border-white/[0.06]">
+                    <code
+                      className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md text-xs font-mono"
+                      style={{
+                        backgroundColor: `${feature.color}10`,
+                        color: feature.color,
+                      }}
+                    >
+                      <IconTerminal2 className="w-3 h-3" />
+                      {feature.command}
+                    </code>
                   </div>
-                  <CardTitle className="text-2xl">Direct LLM Conversations</CardTitle>
-                  <CardDescription className="text-base">
-                    Ask questions and get instant AI responses right in your terminal. Perfect
-                    for quick coding help, explanations, and debugging assistance.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="rounded-lg border bg-muted/50 p-4">
-                    <pre className="overflow-x-auto text-sm">
-                      <code>{`$ cero chat "how do I reverse a string in Python?"
-
-✨ Here are three ways to reverse a string in Python:
-
-1. Using slicing (most Pythonic):
-   reversed_str = original_str[::-1]
-
-2. Using reversed() function:
-   reversed_str = ''.join(reversed(original_str))
-
-3. Using a loop:
-   reversed_str = ''
-   for char in original_str:
-       reversed_str = char + reversed_str`}</code>
-                    </pre>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            {/* Agent Mode */}
-            <TabsContent value="agent" className="mt-8">
-              <Card className="border-2 transition-shadow hover:shadow-lg">
-                <CardHeader>
-                  <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-[#06B6D4]/10">
-                    <IconWorld className="h-6 w-6 text-[#06B6D4]" />
-                  </div>
-                  <CardTitle className="text-2xl">Internet Search & Code Execution</CardTitle>
-                  <CardDescription className="text-base">
-                    Enable agent mode to search the web for current information and execute
-                    code snippets. Get real-time data and validated solutions.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="rounded-lg border bg-muted/50 p-4">
-                    <pre className="overflow-x-auto text-sm">
-                      <code>{`$ cero agent "what's the latest Next.js version?"
-
-🔍 Searching the web...
-📊 Found 3 sources
-
-Latest Next.js version: 14.0.4 (Released Nov 2023)
-
-Key features:
-• Turbopack improvements (5x faster)
-• Server Actions (stable)
-• Partial Prerendering (preview)
-
-Source: nextjs.org/blog/next-14`}</code>
-                    </pre>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            {/* History */}
-            <TabsContent value="history" className="mt-8">
-              <Card className="border-2 transition-shadow hover:shadow-lg">
-                <CardHeader>
-                  <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-[#374151]/10">
-                    <IconDatabase className="h-6 w-6 text-[#374151]" />
-                  </div>
-                  <CardTitle className="text-2xl">Session History & Search</CardTitle>
-                  <CardDescription className="text-base">
-                    All conversations are automatically saved and searchable. Never lose
-                    important insights or code snippets from previous sessions.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="rounded-lg border bg-muted/50 p-4">
-                    <pre className="overflow-x-auto text-sm">
-                      <code>{`$ cero history search "async"
-
-Found 5 conversations:
-
-[2 days ago] "explain async/await"
-[1 week ago] "async function error handling"
-[2 weeks ago] "Promise vs async/await"
-
-$ cero history show 1
-
-[Session from 2 days ago]
-You: explain async/await
-AI: Async/await is a way to write...`}</code>
-                    </pre>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
+                )}
+              </motion.div>
+            );
+          })}
         </div>
+
+        {/* GitHub CTA */}
+        <motion.div
+          className="mt-16 text-center"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+        >
+          <p className="text-muted-foreground mb-4">Want to follow along or contribute?</p>
+          <a
+            href="https://github.com/AbhishekSinghDev/cerocode"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white/[0.02] border border-white/[0.06] hover:border-[#00ff41]/30 text-sm font-medium transition-all duration-300"
+          >
+            <IconTerminal2 className="w-4 h-4 text-[#00ff41]" />
+            Check out our GitHub
+          </a>
+        </motion.div>
       </div>
     </section>
   );
