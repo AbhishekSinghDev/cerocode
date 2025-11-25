@@ -1,5 +1,7 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
+import { HERO, INSTALL_COMMAND } from "@/lib/constant";
 import {
   IconArrowRight,
   IconBrandGithub,
@@ -9,8 +11,6 @@ import {
 import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { HERO, INSTALL_COMMAND } from "@/lib/constant";
 
 // Device Flow Animation States
 type FlowState = "idle" | "typing" | "browser" | "connecting" | "success";
@@ -151,7 +151,7 @@ export function Hero() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
           >
-            <div className="relative">
+            <div className="relative overflow-hidden">
               {/* Terminal Window */}
               <div className="rounded-xl border border-white/[0.06] bg-black/60 backdrop-blur-sm overflow-hidden shadow-2xl">
                 <div className="flex items-center gap-2 px-4 py-3 border-b border-white/[0.06] bg-white/[0.02]">
@@ -221,7 +221,7 @@ export function Hero() {
                     animate={{ opacity: 1, x: 20, y: -10, scale: 1 }}
                     exit={{ opacity: 0, x: 30, scale: 0.95 }}
                     transition={{ duration: 0.3 }}
-                    className="absolute -top-4 -right-4 w-56 rounded-lg border border-white/[0.06] bg-black/80 backdrop-blur-sm overflow-hidden shadow-xl z-10"
+                    className="absolute -top-4 -right-2 lg:-right-4 w-48 lg:w-56 rounded-lg border border-white/[0.06] bg-black/80 backdrop-blur-sm overflow-hidden shadow-xl z-10"
                   >
                     <div className="flex items-center gap-1.5 px-3 py-2 border-b border-white/[0.06] bg-white/[0.02]">
                       <div className="w-2 h-2 rounded-full bg-[#ff5f56]" />

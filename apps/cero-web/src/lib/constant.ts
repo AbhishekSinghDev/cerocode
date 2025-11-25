@@ -1,7 +1,7 @@
 // My Details
 export const ME = {
   name: "Abhishek Singh",
-  email: "support@cerocode.dev",
+  email: "abhisheksingh.pf@gmail.com",
   portfolioUrl: "https://abhisheksingh.me",
   githubUrl: "https://github.com/AbhishekSinghDev",
 };

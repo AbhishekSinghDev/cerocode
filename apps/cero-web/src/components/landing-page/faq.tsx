@@ -1,5 +1,3 @@
-"use client";
-
 import {
   Accordion,
   AccordionContent,
@@ -8,6 +6,7 @@ import {
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { FAQ_DATA, ME } from "@/lib/constant";
+import Link from "next/link";
 
 export function FAQ() {
   return (
@@ -26,7 +25,7 @@ export function FAQ() {
           <Accordion type="single" collapsible className="w-full">
             {FAQ_DATA.map((faq, index) => (
               <AccordionItem
-                key={index}
+                key={`faq-${index}`}
                 value={`item-${index}`}
                 className="border-white/[0.06]"
               >
@@ -44,7 +43,7 @@ export function FAQ() {
           <div className="mt-12 rounded-lg border border-dashed border-white/[0.1] p-6 text-center">
             <p className="mb-4 text-sm text-muted-foreground">Still have questions?</p>
             <Button variant="outline" size="sm" className="border-white/10" asChild>
-              <a href={`mailto:${ME.email}`}>Contact Support</a>
+              <Link href={`mailto:${ME.email}`}>Contact Support</Link>
             </Button>
           </div>
         </div>
