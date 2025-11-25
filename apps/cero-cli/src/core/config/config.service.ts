@@ -13,7 +13,7 @@ export class ConfigService {
   get apiUrl(): string {
     return process.env.NODE_ENV === "development"
       ? "http://localhost:3001"
-      : "https://cero.abhisheksingh.me";
+      : "https://cero-api.abhisheksingh.me";
   }
 
   get isDevelopment(): boolean {
