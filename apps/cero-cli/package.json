@@ -1,17 +1,20 @@
 {
     "name": "cerocode",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "description": "AI-powered CLI with chat and agent capabilities",
     "main": "./dist/index.js",
     "type": "module",
     "bin": {
         "cero": "dist/index.js"
     },
+    "engines": {
+        "bun": ">=1.0.0"
+    },
     "scripts": {
         "dev": "NODE_ENV=development bun src/index.ts",
-        "build": "NODE_ENV=production tsup src/index.ts --format esm --clean --minify",
-        "build:watch": "tsup src/index.ts --format esm --watch",
-        "start": "NODE_ENV=production node dist/index.js",
+        "build": "NODE_ENV=production tsup",
+        "build:watch": "tsup --watch",
+        "start": "NODE_ENV=production bun dist/index.js",
         "clean": "rm -rf dist node_modules",
         "type-check": "tsc --noEmit",
         "lint": "biome lint .",
