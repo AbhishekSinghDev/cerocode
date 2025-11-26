@@ -1,6 +1,6 @@
 {
     "name": "cerocode",
-    "version": "0.0.5",
+    "version": "0.1.0",
     "description": "AI-powered CLI with chat and agent capabilities",
     "main": "./dist/index.js",
     "type": "module",
@@ -8,7 +8,7 @@
         "cero": "dist/index.js"
     },
     "scripts": {
-        "dev": "NODE_ENV=development tsx src/index.ts",
+        "dev": "NODE_ENV=development bun src/index.ts",
         "build": "NODE_ENV=production tsup src/index.ts --format esm --clean --minify",
         "build:watch": "tsup src/index.ts --format esm --watch",
         "start": "NODE_ENV=production node dist/index.js",
@@ -42,6 +42,8 @@
         "@biomejs/biome": "^2.3.7"
     },
     "dependencies": {
+        "@opentui/core": "^0.1.50",
+        "@opentui/react": "^0.1.50",
         "better-auth": "^1.4.1",
         "boxen": "^8.0.1",
         "chalk": "^5.6.2",
@@ -49,6 +51,7 @@
         "cross-keychain": "^1.1.0",
         "figlet": "^1.9.4",
         "open": "^11.0.0",
-        "ora": "^9.0.0"
+        "ora": "^9.0.0",
+        "react": "^19.2.0"
     }
 }

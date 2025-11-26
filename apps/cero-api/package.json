@@ -1,6 +1,6 @@
 {
     "name": "cero-api",
-    "version": "0.1.7",
+    "version": "0.2.7",
     "type": "module",
     "scripts": {
         "build": "next build",

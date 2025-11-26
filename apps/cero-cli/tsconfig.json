@@ -2,17 +2,19 @@
   "compilerOptions": {
     "rootDir": "./src",
     "outDir": "./dist",
+    "lib": ["ESNext", "DOM"],
 
     "baseUrl": "./src",
     "paths": {
       "@core/*": ["core/*"],
       "@cli/*": ["cli/*"],
-      "@utils/*": ["utils/*"]
+      "@utils/*": ["utils/*"],
+      "@tui/*": ["tui/*"]
     },
 
-    "module": "esnext",
+    "module": "ESNext",
     "moduleResolution": "bundler",
-    "target": "es2024",
+    "target": "ESNext",
     "types": ["node"],
 
     // Other Outputs
@@ -27,6 +29,7 @@
     // Recommended Options
     "strict": true,
     "jsx": "react-jsx",
+    "jsxImportSource": "@opentui/react",
     "verbatimModuleSyntax": true,
     "isolatedModules": true,
     "noUncheckedSideEffectImports": true,

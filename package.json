@@ -1,29 +1,31 @@
 {
-  "name": "cerocode-monorepo",
-  "private": true,
-  "scripts": {
-    "build": "turbo run build",
-    "dev": "turbo run dev",
-    "dev:inngest": "npx inngest-cli@latest dev --no-discovery -u http://localhost:3001/api/inngest",
-    "lint": "turbo run lint",
-    "format": "turbo run format",
-    "check": "turbo run check",
-    "clean": "git clean -xdf node_modules",
-    "clean:workspaces": "turbo run clean"
-  },
-  "workspaces": {
-    "packages": ["apps/*"],
-    "catalog": {
-      "@types/react": "19.2.6",
-      "@types/react-dom": "19.2.3"
+    "name": "cerocode-monorepo",
+    "private": true,
+    "scripts": {
+        "build": "turbo run build",
+        "dev": "turbo run dev",
+        "dev:inngest": "bunx inngest-cli@latest dev --no-discovery -u http://localhost:3001/api/inngest",
+        "lint": "turbo run lint",
+        "format": "turbo run format",
+        "check": "turbo run check",
+        "clean": "git clean -xdf node_modules",
+        "clean:workspaces": "turbo run clean"
+    },
+    "workspaces": {
+        "packages": [
+            "apps/*"
+        ],
+        "catalog": {
+            "@types/react": "19.2.6",
+            "@types/react-dom": "19.2.3"
+        }
+    },
+    "packageManager": "bun@1.2.15",
+    "engines": {
+        "node": ">=22"
+    },
+    "devDependencies": {
+        "@biomejs/biome": "^2.3.7",
+        "turbo": "^2.6.1"
     }
-  },
-  "packageManager": "bun@1.2.15",
-  "engines": {
-    "node": ">=22"
-  },
-  "devDependencies": {
-    "@biomejs/biome": "^2.3.7",
-    "turbo": "^2.6.1"
-  }
 }
