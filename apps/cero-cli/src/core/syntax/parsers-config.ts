@@ -189,4 +189,49 @@ export const parsers: FiletypeParserOptions[] = [
       ],
     },
   },
+  {
+    filetype: "lua",
+    wasm: "https://github.com/tree-sitter-grammars/tree-sitter-lua/releases/download/v0.4.0/tree-sitter-lua.wasm",
+    queries: {
+      highlights: [
+        "https://raw.githubusercontent.com/nvim-treesitter/nvim-treesitter/refs/heads/master/queries/lua/highlights.scm",
+      ],
+    },
+  },
+  {
+    filetype: "xml",
+    wasm: "https://github.com/tree-sitter-grammars/tree-sitter-xml/releases/download/v0.7.0/tree-sitter-xml.wasm",
+    queries: {
+      highlights: [
+        "https://raw.githubusercontent.com/nvim-treesitter/nvim-treesitter/refs/heads/master/queries/xml/highlights.scm",
+      ],
+    },
+  },
+  {
+    filetype: "kotlin",
+    wasm: "https://github.com/fwcd/tree-sitter-kotlin/releases/download/0.3.8/tree-sitter-kotlin.wasm",
+    queries: {
+      highlights: [
+        "https://raw.githubusercontent.com/fwcd/tree-sitter-kotlin/main/queries/highlights.scm",
+      ],
+    },
+  },
+  {
+    filetype: "elixir",
+    wasm: "https://github.com/elixir-lang/tree-sitter-elixir/releases/download/v0.3.4/tree-sitter-elixir.wasm",
+    queries: {
+      highlights: [
+        "https://raw.githubusercontent.com/nvim-treesitter/nvim-treesitter/refs/heads/master/queries/elixir/highlights.scm",
+      ],
+    },
+  },
+  {
+    filetype: "erlang",
+    wasm: "https://github.com/the-mikedavis/tree-sitter-erlang/raw/ed75316844275cc1311a7b4c46590abae71900ac/tree-sitter-erlang.wasm",
+    queries: {
+      highlights: [
+        "https://raw.githubusercontent.com/nvim-treesitter/nvim-treesitter/refs/heads/master/queries/erlang/highlights.scm",
+      ],
+    },
+  },
 ];
