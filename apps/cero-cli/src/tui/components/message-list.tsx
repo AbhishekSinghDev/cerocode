@@ -1,7 +1,50 @@
 import { useChat } from "@tui/hooks/use-chat";
 import { useTheme } from "@tui/hooks/use-theme";
+import { useMemo } from "react";
 import type { ApiMessage, ThemeColors } from "types/tui.type";
+import { parseMarkdownBlocks, type ContentBlock } from "../helpers/markdown";
+import { createSyntaxStyle } from "../theme/syntax";
 import { CommandsDisplay } from "./commands";
+
+interface CodeBlockProps {
+  block: ContentBlock & { type: "code" };
+  colors: ThemeColors;
+  syntaxStyle: ReturnType<typeof createSyntaxStyle>;
+}
+
+function CodeBlock({ block, colors, syntaxStyle }: CodeBlockProps) {
+  return (
+    <box
+      style={{
+        marginTop: 1,
+        marginBottom: 1,
+        border: true,
+        borderStyle: "rounded",
+        borderColor: colors.border2,
+        backgroundColor: colors.bg3,
+      }}
+    >
+      {/* Language label */}
+      <box
+        style={{
+          paddingLeft: 1,
+          paddingRight: 1,
+          backgroundColor: colors.bg4,
+        }}
+      >
+        <text fg={colors.fg4}>{block.language || "code"}</text>
+      </box>
+      {/* Code content with syntax highlighting */}
+      {block.filetype ? (
+        <code content={block.content} filetype={block.filetype} syntaxStyle={syntaxStyle} />
+      ) : (
+        <box style={{ paddingLeft: 1, paddingRight: 1 }}>
+          <text fg={colors.fg2}>{block.content}</text>
+        </box>
+      )}
+    </box>
+  );
+}
 
 interface MessageBubbleProps {
   message: ApiMessage;
@@ -12,6 +55,12 @@ interface MessageBubbleProps {
 function MessageBubble({ message, isStreaming, colors }: MessageBubbleProps) {
   const isUser = message.role === "user";
   const isEmpty = !message.content || message.content.length === 0;
+
+  const syntaxStyle = useMemo(() => createSyntaxStyle(colors), [colors]);
+  const contentBlocks = useMemo(
+    () => (message.content && !isUser ? parseMarkdownBlocks(message.content) : []),
+    [message.content, isUser],
+  );
 
   return (
     <box
@@ -35,7 +84,20 @@ function MessageBubble({ message, isStreaming, colors }: MessageBubbleProps) {
           {isStreaming && <text fg={colors.secondary}> ● streaming</text>}
         </box>
         {/* Content */}
-        {!isEmpty && <text fg={colors.fg1}>{message.content}</text>}
+        {!isEmpty &&
+          (isUser ? (
+            <text fg={colors.fg1}>{message.content}</text>
+          ) : (
+            contentBlocks.map((block, idx) =>
+              block.type === "code" ? (
+                <CodeBlock key={idx} block={block} colors={colors} syntaxStyle={syntaxStyle} />
+              ) : (
+                <text key={idx} fg={colors.fg1}>
+                  {block.content}
+                </text>
+              ),
+            )
+          ))}
       </box>
     </box>
   );
