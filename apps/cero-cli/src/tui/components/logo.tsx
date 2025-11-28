@@ -1,4 +1,4 @@
-import { colors, theme } from "../theme";
+import { useTheme } from "@tui/hooks/use-theme";
 
 export const LOGO_LINES = [
   "┏━╸┏━╸┏━┓┏━┓┏━╸┏━┓╺┳┓┏━╸",
@@ -11,13 +11,14 @@ export const LOGO_MINI = ["CEROCODE"];
 export const LOGO_INLINE = "CEROCODE";
 
 export function Logo({ compact = false }: { compact?: boolean }) {
+  const { colors } = useTheme();
   if (compact) {
     return (
       <box style={{ height: 1 }}>
-        <text fg={theme.logo.text}>
+        <text fg={colors.fg1}>
           <strong>CERO</strong>
         </text>
-        <text fg={theme.logo.accent}>CODE</text>
+        <text fg={colors.primary}>CODE</text>
       </box>
     );
   }

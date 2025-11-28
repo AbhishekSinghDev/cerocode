@@ -1,20 +1,21 @@
+import { useTheme } from "@tui/hooks/use-theme";
 import { useUI } from "@tui/hooks/use-ui";
-import { theme } from "@tui/theme";
 
 export function InitializingScreen() {
   const { layout } = useUI();
+  const { colors } = useTheme();
 
   return (
     <box
       style={{
         width: layout.width,
         height: layout.height,
-        backgroundColor: theme.app.bg,
+        backgroundColor: colors.bg1,
         alignItems: "center",
         justifyContent: "center",
       }}
     >
-      <text fg={theme.status.loading}>◆ Initializing CEROCODE...</text>
+      <text fg={colors.primary}>◆ Initializing CEROCODE...</text>
     </box>
   );
 }

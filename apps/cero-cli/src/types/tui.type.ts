@@ -24,6 +24,21 @@ export interface LayoutDimensions {
   chatWidth: number;
 }
 
+export interface ThemeContextValue {
+  colors: ThemeColors;
+  currentThemeId: string;
+  currentThemeName: string;
+
+  themes: ThemeDefinition[];
+  themeCount: number;
+  currentThemeIndex: number;
+
+  showThemeIndicator: boolean;
+
+  nextTheme: () => void;
+  setThemeById: (id: string) => void;
+}
+
 export interface UIActions {
   toggleSidebar: () => void;
   toggleModelSelector: () => void;
@@ -145,7 +160,7 @@ export interface ConversationState {
   conversationsError: string | null;
 
   // Current chat
-  messages: Message[];
+  messages: ApiMessage[];
   currentConversationId: string | null;
   messagesLoading: boolean;
 
@@ -162,10 +177,43 @@ export interface ConversationActions {
   refreshConversations: () => Promise<void>;
 }
 
-export interface ConversationContextValue extends ConversationState, ConversationActions {
-  // Computed values
-  currentConversation: ChatSession | null;
-  chatTitle: string;
-  isNewChat: boolean;
-  isLoading: boolean;
+export interface ThemeColors {
+  // Primary brand colors
+  primary: string;
+  primaryMuted: string;
+  secondary: string;
+  secondaryMuted: string;
+  accent: string;
+  accentMuted: string;
+
+  // Semantic colors
+  success: string;
+  warning: string;
+  error: string;
+  info: string;
+
+  // Background colors (dark to light)
+  bg1: string; // Darkest - main background
+  bg2: string; // Slightly lighter - secondary areas
+  bg3: string; // Panels, inputs
+  bg4: string; // Elevated surfaces, cards
+  bg5: string; // Highest elevation
+
+  // Foreground/Text colors (light to dark)
+  fg1: string; // Brightest - primary text
+  fg2: string; // Secondary text
+  fg3: string; // Muted text
+  fg4: string; // Subtle/hint text
+  fg5: string; // Disabled/placeholder
+
+  // Border colors
+  border1: string; // Default border
+  border2: string; // Subtle border
+  border3: string; // Focused/highlighted border
+}
+
+export interface ThemeDefinition {
+  id: string;
+  name: string;
+  colors: ThemeColors;
 }

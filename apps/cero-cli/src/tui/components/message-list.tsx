@@ -1,14 +1,15 @@
 import { useChat } from "@tui/hooks/use-chat";
-import type { ApiMessage } from "types/tui.type";
-import { theme } from "../theme";
+import { useTheme } from "@tui/hooks/use-theme";
+import type { ApiMessage, ThemeColors } from "types/tui.type";
 import { CommandsDisplay } from "./commands";
 
 interface MessageBubbleProps {
   message: ApiMessage;
   isStreaming: boolean;
+  colors: ThemeColors;
 }
 
-function MessageBubble({ message, isStreaming }: MessageBubbleProps) {
+function MessageBubble({ message, isStreaming, colors }: MessageBubbleProps) {
   const isUser = message.role === "user";
   const isEmpty = !message.content || message.content.length === 0;
 
@@ -19,11 +20,7 @@ function MessageBubble({ message, isStreaming }: MessageBubbleProps) {
         marginRight: isUser ? 0 : 4,
         paddingLeft: 2,
         paddingRight: 2,
-        borderColor: isUser
-          ? theme.message.user.borderColor
-          : isStreaming
-            ? theme.message.assistant.borderColorStreaming
-            : theme.message.assistant.borderColor,
+        borderColor: isUser ? colors.primary : isStreaming ? colors.secondary : colors.border1,
         borderStyle: "rounded",
         border: true,
       }}
@@ -31,20 +28,24 @@ function MessageBubble({ message, isStreaming }: MessageBubbleProps) {
       <box style={{ flexDirection: "column" }}>
         {/* Header */}
         <box style={{ flexDirection: "row" }}>
-          <text fg={isUser ? theme.message.user.name : theme.message.assistant.name}>
+          <text fg={isUser ? colors.primary : colors.fg3}>
             <strong>{isUser ? "You" : "◆ Cero"}</strong>
           </text>
-          <text fg={theme.message.timestamp}> · {message.timestamp}</text>
-          {isStreaming && <text fg={theme.message.streaming}> ● streaming</text>}
+          <text fg={colors.fg5}> · {message.timestamp}</text>
+          {isStreaming && <text fg={colors.secondary}> ● streaming</text>}
         </box>
         {/* Content */}
-        {!isEmpty && <text fg={theme.message.content}>{message.content}</text>}
+        {!isEmpty && <text fg={colors.fg1}>{message.content}</text>}
       </box>
     </box>
   );
 }
 
-function LoadingIndicator() {
+interface LoadingIndicatorProps {
+  colors: ThemeColors;
+}
+
+function LoadingIndicator({ colors }: LoadingIndicatorProps) {
   return (
     <box
       style={{
@@ -53,20 +54,20 @@ function LoadingIndicator() {
         marginBottom: 1,
         paddingLeft: 1,
         paddingRight: 1,
-        backgroundColor: theme.loading.bg,
-        borderColor: theme.loading.borderColor,
+        backgroundColor: colors.bg4,
+        borderColor: colors.secondary,
         borderStyle: "rounded",
         border: true,
       }}
     >
       <box style={{ flexDirection: "column" }}>
         <box style={{ flexDirection: "row" }}>
-          <text fg={theme.loading.name}>
+          <text fg={colors.fg3}>
             <strong>◆ Cero</strong>
           </text>
-          <text fg={theme.loading.status}> ● thinking...</text>
+          <text fg={colors.secondary}> ● thinking...</text>
         </box>
-        <text fg={theme.loading.text}>Processing your request...</text>
+        <text fg={colors.fg4}>Processing your request...</text>
       </box>
     </box>
   );
@@ -74,6 +75,7 @@ function LoadingIndicator() {
 
 export function MessageList() {
   const { messages, chatTitle, isNewChat, isLoading, isStreaming } = useChat();
+  const { colors } = useTheme();
 
   const showCommands = isNewChat && messages.length === 0;
 
@@ -84,23 +86,22 @@ export function MessageList() {
         style={{
           paddingLeft: 1,
           paddingRight: 1,
-          backgroundColor: theme.chatArea.header.bg,
+          backgroundColor: colors.bg2,
           flexDirection: "row",
           alignItems: "center",
         }}
       >
-        <text fg={theme.chatArea.header.icon}>
+        <text fg={colors.primary}>
           <strong>◆</strong>
         </text>
-        <text fg={theme.chatArea.header.title}>
-          {" "}
-          <strong>{chatTitle}</strong>
+        <text fg={colors.fg1}>
+          <strong>{` ${chatTitle}`}</strong>
         </text>
-        <text fg={theme.chatArea.header.status}> [Connected]</text>
+        <text fg={colors.primary}> [Connected]</text>
       </box>
 
       {/* Divider */}
-      <box style={{ height: 1, backgroundColor: theme.chatArea.divider }} />
+      <box />
 
       {/* Messages or Commands */}
       {showCommands ? (
@@ -111,26 +112,33 @@ export function MessageList() {
           stickyStart="bottom"
           style={{
             flexGrow: 1,
-            rootOptions: { backgroundColor: theme.chatArea.bg },
-            wrapperOptions: { backgroundColor: theme.chatArea.bg },
-            viewportOptions: { backgroundColor: theme.chatArea.bg },
-            contentOptions: { backgroundColor: theme.chatArea.bg, paddingTop: 1 },
+            rootOptions: { backgroundColor: colors.bg1 },
+            wrapperOptions: { backgroundColor: colors.bg1 },
+            viewportOptions: { backgroundColor: colors.bg1 },
+            contentOptions: { backgroundColor: colors.bg1, paddingTop: 1 },
             scrollbarOptions: {
               showArrows: false,
               trackOptions: {
-                foregroundColor: theme.chatArea.scrollbar.thumb,
-                backgroundColor: theme.chatArea.scrollbar.track,
+                foregroundColor: colors.primaryMuted,
+                backgroundColor: colors.bg3,
               },
             },
           }}
         >
-          {messages.map((msg, idx) => {
+          {messages.map((msg: ApiMessage, idx: number) => {
             const isLastAssistant =
               msg.role === "assistant" && idx === messages.length - 1 && isStreaming;
 
-            return <MessageBubble key={msg.id} message={msg} isStreaming={isLastAssistant} />;
+            return (
+              <MessageBubble
+                key={msg.id}
+                message={msg}
+                isStreaming={isLastAssistant}
+                colors={colors}
+              />
+            );
           })}
-          {isLoading && <LoadingIndicator />}
+          {isLoading && <LoadingIndicator colors={colors} />}
         </scrollbox>
       )}
     </box>

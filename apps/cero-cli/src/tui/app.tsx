@@ -3,20 +3,23 @@ import { ChatArea } from "./components/chat-area";
 import { InitializingScreen } from "./components/initializing-screen";
 import { KeyboardHandler } from "./components/keyboard-handler";
 import { Sidebar } from "./components/sidebar";
+import { ThemeIndicator } from "./components/theme-indicator";
 import { UnauthorizedScreen } from "./components/unauthorized-screen";
 import { AuthProvider } from "./context/auth-context";
 import { ChatProvider } from "./context/chat-context";
 import { ConversationsProvider } from "./context/conversations-context";
+import { ThemeProvider } from "./context/theme-context";
 import { UIProvider } from "./context/ui-context";
 import { useAuth } from "./hooks/use-auth";
 import { useChat } from "./hooks/use-chat";
 import { useConversations } from "./hooks/use-conversations";
+import { useTheme } from "./hooks/use-theme";
 import { useUI } from "./hooks/use-ui";
-import { theme } from "./theme";
 
 function AppContent() {
   const { layout } = useUI();
   const { isLoading: authLoading, isAuthenticated } = useAuth();
+  const { colors, showThemeIndicator } = useTheme();
 
   if (authLoading) {
     return <InitializingScreen />;
@@ -31,13 +34,14 @@ function AppContent() {
       style={{
         width: layout.width,
         height: layout.height,
-        backgroundColor: theme.app.bg,
+        backgroundColor: colors.bg1,
         flexDirection: "row",
       }}
     >
       <KeyboardHandler />
       <Sidebar />
       <ChatArea />
+      <ThemeIndicator show={showThemeIndicator} />
     </box>
   );
 }
@@ -69,10 +73,12 @@ function AppWithProviders() {
 
 export function App() {
   return (
-    <AuthProvider>
-      <ConversationsProvider>
-        <AppWithProviders />
-      </ConversationsProvider>
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <ConversationsProvider>
+          <AppWithProviders />
+        </ConversationsProvider>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }

@@ -1,9 +1,9 @@
 import { formatRelativeTime } from "@tui/helpers/utils";
 import { useChat } from "@tui/hooks/use-chat";
 import { useConversations } from "@tui/hooks/use-conversations";
+import { useTheme } from "@tui/hooks/use-theme";
 import { useUI } from "@tui/hooks/use-ui";
 import type { Conversation } from "types/tui.type";
-import { colors, theme } from "../theme";
 
 // Helper to truncate text with ellipsis
 function truncateText(text: string, maxLength: number): string {
@@ -15,12 +15,13 @@ export function ChatList() {
   const { conversations, isLoading: conversationsLoading } = useConversations();
   const { activeConversationId } = useChat();
   const { sidebarCollapsed, focusedChatIndex, layout } = useUI();
+  const { colors } = useTheme();
 
   if (sidebarCollapsed) {
     if (conversationsLoading) {
       return (
         <box style={{ flexDirection: "column", flexGrow: 1, paddingLeft: 1 }}>
-          <text fg={theme.chatList.loading}>...</text>
+          <text fg={colors.fg4}>...</text>
         </box>
       );
     }
@@ -28,7 +29,7 @@ export function ChatList() {
     if (conversations.length === 0) {
       return (
         <box style={{ flexDirection: "column", flexGrow: 1, paddingLeft: 1 }}>
-          <text fg={theme.chatList.empty}>-</text>
+          <text fg={colors.fg5}>-</text>
         </box>
       );
     }
@@ -43,15 +44,13 @@ export function ChatList() {
               paddingRight: 1,
               backgroundColor:
                 activeConversationId === conv.id
-                  ? colors.surface.selectedAlt
+                  ? colors.bg4
                   : idx === focusedChatIndex
-                    ? colors.surface.hover
+                    ? colors.bg3
                     : "transparent",
             }}
           >
-            <text
-              fg={activeConversationId === conv.id ? colors.primary : theme.chatList.item.text}
-            >
+            <text fg={activeConversationId === conv.id ? colors.primary : colors.fg2}>
               {(conv.shortTitle || "N").charAt(0)}
             </text>
           </box>
@@ -63,7 +62,7 @@ export function ChatList() {
   if (conversationsLoading) {
     return (
       <box style={{ flexGrow: 1, paddingLeft: 1, paddingTop: 1 }}>
-        <text fg={theme.chatList.loading}>Loading conversations...</text>
+        <text fg={colors.fg4}>Loading conversations...</text>
       </box>
     );
   }
@@ -71,7 +70,7 @@ export function ChatList() {
   if (conversations.length === 0) {
     return (
       <box style={{ flexGrow: 1, paddingLeft: 1, paddingTop: 1 }}>
-        <text fg={theme.chatList.empty}>No conversations yet</text>
+        <text fg={colors.fg5}>No conversations yet</text>
       </box>
     );
   }
@@ -80,15 +79,15 @@ export function ChatList() {
     <scrollbox
       style={{
         flexGrow: 1,
-        rootOptions: { backgroundColor: theme.sidebar.bg },
-        wrapperOptions: { backgroundColor: theme.sidebar.bg },
-        viewportOptions: { backgroundColor: theme.sidebar.bg },
-        contentOptions: { backgroundColor: theme.sidebar.bg, gap: 1 },
+        rootOptions: { backgroundColor: colors.bg2 },
+        wrapperOptions: { backgroundColor: colors.bg2 },
+        viewportOptions: { backgroundColor: colors.bg2 },
+        contentOptions: { backgroundColor: colors.bg2, gap: 1 },
         scrollbarOptions: {
           showArrows: false,
           trackOptions: {
-            foregroundColor: theme.chatList.scrollbar.thumb,
-            backgroundColor: theme.chatList.scrollbar.track,
+            foregroundColor: colors.primaryMuted,
+            backgroundColor: colors.bg3,
           },
         },
       }}
@@ -105,18 +104,17 @@ export function ChatList() {
           <box
             key={conv.id}
             style={{
-              paddingLeft: 1,
               paddingRight: 1,
               height: 1,
               backgroundColor: isSelected
-                ? colors.surface.selected
+                ? colors.bg4
                 : isFocused
-                  ? colors.surface.focused
+                  ? colors.bg3
                   : "transparent",
               borderColor: isSelected
-                ? theme.chatList.item.borderSelected
+                ? colors.primary
                 : isFocused
-                  ? theme.chatList.item.borderFocused
+                  ? colors.secondary
                   : "transparent",
               borderStyle: "rounded",
               border: isSelected || isFocused,
@@ -124,23 +122,20 @@ export function ChatList() {
           >
             <box style={{ flexDirection: "row", width: "100%" }}>
               <text
-                fg={
-                  isSelected
-                    ? theme.chatList.item.indicator.selected
-                    : isFocused
-                      ? theme.chatList.item.indicator.focused
-                      : theme.chatList.item.indicator.default
-                }
+                fg={isSelected ? colors.primary : isFocused ? colors.secondary : colors.fg2}
               >
                 {isSelected ? "● " : isFocused ? "› " : "  "}
               </text>
-              <text
-                fg={isSelected ? theme.chatList.item.selectedText : theme.chatList.item.title}
-              >
-                {displayTitle}
-              </text>
+              <box style={{ flexDirection: "row", width: "100%" }}>
+                <text fg={isSelected ? colors.primary : colors.fg1}>
+                  {displayTitle.at(0)?.toUpperCase()}
+                </text>
+                <text fg={isSelected ? colors.primary : colors.fg1}>
+                  {displayTitle.slice(1)}
+                </text>
+              </box>
               <box style={{ flexGrow: 1 }} />
-              <text fg={theme.chatList.item.timestamp}>{relativeTime}</text>
+              <text fg={colors.fg5}>{relativeTime}</text>
             </box>
           </box>
         );

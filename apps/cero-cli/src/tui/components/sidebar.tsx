@@ -1,6 +1,6 @@
 import { useChat } from "@tui/hooks/use-chat";
+import { useTheme } from "@tui/hooks/use-theme";
 import { useUI } from "@tui/hooks/use-ui";
-import { colors, theme } from "../theme";
 import { ChatList } from "./chat-list";
 import { CommandsDisplay } from "./commands";
 import { Logo } from "./logo";
@@ -9,6 +9,7 @@ import { UserInfo } from "./user-info";
 export function Sidebar() {
   const { layout, sidebarCollapsed } = useUI();
   const { messages } = useChat();
+  const { colors } = useTheme();
 
   const showCommands = messages.length > 0;
 
@@ -18,20 +19,17 @@ export function Sidebar() {
         style={{
           width: 0,
           height: layout.height,
-          backgroundColor: theme.sidebar.bg,
+          backgroundColor: colors.bg2,
           flexDirection: "column",
-          borderStyle: "rounded",
-          borderColor: theme.sidebar.borderColor,
-          border: true,
         }}
       >
         <box style={{ paddingLeft: 1 }}>
           <text fg={colors.primary}>◆</text>
         </box>
-        <box style={{ height: 1, backgroundColor: theme.sidebar.dividerColor }} />
+        <box style={{ height: 1, backgroundColor: colors.border2 }} />
         <ChatList />
         <box style={{ flexGrow: 1 }} />
-        <box style={{ height: 1, backgroundColor: theme.sidebar.dividerColor }} />
+        <box style={{ height: 1, backgroundColor: colors.border2 }} />
         <UserInfo collapsed />
       </box>
     );
@@ -42,11 +40,8 @@ export function Sidebar() {
       style={{
         width: layout.sidebarWidth,
         height: layout.height,
-        backgroundColor: theme.sidebar.bg,
+        backgroundColor: colors.bg2,
         flexDirection: "column",
-        borderStyle: "rounded",
-        borderColor: theme.sidebar.borderColor,
-        border: true,
       }}
     >
       {/* Header with Logo */}
@@ -62,40 +57,40 @@ export function Sidebar() {
           marginTop: 1,
           marginBottom: 1,
           height: 3,
-          backgroundColor: theme.sidebar.newChatButton.bg,
+          backgroundColor: colors.primary,
           alignItems: "center",
           justifyContent: "center",
         }}
       >
-        <text fg={theme.sidebar.newChatButton.text}>
-          <strong>+ New Chat</strong>
+        <text fg={colors.bg1}>
+          <strong>New Chat (n)</strong>
         </text>
       </box>
 
       {/* Section Header */}
       <box style={{ paddingLeft: 1, paddingRight: 1, marginBottom: 1, flexDirection: "row" }}>
-        <text fg={theme.sidebar.sectionHeader.text}>HISTORY</text>
-        <text fg={theme.sidebar.sectionHeader.hint}> [↑↓]</text>
+        <text fg={colors.fg5}>HISTORY</text>
+        <text fg={colors.fg4}> [↑↓]</text>
       </box>
 
       {/* Chat List */}
       <ChatList />
 
       {/* Commands or User Info */}
-      <box style={{ height: 1, backgroundColor: theme.sidebar.dividerColor }} />
+      <box />
       {showCommands ? (
         <CommandsDisplay compact />
       ) : (
         <box style={{ paddingLeft: 1, flexDirection: "row", minHeight: 2 }}>
-          <text fg={theme.sidebar.sectionHeader.text}>[n]</text>
-          <text fg={theme.sidebar.sectionHeader.hint}> new </text>
-          <text fg={theme.sidebar.sectionHeader.text}>[b]</text>
-          <text fg={theme.sidebar.sectionHeader.hint}> sidebar</text>
+          <text fg={colors.fg5}>[n]</text>
+          <text fg={colors.fg4}> new </text>
+          <text fg={colors.fg5}>[b]</text>
+          <text fg={colors.fg4}> sidebar</text>
         </box>
       )}
 
       {/* User Info */}
-      <box style={{ height: 1, backgroundColor: theme.sidebar.dividerColor }} />
+      <box />
       <box style={{ minHeight: 3 }}>
         <UserInfo />
       </box>

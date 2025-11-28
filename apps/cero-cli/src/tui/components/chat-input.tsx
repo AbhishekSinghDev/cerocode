@@ -1,50 +1,37 @@
 import { useChat } from "@tui/hooks/use-chat";
+import { useTheme } from "@tui/hooks/use-theme";
 import { useUI } from "@tui/hooks/use-ui";
 import { AI_MODELS } from "../context/ui-context";
-import { theme } from "../theme";
 
 function ModelSelector() {
   const { selectedModel } = useUI();
+  const { colors } = useTheme();
 
   return (
     <box
       style={{
         flexDirection: "column",
-        backgroundColor: theme.modelSelector.bg,
+        backgroundColor: colors.bg2,
         border: true,
         borderStyle: "rounded",
-        borderColor: theme.modelSelector.borderColor,
+        borderColor: colors.border1,
         marginLeft: 1,
         marginRight: 1,
       }}
     >
       <box style={{ paddingLeft: 1 }}>
-        <text fg={theme.modelSelector.header}>Select Model (1-5):</text>
+        <text fg={colors.fg4}>Select Model (1-5):</text>
       </box>
       {AI_MODELS.map((model, idx) => {
         const isSelected = model.id === selectedModel;
         return (
           <box key={model.id} style={{ paddingLeft: 1, flexDirection: "row" }}>
-            <text fg={theme.modelSelector.number}>{idx + 1}. </text>
-            <text
-              fg={
-                isSelected
-                  ? theme.modelSelector.bullet.selected
-                  : theme.modelSelector.bullet.default
-              }
-            >
+            <text fg={colors.fg5}>{idx + 1}. </text>
+            <text fg={isSelected ? colors.primary : colors.fg3}>
               {isSelected ? "● " : "○ "}
             </text>
-            <text
-              fg={
-                isSelected
-                  ? theme.modelSelector.name.selected
-                  : theme.modelSelector.name.default
-              }
-            >
-              {model.name}
-            </text>
-            <text fg={theme.modelSelector.provider}> [{model.provider}]</text>
+            <text fg={isSelected ? colors.primary : colors.fg1}>{model.name}</text>
+            <text fg={colors.fg5}> [{model.provider}]</text>
           </box>
         );
       })}
@@ -55,6 +42,7 @@ function ModelSelector() {
 export function ChatInput() {
   const { selectedModel, modelSelectorOpen, inputFocused, isInputDisabled } = useUI();
   const { sendMessage } = useChat();
+  const { colors } = useTheme();
 
   const currentModel = AI_MODELS.find((m) => m.id === selectedModel) ?? AI_MODELS[0];
 
@@ -68,7 +56,7 @@ export function ChatInput() {
     <box
       style={{
         flexDirection: "column",
-        backgroundColor: theme.input.bg,
+        backgroundColor: colors.bg2,
       }}
     >
       {/* Model selector dropdown */}
@@ -76,14 +64,14 @@ export function ChatInput() {
 
       {/* Model info row */}
       <box style={{ paddingLeft: 1, paddingRight: 1, flexDirection: "row" }}>
-        <text fg={theme.input.model.icon}>⚡</text>
-        <text fg={theme.input.model.name}> {currentModel?.name}</text>
-        <text fg={theme.input.model.separator}> • </text>
-        <text fg={theme.input.model.hint}>[m] change model</text>
+        <text fg={colors.fg5}>⚡</text>
+        <text fg={colors.primary}> {currentModel?.name}</text>
+        <text fg={colors.border1}> • </text>
+        <text fg={colors.fg5}>[m] change model</text>
         {isInputDisabled && (
           <>
-            <text fg={theme.input.model.separator}> • </text>
-            <text fg={theme.input.model.generating}>⏳ Generating...</text>
+            <text fg={colors.border1}> • </text>
+            <text fg={colors.warning}>⏳ Generating...</text>
           </>
         )}
       </box>
@@ -98,11 +86,12 @@ export function ChatInput() {
           border: true,
           borderStyle: inputFocused && !isInputDisabled ? "double" : "single",
           borderColor: isInputDisabled
-            ? theme.input.borderColorDisabled
+            ? colors.border1
             : inputFocused
-              ? theme.input.borderColorFocused
-              : theme.input.borderColor,
-          backgroundColor: isInputDisabled ? theme.input.fieldBgDisabled : theme.input.fieldBg,
+              ? colors.border3
+              : colors.border1,
+          backgroundColor: isInputDisabled ? colors.bg1 : colors.bg3,
+          maxHeight: 10,
         }}
       >
         <input

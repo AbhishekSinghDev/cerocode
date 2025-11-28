@@ -90,6 +90,34 @@ This launches a beautiful terminal UI with:
 - **Sidebar** showing your conversation history
 - **Keyboard shortcuts** for efficient navigation
 - **User info** display
+- **20+ Themes** — Customize your terminal experience with themes like Matrix, Dracula, Nord, Tokyo Night, Catppuccin, and more
+
+#### Available Themes
+
+Choose from 20 carefully crafted themes to match your style:
+
+1. **Matrix** — Classic green-on-black hacker aesthetic
+2. **Dracula** — Popular dark theme with vibrant colors
+3. **Nord** — Arctic, north-bluish color palette
+4. **Monokai Pro** — Professional dark theme
+5. **Catppuccin** — Soothing pastel colors
+6. **Solarized Dark** — Precision colors for machines and people
+7. **Gruvbox** — Retro groove color scheme
+8. **Tokyo Night** — Modern Japanese-inspired theme
+9. **One Dark Pro** — Popular Atom editor theme
+10. **Cyberpunk** — Neon-fueled dystopian vibes
+11. **Ayu Dark** — Subtle and elegant theme
+12. **Palenight** — Material Design inspired
+13. **Synthwave** — 80s synthwave aesthetic
+14. **One Light** — Light theme alternative
+15. **GitHub Dark** — GitHub's native dark theme
+16. **Everforest** — Green-focused natural theme
+17. **Rosé Pine** — Warm aesthetic color palette
+18. **Tokyo Station** — Gruvbox-inspired with Japanese flair
+19. **Kanagawa** — Japanese-inspired with warm colors
+20. **Oxocarbon** — IBM Carbon design system colors
+
+Cycle through themes in interactive mode using keyboard shortcuts!
 
 ### Logging Out
 
@@ -140,6 +168,7 @@ Cero uses OAuth 2.0 Device Authorization Grant for authentication. Here's the fl
 - **Secure Auth** — OAuth 2.0 device flow, no API keys to manage
 - **Encrypted Storage** — Credentials stored in OS keychain
 - **Cross-Platform** — Works on macOS, Windows, and Linux
+- **20+ Themes** — Choose from a variety of beautiful themes to customize your terminal experience
 
 ### Coming Soon
 
@@ -189,77 +218,9 @@ bun dev <command>
 bun build
 ```
 
-## Architecture
-
-```
-src/
-├── index.ts                 # Entry point
-├── cli/
-│   ├── commands/            # Command definitions
-│   │   ├── auth.command.ts  # Login/logout commands
-│   │   ├── chat.command.ts  # Quick chat command
-│   │   └── tui.command.ts   # Interactive mode command
-│   └── prompts/             # Interactive CLI prompts
-│       ├── auth.prompts.ts  # Auth flow prompts
-│       └── chat.prompt.ts   # Chat prompts
-├── core/
-│   ├── auth/                # Authentication
-│   │   ├── auth.client.ts   # Better Auth client
-│   │   ├── auth.service.ts  # Auth business logic
-│   │   └── keychain.service.ts # Secure token storage
-│   ├── chat/
-│   │   └── chat.service.ts  # Chat API integration
-│   ├── cli/
-│   │   └── cli.service.ts   # CLI setup and command registration
-│   ├── config/
-│   │   ├── config.service.ts # Configuration management
-│   │   └── constants.ts     # App constants
-│   └── user/
-│       └── user.service.ts  # User info fetching
-├── tui/                     # Terminal User Interface
-│   ├── app.tsx              # Main TUI application
-│   ├── bootstrap.tsx        # TUI initialization
-│   ├── actions/             # TUI data fetching
-│   │   ├── conversations.ts # Conversation API calls
-│   │   └── user.ts          # User API calls
-│   ├── components/          # UI components
-│   │   ├── chat-area.tsx    # Main chat display
-│   │   ├── chat-input.tsx   # Message input
-│   │   ├── chat-list.tsx    # Message list
-│   │   ├── commands.tsx     # Command palette
-│   │   ├── initializing-screen.tsx
-│   │   ├── keyboard-handler.tsx
-│   │   ├── logo.tsx         # Cero logo
-│   │   ├── message-list.tsx # Message rendering
-│   │   ├── sidebar.tsx      # Conversation sidebar
-│   │   ├── unauthorized-screen.tsx
-│   │   └── user-info.tsx    # User display
-│   ├── context/             # React contexts
-│   │   ├── auth-context.tsx
-│   │   ├── chat-context.tsx
-│   │   ├── conversations-context.tsx
-│   │   └── ui-context.tsx
-│   ├── helpers/
-│   │   └── utils.ts         # TUI utilities
-│   ├── hooks/               # Custom React hooks
-│   │   ├── use-auth.ts
-│   │   ├── use-chat.ts
-│   │   ├── use-conversations.ts
-│   │   └── use-ui.ts
-│   └── theme/
-│       └── index.ts         # Terminal theme colors
-├── types/                   # TypeScript definitions
-│   ├── auth.types.ts        # Auth types
-│   ├── tui.type.ts          # TUI types
-│   ├── user.type.ts         # User types
-│   └── util.type.ts         # Utility types
-└── utils/
-    └── error-handler.util.ts # Error handling utilities
-```
-
 ## Tech Stack
 
-- **Runtime**: Node.js 18+
+- **Runtime**: Bun 1+
 - **Language**: TypeScript
 - **CLI Framework**: Commander.js
 - **TUI Framework**: OpenTUI (React-based terminal UI)

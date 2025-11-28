@@ -1,5 +1,5 @@
 import { useAuth } from "@tui/hooks/use-auth";
-import { colors, theme } from "../theme";
+import { useTheme } from "@tui/hooks/use-theme";
 
 interface UserInfoProps {
   collapsed?: boolean;
@@ -7,6 +7,7 @@ interface UserInfoProps {
 
 export function UserInfo({ collapsed }: UserInfoProps) {
   const { user, isLoading, isAuthenticated, error } = useAuth();
+  const { colors } = useTheme();
 
   if (collapsed) {
     return (
@@ -26,8 +27,8 @@ export function UserInfo({ collapsed }: UserInfoProps) {
         }}
       >
         <box style={{ flexDirection: "row", alignItems: "center" }}>
-          <text fg={theme.userInfo.indicator.loading}>◌ </text>
-          <text fg={theme.userInfo.loading}>Loading...</text>
+          <text fg={colors.warning}>◌ </text>
+          <text fg={colors.fg4}>Loading...</text>
         </box>
       </box>
     );
@@ -43,12 +44,10 @@ export function UserInfo({ collapsed }: UserInfoProps) {
         }}
       >
         <box style={{ flexDirection: "row", alignItems: "center" }}>
-          <text fg={theme.userInfo.error}>● </text>
-          <text fg={theme.userInfo.error}>Error</text>
+          <text fg={colors.error}>● </text>
+          <text fg={colors.error}>Error</text>
         </box>
-        <text fg={theme.userInfo.hint}>
-          {error.length > 20 ? `${error.slice(0, 20)}...` : error}
-        </text>
+        <text fg={colors.fg5}>{error.length > 20 ? `${error.slice(0, 20)}...` : error}</text>
       </box>
     );
   }
@@ -63,10 +62,10 @@ export function UserInfo({ collapsed }: UserInfoProps) {
         }}
       >
         <box style={{ flexDirection: "row", alignItems: "center" }}>
-          <text fg={theme.userInfo.indicator.unauthenticated}>● </text>
-          <text fg={theme.userInfo.loading}>Not logged in</text>
+          <text fg={colors.error}>● </text>
+          <text fg={colors.fg4}>Not logged in</text>
         </box>
-        <text fg={theme.userInfo.hint}>Run 'cero login'</text>
+        <text fg={colors.fg5}>Run 'cero login'</text>
       </box>
     );
   }
@@ -80,12 +79,12 @@ export function UserInfo({ collapsed }: UserInfoProps) {
       }}
     >
       <box style={{ flexDirection: "row", alignItems: "center" }}>
-        <text fg={theme.userInfo.indicator.authenticated}>● </text>
-        <text fg={theme.userInfo.name}>
+        <text fg={colors.success}>● </text>
+        <text fg={colors.fg1}>
           <strong>{user.name}</strong>
         </text>
       </box>
-      <text fg={theme.userInfo.email}>{user.email}</text>
+      <text fg={colors.fg5}>{user.email}</text>
     </box>
   );
 }

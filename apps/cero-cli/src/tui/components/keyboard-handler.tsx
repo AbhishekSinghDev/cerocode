@@ -2,6 +2,7 @@ import { useKeyboard } from "@opentui/react";
 import { AI_MODELS } from "@tui/context/ui-context";
 import { useChat } from "@tui/hooks/use-chat";
 import { useConversations } from "@tui/hooks/use-conversations";
+import { useTheme } from "@tui/hooks/use-theme";
 import { useUI } from "@tui/hooks/use-ui";
 
 export function KeyboardHandler() {
@@ -22,8 +23,15 @@ export function KeyboardHandler() {
 
   const { conversations } = useConversations();
   const { openChat, startNewChat } = useChat();
+  const { nextTheme } = useTheme();
 
   useKeyboard((key) => {
+    // Theme cycling - Ctrl+T (or Cmd+T on macOS)
+    if (key.name === "t" && (key.ctrl || key.meta)) {
+      nextTheme();
+      return;
+    }
+
     // Escape - close model selector or exit
     if (key.name === "escape") {
       if (modelSelectorOpen) {

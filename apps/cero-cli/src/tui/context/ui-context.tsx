@@ -57,7 +57,7 @@ export function UIProvider({
 
   // Layout calculations
   const layout = useMemo<LayoutDimensions>(() => {
-    const sidebarWidth = state.sidebarCollapsed ? 4 : Math.max(28, Math.floor(width * 0.22));
+    const sidebarWidth = state.sidebarCollapsed ? 4 : Math.max(25, Math.floor(width * 0.22));
     return {
       width,
       height,
