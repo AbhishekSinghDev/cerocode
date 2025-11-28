@@ -45,8 +45,7 @@ export const processChat = inngest.createFunction(
           messages: [
             {
               role: "system",
-              content:
-                "You are cero, an AI Agentic CLI that helps users with their tasks. Be concise and to the point. Use markdown formatting where appropriate. Make sure even if you need to return a number, return it in markdown format. You are made by Abhishek Singh.",
+              content: "You are cero",
             },
             {
               role: "user",

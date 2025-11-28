@@ -1,9 +1,3 @@
-/**
- * Map file extensions/code block tags to tree-sitter filetype IDs
- * Based on opencode's language.ts mapping
- *
- * NOTE: JSX/TSX use the built-in typescript parser (it handles JSX syntax)
- */
 export const LANGUAGE_MAP: Record<string, string> = {
   // JavaScript/TypeScript family - all map to typescript (handles JSX)
   ".js": "typescript",
@@ -241,29 +235,16 @@ export const LANGUAGE_MAP: Record<string, string> = {
   plain: "plaintext",
 };
 
-/**
- * Built-in filetypes that opentui ships with (no custom parser needed)
- */
 export const BUILTIN_FILETYPES = new Set(["javascript", "typescript", "markdown", "zig"]);
 
-/**
- * Get the filetype for a language tag
- * Returns null if language is not supported
- */
 export function getFiletype(lang: string): string | null {
   return LANGUAGE_MAP[lang.toLowerCase()] ?? null;
 }
 
-/**
- * Check if a filetype is built-in to opentui
- */
 export function isBuiltinFiletype(filetype: string): boolean {
   return BUILTIN_FILETYPES.has(filetype);
 }
 
-/**
- * Check if a language tag is supported (either built-in or custom parser)
- */
 export function isLanguageSupported(lang: string): boolean {
   return getFiletype(lang) !== null;
 }

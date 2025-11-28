@@ -1,16 +1,9 @@
 import { getFiletype } from "../../core/syntax";
 
-/**
- * Parsed content block - either text or code
- */
 export type ContentBlock =
   | { type: "text"; content: string }
   | { type: "code"; content: string; language: string; filetype: string | null };
 
-/**
- * Strip outer ```markdown wrapper if AI response starts with it
- * Handles both closed (```markdown...```) and unclosed (```markdown...) cases
- */
 export function unwrapMarkdownWrapper(content: string): string {
   const trimmed = content.trim();
 
@@ -28,10 +21,6 @@ export function unwrapMarkdownWrapper(content: string): string {
   return trimmed;
 }
 
-/**
- * Parse markdown content into blocks (text and code)
- * Each code block gets its filetype resolved for syntax highlighting
- */
 export function parseMarkdownBlocks(content: string): ContentBlock[] {
   const unwrapped = unwrapMarkdownWrapper(content);
   const blocks: ContentBlock[] = [];
