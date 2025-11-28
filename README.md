@@ -20,7 +20,7 @@
 
 ## What is Cero?
 
-Cero is a complete ecosystem that brings AI capabilities directly to your terminal, no API keys to manage, no configuration hell, just install and start coding smarter.
+Cero is a complete ecosystem that brings AI capabilities directly to your terminal—no API keys to manage, no configuration hell—just install and start coding smarter.
 
 Think LLM meets your terminal, but built specifically for developers. Chat with AI, get real-time streaming responses, and keep your entire conversation history synced across devices. All from the comfort of your command line.
 
@@ -30,11 +30,27 @@ Think LLM meets your terminal, but built specifically for developers. Chat with 
 
 #### 🤖 AI Chat in Your Terminal
 
-Ask questions, get answers, debug code, all without leaving your terminal. Responses stream in real-time, just like ChatGPT.
+Ask questions, get answers, debug code—all without leaving your terminal. Responses stream in real-time, just like ChatGPT.
 
 ```bash
 cero chat "explain what DNS is"
 ```
+
+#### 🎨 Interactive Terminal UI
+
+A proper chat interface in your terminal with:
+
+- Input box at the bottom (like a real chat app)
+- Sidebar showing conversation history
+- Real-time streaming responses
+- Keyboard shortcuts for efficient navigation
+- User info display
+
+```bash
+cero interactive
+```
+
+Think ChatGPT, but native to your terminal.
 
 #### 🔐 Passwordless Authentication
 
@@ -59,17 +75,6 @@ Works seamlessly on macOS, Windows, and Linux. One codebase, three platforms, ze
 ### Coming Soon
 
 We're actively building features that'll make Cero your go-to terminal assistant:
-
-#### 🎨 Interactive Terminal UI
-
-A proper chat interface in your terminal with:
-
-- Input box at the bottom (like a real chat app)
-- Sidebar showing conversation history
-- Syntax highlighting for code blocks
-- Markdown rendering for formatted text
-
-Think ChatGPT, but native to your terminal.
 
 #### 💾 Offline-First History
 
@@ -143,8 +148,11 @@ bun add -g cerocode
 # Authenticate via browser (one-time setup)
 cero login
 
-# Start chatting
+# Quick chat mode
 cero chat "explain async/await in JavaScript"
+
+# Launch interactive terminal UI
+cero interactive
 
 # When you're done
 cero logout
@@ -152,18 +160,30 @@ cero logout
 
 That's it. No environment variables, no API keys, no config files.
 
+## Commands
+
+| Command               | Alias | Description                                |
+| --------------------- | ----- | ------------------------------------------ |
+| `cero login`          |       | Authenticate via device authorization flow |
+| `cero chat <message>` | `c`   | Send a message and get an AI response      |
+| `cero interactive`    | `i`   | Launch interactive terminal UI             |
+| `cero logout`         |       | Clear stored credentials                   |
+| `cero --help`         | `-h`  | Show help information                      |
+| `cero --version`      | `-v`  | Display version number                     |
+
 ## Architecture
 
 Cero is a monorepo containing three main applications:
 
 ### 📱 [Cero CLI](apps/cero-cli)
 
-The terminal client that you interact with daily. Built with TypeScript and Commander.js, it handles authentication, chat interactions, and credential storage.
+The terminal client that you interact with daily. Built with TypeScript, Commander.js, and OpenTUI for the interactive terminal UI.
 
 **Key Features:**
 
 - Device authorization flow
 - Real-time streaming responses
+- Interactive terminal UI with React-based TUI
 - Secure keychain integration
 - Cross-platform support
 
@@ -199,11 +219,14 @@ The backend powering everything. Built with Next.js 16 as a full-stack API serve
 
 ### CLI
 
-- **Runtime**: Node.js 18+
+- **Runtime**: Bun
 - **Language**: TypeScript
 - **CLI Framework**: Commander.js
+- **TUI Framework**: OpenTUI (React-based terminal UI)
+- **Auth Client**: Better Auth
 - **Auth Storage**: cross-keychain (native credential managers)
 - **HTTP Client**: Fetch API
+- **Styling**: Chalk, Figlet, Boxen
 
 ### Web
 
@@ -212,7 +235,7 @@ The backend powering everything. Built with Next.js 16 as a full-stack API serve
 - **UI Components**: Radix UI
 - **Auth**: Better Auth with GitHub OAuth
 - **Forms**: React Hook Form + Zod
-- **ORM**: Drizzle
+- **Animations**: Framer Motion
 
 ### API
 
@@ -220,14 +243,14 @@ The backend powering everything. Built with Next.js 16 as a full-stack API serve
 - **Database**: Neon Postgres via Drizzle ORM
 - **Auth**: Better Auth (device flow + GitHub OAuth)
 - **Background Jobs**: Inngest
-- **AI Integration**: Vercel AI SDK + Generative AI OF YOUR CHOICE
+- **AI Integration**: Vercel AI SDK + Google Generative AI
 - **Validation**: Zod
 
 ## Development
 
 ### Prerequisites
 
-- Node.js 18 or higher
+- Node.js 18 or higher and Bun 1.0.0 or higher
 - bun (we use workspaces)
 - A Neon Database instance
 - Google AI API key
@@ -265,8 +288,8 @@ cd apps/cero-cli && bun dev <command>
 cd apps/cero-web && bun dev
 cd apps/cero-api && bun dev
 
-# Dont forget to run inngest development server
-bun dev:inngest
+# Don't forget to run inngest development server
+cd apps/cero-api && bun dev:inngest
 ```
 
 ### Building
@@ -289,7 +312,9 @@ cero/
 │   ├── cero-cli/          # Terminal client
 │   │   ├── src/
 │   │   │   ├── cli/       # Commands and prompts
-│   │   │   ├── core/      # Auth, chat, config
+│   │   │   ├── core/      # Auth, chat, config, user services
+│   │   │   ├── tui/       # Interactive terminal UI (React-based)
+│   │   │   ├── types/     # TypeScript definitions
 │   │   │   └── utils/     # Helpers
 │   │   └── package.json
 │   │
@@ -298,19 +323,20 @@ cero/
 │   │   │   ├── app/       # Next.js app router
 │   │   │   ├── components/# UI components
 │   │   │   ├── lib/       # Utilities
-│   │   │   └── server/    # Server-side code
+│   │   │   └── styles/    # Global CSS
 │   │   └── package.json
 │   │
 │   └── cero-api/          # Backend API
 │       ├── src/
 │       │   ├── app/       # API routes
-│       │   └── server/    # Auth, DB, Inngest
+│       │   ├── server/    # Auth, DB, Inngest
+│       │   ├── lib/       # Validation schemas
+│       │   └── types/     # TypeScript definitions
 │       └── package.json
 │
 ├── package.json           # Workspace root
-├── bun-workspace.yaml    # bun workspace config
-├── turbo.json            # Turborepo config
-└── README.md             # This file
+├── turbo.json             # Turborepo config
+└── README.md              # This file
 ```
 
 ## How It Works
@@ -328,10 +354,10 @@ cero/
 
 ### Chat Flow
 
-1. User sends message via `cero chat "message"`
+1. User sends message via `cero chat "message"` or interactive mode
 2. CLI sends authenticated request to API
 3. API triggers Inngest background job
-4. Job streams AI response via Inngest Realtime
+4. Job streams AI response via Inngest Realtime channels
 5. CLI receives tokens as Server-Sent Events
 6. Tokens are rendered in real-time
 
@@ -369,10 +395,10 @@ We welcome contributions! Here's how you can help:
 - [x] AI chat with streaming responses
 - [x] Secure credential storage
 - [x] Cross-platform support
-- [ ] Tool integrations (Context7, Brave Search, URL inspection)
+- [x] Interactive terminal UI
+- [0] Offline-first conversation history
 - [ ] Agent mode with codebase context
-- [ ] Interactive terminal UI
-- [ ] Offline-first conversation history
+- [ ] Tool integrations (Context7, Brave Search, URL inspection)
 - [ ] Multi-model support (GPT-4, Claude, Gemini)
 - [ ] Custom prompts and templates
 - [ ] Plugin system

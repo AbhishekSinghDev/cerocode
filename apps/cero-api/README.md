@@ -17,11 +17,11 @@ This is the backend API that powers the Cero ecosystem. It handles authenticatio
 ## Stack
 
 - [Next.js 16](https://nextjs.org/) — API routes and server infrastructure
-- [Better Auth](https://www.better-auth.com/) — Authentication with device flow
+- [Better Auth](https://www.better-auth.com/) — Authentication with device flow and bearer tokens
 - [Drizzle ORM](https://orm.drizzle.team/) — Type-safe database toolkit
 - [Neon Database](https://neon.tech/) — Serverless Postgres
 - [Inngest](https://www.inngest.com/) — Background jobs and real-time streaming
-- [Vercel AI SDK](https://github.com/vercel/ai) — AI model integration
+- [Vercel AI SDK](https://github.com/vercel/ai) — AI model integration with Google Generative AI
 - [Zod](https://zod.dev/) — Runtime validation
 
 ## Features
@@ -31,11 +31,11 @@ This is the backend API that powers the Cero ecosystem. It handles authenticatio
 - OAuth 2.0 Device Authorization Grant (same flow as Netflix on TV)
 - GitHub OAuth integration
 - Bearer token authentication for CLI
-- Secure session management with 7-day expiry
+- Secure session management with 7-day expiry and cookie caching
 
 ### AI Chat
 
-- Streaming responses via Inngest Realtime
+- Streaming responses via Inngest Realtime channels
 - Background job processing for chat requests
 - Conversation and message persistence
 - Real-time token streaming to clients
@@ -101,6 +101,9 @@ bun db:studio
 bun dev
 
 # The API will be available at http://localhost:3001
+
+# Run Inngest dev server (in a separate terminal)
+bun dev:inngest
 ```
 
 ### Production
@@ -115,20 +118,41 @@ bun start
 
 ## API Endpoints
 
+### Health Check
+
+- `GET /` — Returns `{ "status": "ok" }`
+
 ### Authentication
+
+All Better Auth endpoints are available at `/api/auth/*`:
 
 - `POST /api/auth/device/code` — Request device authorization code
 - `POST /api/auth/device/token` — Poll for access token
 - `POST /api/auth/sign-in/github` — GitHub OAuth sign-in
 - `GET /api/auth/session` — Get current session
-- All other Better Auth endpoints available at `/api/auth/*`
 
 ### Chat
 
 - `POST /api/chat` — Send a chat message and receive streaming response
   - Requires: `Authorization: Bearer <token>` header
-  - Body: `{ "message": "your message" }`
+  - Body: `{ "message": "your message", "conversationId": "optional-id" }`
   - Returns: Server-Sent Events stream with tokens
+
+### Conversations
+
+- `GET /api/conversations` — Get all conversations for the authenticated user
+  - Requires: `Authorization: Bearer <token>` header
+  - Returns: `{ "conversations": [...] }`
+
+- `GET /api/conversations/[id]/messages` — Get all messages in a conversation
+  - Requires: `Authorization: Bearer <token>` header
+  - Returns: `{ "messages": [...] }`
+
+### User
+
+- `GET /api/user/whoami` — Get authenticated user details
+  - Requires: `Authorization: Bearer <token>` header
+  - Returns: `{ "user": { "id", "name", "email" } }`
 
 ### Background Jobs
 
@@ -139,7 +163,7 @@ bun start
 ### Device Authorization Flow
 
 1. CLI requests a device code from `/api/auth/device/code`
-2. User opens the verification URL in their browser
+2. User opens the verification URL (`/device` on the web app)
 3. User enters the code and approves the request
 4. CLI polls `/api/auth/device/token` until approved
 5. API returns access token to CLI
@@ -149,54 +173,92 @@ bun start
 
 1. Client sends POST request to `/api/chat` with message
 2. API triggers Inngest background job
-3. Job streams AI response token-by-token via Inngest Realtime
+3. Job streams AI response token-by-token via Inngest Realtime channels
 4. Tokens are sent back to client as Server-Sent Events
 5. Client renders response in real-time
+
+### Realtime Channels
+
+The API uses Inngest Realtime for streaming chat responses:
+
+```typescript
+chatChannel = channel((conversationId) => `chat.${conversationId}`)
+  .addTopic("token")   // Individual tokens as they're generated
+  .addTopic("done")    // Completion signal with full text
+  .addTopic("error")   // Error handling
+```
 
 ## Project Structure
 
 ```
 src/
 ├── app/
-│   ├── api/
-│   │   ├── auth/        # Better Auth endpoints
-│   │   ├── chat/        # Chat API endpoint
-│   │   └── inngest/     # Background job webhooks
-│   └── route.ts         # Root route
+│   ├── route.ts              # Health check endpoint
+│   └── api/
+│       ├── auth/
+│       │   └── [...all]/     # Better Auth catch-all route
+│       ├── chat/             # Chat endpoint
+│       ├── conversations/    # Conversation history
+│       │   └── [id]/
+│       │       └── messages/ # Messages for a conversation
+│       ├── inngest/          # Background job webhooks
+│       └── user/
+│           └── whoami/       # User info endpoint
 ├── server/
-│   ├── better-auth/     # Auth configuration
-│   ├── db/              # Database schema and client
-│   ├── inngest/         # Background job definitions
-│   │   ├── functions/   # Job handlers (chat processing)
-│   │   └── channels.ts  # Realtime channel definitions
-│   └── utils/           # Server utilities
-├── lib/                 # Shared utilities
-└── types/               # TypeScript types
+│   ├── better-auth/
+│   │   └── config.ts         # Auth configuration
+│   ├── db/
+│   │   ├── index.ts          # Database client
+│   │   └── schema.ts         # Drizzle schema
+│   ├── inngest/
+│   │   ├── client.ts         # Inngest client
+│   │   ├── channels.ts       # Realtime channel definitions
+│   │   └── functions/        # Background job handlers
+│   └── utils/
+│       ├── get-user.ts       # Auth helper
+│       └── try-catch.ts      # Error handling utility
+├── lib/
+│   └── zod-schema.ts         # Validation schemas
+├── types/
+│   └── inngest.ts            # Inngest type definitions
+└── env.ts                    # Environment variable validation
 ```
 
 ## Environment Variables
 
-See `.env.example` for a complete list of required environment variables.
+See `.env.example` for a complete list:
 
-Key variables:
+```env
+# Database
+DATABASE_URL="postgresql://..."
 
-- `DATABASE_URL` — Postgres connection string
-- `BETTER_AUTH_SECRET` — Random secret for auth
-- `BETTER_AUTH_GITHUB_CLIENT_ID` / `CLIENT_SECRET` — GitHub OAuth credentials
-- `GOOGLE_GENERATIVE_AI_API_KEY` — Google AI API key
-- `INNGEST_SIGNING_KEY` / `EVENT_KEY` — Inngest credentials
-- `NEXT_PUBLIC_WEBSITE_URL` — Web app URL
-- `NEXT_PUBLIC_API_URL` — API URL (this server)
+# Better Auth
+BETTER_AUTH_SECRET="your-secret"
+BETTER_AUTH_GITHUB_CLIENT_ID="..."
+BETTER_AUTH_GITHUB_CLIENT_SECRET="..."
+
+# Google AI
+GOOGLE_GENERATIVE_AI_API_KEY="..."
+
+# Inngest
+INNGEST_SIGNING_KEY="..."
+INNGEST_EVENT_KEY="..."
+
+# Public URLs
+NEXT_PUBLIC_WEBSITE_URL="http://localhost:3000"
+NEXT_PUBLIC_API_URL="http://localhost:3001"
+```
 
 ## Deployment
 
 This API is designed to be deployed on platforms like:
 
 - [Vercel](https://vercel.com) — Zero-config deployment
-- [Railway](https://railway.app) — Simplified deployment
-- [Fly.io](https://fly.io) — Global edge deployment
 
-Make sure to set all environment variables in your deployment platform.
+Make sure to:
+1. Set all environment variables in your deployment platform
+2. Configure Inngest webhooks to point to your deployed API
+3. Update `NEXT_PUBLIC_WEBSITE_URL` and `NEXT_PUBLIC_API_URL` for production
 
 ## Contributing
 
@@ -209,5 +271,5 @@ MIT © [Abhishek Singh](https://abhisheksingh.me)
 ---
 
 <div align="center">
-Part of the Cero ecosystem
+Part of the CeroCode ecosystem
 </div>
