@@ -12,3 +12,6 @@ if (!defaultColors) {
 
 // Export the default colors for backward compatibility
 export const colors = defaultColors;
+
+// Export syntax highlighting utilities
+export { createSyntaxStyle } from "./syntax";
