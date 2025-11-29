@@ -14,4 +14,7 @@ if (!defaultColors) {
 export const colors = defaultColors;
 
 // Export syntax highlighting utilities
-export { createSyntaxStyle } from "./syntax";
+export { createSubtleSyntaxStyle, createSyntaxStyle } from "./syntax";
+
+// Export theme utilities
+export { deriveSyntaxColors } from "./theme-utils";

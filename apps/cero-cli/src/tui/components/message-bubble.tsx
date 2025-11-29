@@ -1,9 +1,7 @@
-import { parseMarkdownBlocks } from "@tui/helpers/markdown";
+import { normalizeCodeBlockLanguages, unwrapMarkdownWrapper } from "@tui/helpers/markdown";
 import { createSyntaxStyle } from "@tui/theme";
 import { useMemo } from "react";
 import type { ApiMessage, ThemeColors } from "types/tui.type";
-import { CodeBlock } from "./code-block";
-import { MarkdownBlock } from "./markdown-block";
 
 interface MessageBubbleProps {
   message: ApiMessage;
@@ -16,10 +14,13 @@ export function MessageBubble({ message, isStreaming, colors }: MessageBubblePro
   const isEmpty = !message.content || message.content.length === 0;
 
   const syntaxStyle = useMemo(() => createSyntaxStyle(colors), [colors]);
-  const contentBlocks = useMemo(
-    () => (message.content && !isUser ? parseMarkdownBlocks(message.content) : []),
-    [message.content, isUser]
-  );
+
+  // Process AI responses: unwrap ```markdown wrapper, then normalize language tags
+  const normalizedContent = useMemo(() => {
+    if (isUser) return message.content;
+    // First unwrap any ```markdown wrapper, then normalize language tags like tsx→typescript
+    return normalizeCodeBlockLanguages(unwrapMarkdownWrapper(message.content));
+  }, [message.content, isUser]);
 
   return (
     <box
@@ -63,26 +64,13 @@ export function MessageBubble({ message, isStreaming, colors }: MessageBubblePro
           </text>
         )}
 
-        {/* Content */}
+        {/* Content - Use OpenTUI's native markdown rendering with tree-sitter */}
         {!isEmpty && (
           <box style={{ marginTop: 1 }}>
             {isUser ? (
               <text fg={colors.fg1}>{message.content}</text>
             ) : (
-              <box style={{ flexDirection: "column" }}>
-                {contentBlocks.map((block, idx) =>
-                  block.type === "code" ? (
-                    <CodeBlock
-                      key={`code-${block.language}-${idx}`}
-                      block={block}
-                      colors={colors}
-                      syntaxStyle={syntaxStyle}
-                    />
-                  ) : (
-                    <MarkdownBlock key={`md-${idx}`} content={block.content} colors={colors} />
-                  )
-                )}
-              </box>
+              <code content={normalizedContent} filetype="markdown" syntaxStyle={syntaxStyle} />
             )}
           </box>
         )}

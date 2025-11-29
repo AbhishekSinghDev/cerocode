@@ -4,6 +4,47 @@ export type ContentBlock =
   | { type: "text"; content: string }
   | { type: "code"; content: string; language: string; filetype: string | null };
 
+/**
+ * Language aliases that should be normalized to their base parser filetype
+ * This ensures code blocks use the correct tree-sitter parser
+ */
+const LANGUAGE_NORMALIZATIONS: Record<string, string> = {
+  // JSX/TSX variants → typescript (built-in parser handles JSX)
+  typescriptreact: "typescript",
+  javascriptreact: "typescript",
+  tsx: "typescript",
+  jsx: "typescript",
+  // JS variants → typescript
+  javascript: "typescript",
+  js: "typescript",
+  mjs: "typescript",
+  cjs: "typescript",
+  // Shell variants → bash
+  shell: "bash",
+  sh: "bash",
+  zsh: "bash",
+  // Other common aliases
+  yml: "yaml",
+  py: "python",
+  rb: "ruby",
+  rs: "rust",
+  cs: "csharp",
+  "c#": "csharp",
+  "c++": "cpp",
+  md: "markdown",
+};
+
+/**
+ * Normalize language tags in markdown code blocks
+ * Replaces aliases like `tsx`, `jsx`, `typescriptreact` with their base parser filetype
+ */
+export function normalizeCodeBlockLanguages(content: string): string {
+  return content.replace(/```(\w+)/g, (match, lang) => {
+    const normalized = LANGUAGE_NORMALIZATIONS[lang.toLowerCase()];
+    return normalized ? `\`\`\`${normalized}` : match;
+  });
+}
+
 export function unwrapMarkdownWrapper(content: string): string {
   const trimmed = content.trim();
 
@@ -22,7 +63,8 @@ export function unwrapMarkdownWrapper(content: string): string {
 }
 
 export function parseMarkdownBlocks(content: string): ContentBlock[] {
-  const unwrapped = unwrapMarkdownWrapper(content);
+  // First unwrap any markdown wrapper, then normalize language tags
+  const unwrapped = normalizeCodeBlockLanguages(unwrapMarkdownWrapper(content));
   const blocks: ContentBlock[] = [];
   const codeBlockRegex = /```(\w*)\n?([\s\S]*?)```/g;
 

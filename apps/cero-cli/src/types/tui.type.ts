@@ -218,6 +218,54 @@ export interface ThemeColors {
   border3: string; // Focused/highlighted border
 }
 
+/**
+ * Extended syntax colors for code/markdown highlighting
+ * Derived from ThemeColors - used by syntax.ts
+ * Matches OpenCode's full theme color set
+ */
+export interface SyntaxColors {
+  // Markdown colors
+  markdownText: string;
+  markdownHeading: string;
+  markdownStrong: string;
+  markdownEmph: string;
+  markdownCode: string;
+  markdownCodeBlock: string;
+  markdownLink: string;
+  markdownLinkText: string;
+  markdownBlockQuote: string;
+  markdownListItem: string;
+  markdownListEnumeration: string;
+  markdownHorizontalRule: string;
+  markdownImage: string;
+  markdownImageText: string;
+
+  // Diff colors (full set from OpenCode)
+  diffAdded: string;
+  diffRemoved: string;
+  diffContext: string;
+  diffHunkHeader: string;
+  diffHighlightAdded: string;
+  diffHighlightRemoved: string;
+  diffAddedBg: string;
+  diffRemovedBg: string;
+  diffContextBg: string;
+  diffLineNumber: string;
+  diffAddedLineNumberBg: string;
+  diffRemovedLineNumberBg: string;
+
+  // Syntax highlighting colors
+  syntaxKeyword: string;
+  syntaxFunction: string;
+  syntaxVariable: string;
+  syntaxString: string;
+  syntaxNumber: string;
+  syntaxType: string;
+  syntaxOperator: string;
+  syntaxComment: string;
+  syntaxPunctuation: string;
+}
+
 export interface ThemeDefinition {
   id: string;
   name: string;

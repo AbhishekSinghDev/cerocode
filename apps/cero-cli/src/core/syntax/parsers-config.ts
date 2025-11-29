@@ -234,4 +234,31 @@ export const parsers: FiletypeParserOptions[] = [
       ],
     },
   },
+  {
+    filetype: "diff",
+    wasm: "https://github.com/tree-sitter-grammars/tree-sitter-diff/releases/download/v0.1.0/tree-sitter-diff.wasm",
+    queries: {
+      highlights: [
+        "https://raw.githubusercontent.com/nvim-treesitter/nvim-treesitter/refs/heads/master/queries/diff/highlights.scm",
+      ],
+    },
+  },
+  {
+    filetype: "toml",
+    wasm: "https://github.com/tree-sitter-grammars/tree-sitter-toml/releases/download/v0.7.0/tree-sitter-toml.wasm",
+    queries: {
+      highlights: [
+        "https://raw.githubusercontent.com/nvim-treesitter/nvim-treesitter/refs/heads/master/queries/toml/highlights.scm",
+      ],
+    },
+  },
+  {
+    filetype: "sql",
+    wasm: "https://github.com/DerekStride/tree-sitter-sql/releases/download/v0.3.3/tree-sitter-sql.wasm",
+    queries: {
+      highlights: [
+        "https://raw.githubusercontent.com/DerekStride/tree-sitter-sql/main/queries/highlights.scm",
+      ],
+    },
+  },
 ];
