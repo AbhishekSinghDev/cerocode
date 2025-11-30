@@ -1,5 +1,25 @@
 export const DEFAULT_AI_MODEL_ID = "gemini-2.5-flash-lite";
 
+export const SUPPORTED_AI_TOOLS = [
+  {
+    id: "google_search",
+    name: "Google Search",
+    description: "Access latest information via Google Search",
+  },
+  {
+    id: "url_context",
+    name: "URL Context",
+    description: "Analyze content from specific URLs",
+  },
+  {
+    id: "code_execution",
+    name: "Code Execution",
+    description: "Execute Python code for calculations",
+  },
+] as const;
+
+export type SupportedAIToolId = (typeof SUPPORTED_AI_TOOLS)[number]["id"];
+
 export const SUPPORTED_AI_MODELS = [
   {
     id: "gemini-3-pro-preview",

@@ -8,6 +8,7 @@ import { useUI } from "@tui/hooks/use-ui";
 export function KeyboardHandler() {
   const {
     modelSelectorOpen,
+    toolSelectorOpen,
     inputFocused,
     focusMode,
     sidebarCollapsed,
@@ -25,8 +26,8 @@ export function KeyboardHandler() {
   const { nextTheme } = useTheme();
 
   useKeyboard((key) => {
-    // If model selector is open, let it handle its own keyboard events
-    if (modelSelectorOpen) {
+    // If model selector or tool selector is open, let them handle their own keyboard events
+    if (modelSelectorOpen || toolSelectorOpen) {
       return;
     }
 

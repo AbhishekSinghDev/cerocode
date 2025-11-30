@@ -1,11 +1,13 @@
 import { inngestChatFunctionSchema } from "@/lib/zod-schema";
 import { db } from "@/server/db";
 import { message } from "@/server/db/schema";
+import { buildTools } from "@/server/utils/build-tools";
 import { MAX_CONTEXT_MESSAGES } from "@/server/utils/constants";
 import { SYSTEM_GEMINI_PROMPT } from "@/server/utils/prompts/gemini";
 import { tryCatch } from "@/server/utils/try-catch";
 import type { RealtimeContext } from "@/types/inngest";
 import { google } from "@ai-sdk/google";
+import type { SupportedAIToolId } from "@cerocode/constants";
 import { encode } from "@toon-format/toon";
 import { streamText } from "ai";
 import { desc, eq } from "drizzle-orm";
@@ -100,9 +102,13 @@ export const processChat = inngest.createFunction(
           }
         }
 
+        // Build tools if any are selected
+        const tools = buildTools(eventData.tools as SupportedAIToolId[] | undefined);
+
         const streamResult = streamText({
           model: google(eventData.aiModel),
           messages: messages,
+          tools,
         });
 
         let fullText = "";
@@ -117,8 +123,11 @@ export const processChat = inngest.createFunction(
 
         // Signal completion
         await publish(chatChannel(eventData.conversationId).done({ fullText }));
+
         return { success: true, text: fullText };
       });
+
+      console.log(result.text);
 
       // Save the assistant message
       await step.run("save-assistant-message", async () => {

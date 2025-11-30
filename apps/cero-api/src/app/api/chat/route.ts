@@ -58,6 +58,7 @@ export async function POST(request: Request) {
         userId: user.id,
         conversationId: finalConversationId,
         aiModel: selectedAiModel,
+        tools: parseResult.data.tools,
       },
     })
   );

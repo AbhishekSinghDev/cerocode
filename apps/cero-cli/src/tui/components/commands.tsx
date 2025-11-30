@@ -10,6 +10,7 @@ export const COMMANDS: Command[] = [
   { key: "↑↓", description: "Navigate history", context: "sidebar" },
   { key: "Enter", description: "Select chat", context: "sidebar" },
   { key: "/m", description: "Change model", context: "chat" },
+  { key: "/t", description: "Toggle tools", context: "chat" },
   { key: "Esc", description: "Exit / Close", context: "global" },
 ];
 
@@ -20,9 +21,9 @@ interface CommandsDisplayProps {
 
 export function CommandsDisplay({ showFull = false, compact = false }: CommandsDisplayProps) {
   const { colors } = useTheme();
-  const { modelSelectorOpen } = useUI();
+  const { modelSelectorOpen, toolSelectorOpen } = useUI();
 
-  if (modelSelectorOpen) return null;
+  if (modelSelectorOpen || toolSelectorOpen) return null;
 
   if (compact) {
     return (
@@ -182,6 +183,13 @@ export function CommandsDisplay({ showFull = false, compact = false }: CommandsD
               </text>
               <text fg={colors.fg3}>→</text>
               <text fg={colors.fg2}> Open model selector</text>
+            </box>
+            <box style={{ flexDirection: "row" }}>
+              <text fg={colors.primary} style={{ width: 12 }}>
+                /t + Enter
+              </text>
+              <text fg={colors.fg3}>→</text>
+              <text fg={colors.fg2}> Open tool selector</text>
             </box>
             <box style={{ flexDirection: "row" }}>
               <text fg={colors.primary} style={{ width: 12 }}>

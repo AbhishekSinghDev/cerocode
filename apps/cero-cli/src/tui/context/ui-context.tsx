@@ -5,6 +5,7 @@ import type {
   FocusMode,
   LayoutDimensions,
   SupportedAIModelId,
+  SupportedAIToolId,
   UIContextValue,
   UIState,
 } from "../../types/tui.type";
@@ -29,7 +30,9 @@ export function UIProvider({
     focusedChatIndex: -1,
     inputFocused: true,
     selectedModel: DEFAULT_AI_MODEL_ID,
+    selectedTools: [],
     modelSelectorOpen: false,
+    toolSelectorOpen: false,
     focusMode: "chat",
   });
 
@@ -49,11 +52,33 @@ export function UIProvider({
   }, []);
 
   const toggleModelSelector = useCallback(() => {
-    setState((prev) => ({ ...prev, modelSelectorOpen: !prev.modelSelectorOpen }));
+    setState((prev) => ({
+      ...prev,
+      modelSelectorOpen: !prev.modelSelectorOpen,
+      toolSelectorOpen: false, // Close tool selector when opening model selector
+    }));
+  }, []);
+
+  const toggleToolSelector = useCallback(() => {
+    setState((prev) => ({
+      ...prev,
+      toolSelectorOpen: !prev.toolSelectorOpen,
+      modelSelectorOpen: false, // Close model selector when opening tool selector
+    }));
   }, []);
 
   const setSelectedModel = useCallback((modelId: SupportedAIModelId) => {
     setState((prev) => ({ ...prev, selectedModel: modelId, modelSelectorOpen: false }));
+  }, []);
+
+  const toggleTool = useCallback((toolId: SupportedAIToolId) => {
+    setState((prev) => {
+      const isSelected = prev.selectedTools.includes(toolId);
+      const newTools = isSelected
+        ? prev.selectedTools.filter((id) => id !== toolId)
+        : [...prev.selectedTools, toolId];
+      return { ...prev, selectedTools: newTools };
+    });
   }, []);
 
   const setFocusMode = useCallback((mode: FocusMode) => {
@@ -100,7 +125,9 @@ export function UIProvider({
       isInputDisabled: isLoading || isStreaming,
       toggleSidebar,
       toggleModelSelector,
+      toggleToolSelector,
       setSelectedModel,
+      toggleTool,
       setFocusMode,
       setInputFocused,
       setFocusedChatIndex,
@@ -115,7 +142,9 @@ export function UIProvider({
       isStreaming,
       toggleSidebar,
       toggleModelSelector,
+      toggleToolSelector,
       setSelectedModel,
+      toggleTool,
       setFocusMode,
       setInputFocused,
       setFocusedChatIndex,

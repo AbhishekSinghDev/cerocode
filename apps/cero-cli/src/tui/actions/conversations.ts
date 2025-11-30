@@ -3,6 +3,7 @@ import type {
   ConversationsResponse,
   MessagesResponse,
   SupportedAIModelId,
+  SupportedAIToolId,
 } from "../../types/tui.type";
 
 const chatService = new ChatService();
@@ -23,8 +24,17 @@ export async function sendChatMessage(
   token: string,
   aiModel: SupportedAIModelId,
   conversationId: string | undefined,
+  tools: SupportedAIToolId[] | undefined,
   onToken: (tokenText: string) => void,
   onInit: (conversationId: string) => void
 ) {
-  return await chatService.run(content, token, aiModel, conversationId, onToken, onInit);
+  return await chatService.run(
+    content,
+    token,
+    aiModel,
+    conversationId,
+    tools,
+    onToken,
+    onInit
+  );
 }

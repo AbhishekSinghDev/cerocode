@@ -1,17 +1,25 @@
-import { DEFAULT_AI_MODEL_ID, SUPPORTED_AI_MODELS } from "@cerocode/constants";
+import {
+  DEFAULT_AI_MODEL_ID,
+  SUPPORTED_AI_MODELS,
+  SUPPORTED_AI_TOOLS,
+} from "@cerocode/constants";
 import { useChat } from "@tui/hooks/use-chat";
 import { useTheme } from "@tui/hooks/use-theme";
 import { useUI } from "@tui/hooks/use-ui";
 import { useCallback } from "react";
 import { ModelSelector } from "./model-selector";
+import { ToolSelector } from "./tool-selector";
 
 export function ChatInput() {
   const {
     selectedModel,
+    selectedTools,
     modelSelectorOpen,
+    toolSelectorOpen,
     inputFocused,
     isInputDisabled,
     toggleModelSelector,
+    toggleToolSelector,
   } = useUI();
   const { sendMessage } = useChat();
   const { colors } = useTheme();
@@ -30,12 +38,34 @@ export function ChatInput() {
         return;
       }
 
+      // Check for /t command to open tool selector
+      if (trimmed === "/t") {
+        toggleToolSelector();
+        return;
+      }
+
       if (!isInputDisabled && value.trim()) {
-        sendMessage(value, selectedModel);
+        sendMessage(
+          value,
+          selectedModel,
+          selectedTools.length > 0 ? selectedTools : undefined
+        );
       }
     },
-    [isInputDisabled, sendMessage, selectedModel, toggleModelSelector]
+    [
+      isInputDisabled,
+      sendMessage,
+      selectedModel,
+      selectedTools,
+      toggleModelSelector,
+      toggleToolSelector,
+    ]
   );
+
+  // Get selected tool names for display
+  const selectedToolNames = selectedTools
+    .map((id) => SUPPORTED_AI_TOOLS.find((t) => t.id === id)?.name)
+    .filter(Boolean);
 
   return (
     <box
@@ -48,14 +78,25 @@ export function ChatInput() {
       {/* Model selector dropdown */}
       {modelSelectorOpen && <ModelSelector />}
 
+      {/* Tool selector dropdown */}
+      {toolSelectorOpen && <ToolSelector />}
+
       {/* Model info row */}
       <box style={{ paddingLeft: 1, paddingRight: 1, flexDirection: "row" }}>
         <text fg={colors.fg5}>⚡</text>
         <text fg={colors.primary}> {currentModel?.name}</text>
+        {selectedToolNames.length > 0 && (
+          <>
+            <text fg={colors.border1}> • </text>
+            <text fg={colors.accent}>🛠️ {selectedToolNames.join(", ")}</text>
+          </>
+        )}
         <text fg={colors.border1}> • </text>
         <text fg={colors.fg5}>type </text>
         <text fg={colors.accent}>/m</text>
-        <text fg={colors.fg5}> + Enter to change model</text>
+        <text fg={colors.fg5}> model </text>
+        <text fg={colors.accent}>/t</text>
+        <text fg={colors.fg5}> tools</text>
         {isInputDisabled && (
           <>
             <text fg={colors.border1}> • </text>
@@ -86,9 +127,9 @@ export function ChatInput() {
           placeholder={
             isInputDisabled
               ? "Waiting for response..."
-              : "Type a message… (Enter to send, /m for models)"
+              : "Type a message… (Enter to send, /m for models, /t for tools)"
           }
-          focused={inputFocused && !isInputDisabled && !modelSelectorOpen}
+          focused={inputFocused && !isInputDisabled && !modelSelectorOpen && !toolSelectorOpen}
           onSubmit={handleSubmit}
         />
       </box>
