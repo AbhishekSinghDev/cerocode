@@ -132,8 +132,8 @@ export function InputBar(props: InputBarProps) {
             focused={!props.disabled}
             keyBindings={TEXTAREA_KEY_BINDINGS}
             onContentChange={handleTextareaContentChange}
-            placeholder={`Ask anything... "Fix a bug in the database schema"`}
-            style={{ minWidth: "50%" }}
+            placeholder={`Ask anything... "Fix a bug in the database"`}
+            style={{ minWidth: "40%", maxWidth: "40%" }}
           />
           <StatusBar />
         </box>
