@@ -1,34 +1,95 @@
 import type { Command } from "./types";
 
 export const COMMANDS: Command[] = [
-  { name: "new", description: "Start a new conversation", value: "/new" },
+  {
+    name: "new",
+    description: "Start a new conversation",
+    value: "/new",
+    action(ctx) {
+      ctx.toast.show({
+        message: "Starting a new conversation...",
+      });
+    },
+  },
   {
     name: "agents",
     description: "Switch between agents",
     value: "/agents",
+    action(ctx) {
+      ctx.toast.show({
+        message: "Switching agents...",
+      });
+    },
   },
   {
     name: "models",
     description: "View and change the current model",
     value: "/models",
+    action(ctx) {
+      ctx.toast.show({
+        message: "Viewing and changing the current model...",
+      });
+    },
   },
   {
     name: "sessions",
     description: "View and manage your conversations",
     value: "/sessions",
+    action: (ctx) => {
+      ctx.toast.show({
+        message: "Loading sessions...",
+      });
+    },
   },
   {
     name: "theme",
     description: "Change the application theme",
     value: "/theme",
+    action: (ctx) => {
+      ctx.toast.show({
+        message: "Opening theme settings...",
+      });
+    },
   },
-  { name: "login", description: "Sign in to your browser", value: "/login" },
-  { name: "logout", description: "Sign out of your account", value: "/logout" },
-  { name: "upgrade", description: "Buy more credits", value: "/upgrade" },
+  {
+    name: "login",
+    description: "Sign in to your browser",
+    value: "/login",
+    action: (ctx) => {
+      ctx.toast.show({
+        message: "Opening browser to sign in...",
+      });
+    },
+  },
+  {
+    name: "logout",
+    description: "Sign out of your account",
+    value: "/logout",
+    action: (ctx) => {
+      ctx.toast.show({
+        message: "Signing out...",
+      });
+    },
+  },
+  {
+    name: "upgrade",
+    description: "Buy more credits",
+    value: "/upgrade",
+    action: (ctx) => {
+      ctx.toast.show({
+        message: "Opening upgrade page...",
+      });
+    },
+  },
   {
     name: "usage",
     description: "Open billing portal in your browser",
     value: "/usage",
+    action: (ctx) => {
+      ctx.toast.show({
+        message: "Opening billing portal...",
+      });
+    },
   },
   {
     name: "exit",
