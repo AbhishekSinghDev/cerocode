@@ -5,7 +5,7 @@ export const COMMANDS: Command[] = [
     name: "new",
     description: "Start a new conversation",
     value: "/new",
-    action(ctx) {
+    action: (ctx) => {
       ctx.toast.show({
         message: "Starting a new conversation...",
       });
@@ -15,9 +15,10 @@ export const COMMANDS: Command[] = [
     name: "agents",
     description: "Switch between agents",
     value: "/agents",
-    action(ctx) {
-      ctx.toast.show({
-        message: "Switching agents...",
+    action: (ctx) => {
+      ctx.dialog.open({
+        title: "Switch Agents",
+        children: <text>Agent selection comming soon..</text>,
       });
     },
   },
@@ -25,9 +26,10 @@ export const COMMANDS: Command[] = [
     name: "models",
     description: "View and change the current model",
     value: "/models",
-    action(ctx) {
-      ctx.toast.show({
-        message: "Viewing and changing the current model...",
+    action: (ctx) => {
+      ctx.dialog.open({
+        title: "Select Model",
+        children: <text>Model selection comming soon..</text>,
       });
     },
   },

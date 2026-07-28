@@ -6,6 +6,8 @@ import { useRenderer } from "@opentui/react";
 import { useCommandMenu } from "./command-menu/use-command-menu";
 import type { Command } from "./command-menu/types";
 import { useToast } from "../providers/toast";
+import { useKeyboardLayer } from "../providers/kebboard";
+import { useDialog } from "../providers/dialog";
 
 type InputBarProps = {
   onSubmit: (value: string) => void;
@@ -24,6 +26,8 @@ export function InputBar(props: InputBarProps) {
   const onSubmitRef = useRef<() => void>(() => {});
   const renderer = useRenderer();
   const toast = useToast();
+  const dialog = useDialog();
+  const { isTop, setResponder } = useKeyboardLayer();
 
   const {
     showCommandMenu,
@@ -71,6 +75,7 @@ export function InputBar(props: InputBarProps) {
         command.action({
           exit: () => renderer.destroy(),
           toast,
+          dialog,
         });
       } else {
         textarea.insertText(command.value + " ");
@@ -100,8 +105,25 @@ export function InputBar(props: InputBarProps) {
     handleSubmit();
   };
 
+  useEffect(() => {
+    setResponder("base", () => {
+      if (props.disabled) return false;
+
+      const textarea = textareaRef.current;
+      if (textarea && textarea.plainText.length > 0) {
+        textarea.setText("");
+        return true;
+      }
+      return false;
+    });
+
+    return () => {
+      setResponder("base", null);
+    };
+  }, [props.disabled, setResponder]);
+
   return (
-    <box width="100%" minWidth="100%" alignItems="center">
+    <box width="100%" alignItems="center">
       <box border={["left"]} borderColor="cyan" borderStyle="heavy">
         <box
           position="relative"
@@ -132,11 +154,11 @@ export function InputBar(props: InputBarProps) {
           )}
           <textarea
             ref={textareaRef}
-            focused={!props.disabled}
+            focused={(!props.disabled && isTop("base")) || isTop("command")}
             keyBindings={TEXTAREA_KEY_BINDINGS}
             onContentChange={handleTextareaContentChange}
             placeholder={`Ask anything... "Fix a bug in the database"`}
-            style={{ minWidth: "40%", maxWidth: "40%" }}
+            style={{ minWidth: "100%", maxWidth: "100%" }}
           />
           <StatusBar />
         </box>
