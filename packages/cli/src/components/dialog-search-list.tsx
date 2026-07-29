@@ -6,6 +6,7 @@ import {
 import { useCallback, useRef, useState } from "react";
 import { useKeyboardLayer } from "../providers/kebboard";
 import { useKeyboard } from "@opentui/react";
+import { useTheme } from "../providers/theme";
 
 const MAX_VISIBLE_ITEMS = 6;
 
@@ -25,6 +26,7 @@ export function DialogSearchList<T>(props: DialogSearchListProps<T>) {
   const [searchValue, setSearchValue] = useState("");
   const inputRef = useRef<InputRenderable>(null);
   const scrollRef = useRef<ScrollBoxRenderable>(null);
+  const { theme } = useTheme();
 
   const { isTop } = useKeyboardLayer();
 
@@ -105,7 +107,7 @@ export function DialogSearchList<T>(props: DialogSearchListProps<T>) {
                 flexDirection="row"
                 height={1}
                 overflow="hidden"
-                backgroundColor={isSelected ? "#89B4FA" : undefined}
+                backgroundColor={isSelected ? theme.colors.selection : undefined}
                 onMouseMove={() => {
                   setSelectedIndex(index);
                   if (props.onHighlight) props.onHighlight(item);

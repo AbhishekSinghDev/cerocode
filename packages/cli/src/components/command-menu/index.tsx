@@ -2,6 +2,7 @@ import type { RefObject } from "react";
 import { COMMANDS } from "./commands";
 import { TextAttributes, type ScrollBoxRenderable } from "@opentui/core";
 import { getFilteredCommands } from "./filter-commands";
+import { useTheme } from "../../providers/theme";
 
 const MAX_VISIBLE_COMMANDS = 8;
 
@@ -17,6 +18,7 @@ type CommandMenuProps = {
 };
 
 export function CommandMenu(props: CommandMenuProps) {
+  const { theme } = useTheme();
   const filtered = getFilteredCommands(props.query);
   const visibleHeight = Math.min(filtered.length, MAX_VISIBLE_COMMANDS);
 
@@ -40,17 +42,23 @@ export function CommandMenu(props: CommandMenuProps) {
             paddingX={1}
             height={1}
             overflow="hidden"
-            backgroundColor={isSelected ? "#89B4FA" : undefined}
+            backgroundColor={isSelected ? theme.colors.selection : undefined}
             onMouseMove={() => props.onSelect(index)}
             onMouseDown={() => props.onExecute(index)}
           >
             <box width={COMMAND_COL_WIDTH} flexShrink={0}>
-              <text selectable={false} fg={isSelected ? "black" : "white"}>
+              <text
+                selectable={false}
+                fg={isSelected ? theme.colors.textOnSelection : theme.colors.primary}
+              >
                 /{command.name}
               </text>
             </box>
             <box flexGrow={1} flexShrink={1} overflow="hidden">
-              <text selectable={false} fg={isSelected ? "black" : "gray"}>
+              <text
+                selectable={false}
+                fg={isSelected ? theme.colors.textOnSelection : theme.colors.textMuted}
+              >
                 {command.description}
               </text>
             </box>

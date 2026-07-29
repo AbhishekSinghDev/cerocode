@@ -5,8 +5,10 @@ import { InputBar } from "./components/input-bar";
 import { ToastProvider } from "./providers/toast";
 import { KeyboardProvider } from "./providers/kebboard";
 import { DialogProvider } from "./providers/dialog";
+import { ThemeProvider, useTheme } from "./providers/theme";
 
 function App() {
+  const { theme } = useTheme();
   return (
     <KeyboardProvider>
       <DialogProvider>
@@ -14,7 +16,7 @@ function App() {
           <box
             alignItems="center"
             justifyContent="center"
-            backgroundColor="#0D0D12"
+            backgroundColor={theme.colors.background}
             width="100%"
             height="100%"
             gap={2}
@@ -30,8 +32,16 @@ function App() {
   );
 }
 
+function Root() {
+  return (
+    <ThemeProvider>
+      <App />
+    </ThemeProvider>
+  );
+}
+
 const renderer = await createCliRenderer({
   targetFps: 60,
   exitOnCtrlC: false,
 });
-createRoot(renderer).render(<App />);
+createRoot(renderer).render(<Root />);

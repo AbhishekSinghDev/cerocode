@@ -8,6 +8,7 @@ import type { Command } from "./command-menu/types";
 import { useToast } from "../providers/toast";
 import { useKeyboardLayer } from "../providers/kebboard";
 import { useDialog } from "../providers/dialog";
+import { useTheme } from "../providers/theme";
 
 type InputBarProps = {
   onSubmit: (value: string) => void;
@@ -28,6 +29,7 @@ export function InputBar(props: InputBarProps) {
   const toast = useToast();
   const dialog = useDialog();
   const { isTop, setResponder } = useKeyboardLayer();
+  const { theme } = useTheme();
 
   const {
     showCommandMenu,
@@ -81,7 +83,7 @@ export function InputBar(props: InputBarProps) {
         textarea.insertText(command.value + " ");
       }
     },
-    [renderer, toast],
+    [renderer, toast, dialog],
   );
 
   useEffect(() => {
@@ -124,13 +126,17 @@ export function InputBar(props: InputBarProps) {
 
   return (
     <box width="100%" alignItems="center">
-      <box border={["left"]} borderColor="cyan" borderStyle="heavy">
+      <box
+        border={["left"]}
+        borderColor={theme.colors.primary}
+        borderStyle="heavy"
+      >
         <box
           position="relative"
           justifyContent="center"
           paddingX={2}
           paddingY={1}
-          backgroundColor="#1A1A24"
+          backgroundColor={theme.colors.surface}
           width="100%"
           gap={1}
         >
@@ -140,7 +146,7 @@ export function InputBar(props: InputBarProps) {
               bottom="100%"
               left={0}
               width="100%"
-              backgroundColor="#1A1A24"
+              backgroundColor={theme.colors.surface}
               zIndex={10}
             >
               <CommandMenu
