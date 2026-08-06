@@ -80,6 +80,9 @@ function Dialog({ currentDialog, close }: DialogProps) {
 
   const { title, children } = currentDialog;
 
+  const scrim = RGBA.fromHex(theme.colors.background);
+  scrim.a = 150;
+
   return (
     <box
       position="absolute"
@@ -89,7 +92,7 @@ function Dialog({ currentDialog, close }: DialogProps) {
       height={dimensions.height}
       justifyContent="center"
       alignItems="center"
-      backgroundColor={RGBA.fromInts(0, 0, 0, 150)}
+      backgroundColor={scrim}
       zIndex={100}
       onMouseDown={() => close()}
     >
