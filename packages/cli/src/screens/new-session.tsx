@@ -56,7 +56,7 @@ export function NewSessionScreen() {
           throw new Error(await getErrorMessage(res));
         }
 
-        const session = await res.json();
+        const { session } = await res.json();
         navigate(`/sessions/${session.id}`, {
           replace: true,
           state: { session },

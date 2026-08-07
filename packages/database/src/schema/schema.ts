@@ -9,7 +9,6 @@ import {
 } from "drizzle-orm/pg-core";
 import { v7 as uuidv7 } from "uuid";
 import { messageStatusEnum, modeEnum, roleEnum } from "./enum";
-import { defineRelations } from "drizzle-orm";
 
 export const sessions = pgTable(
   "sessions",
@@ -23,11 +22,13 @@ export const sessions = pgTable(
     createdAt: timestamp("created_at", {
       mode: "string",
       withTimezone: true,
-    }).notNull(),
+    }).defaultNow(),
     updatedAt: timestamp("updated_at", {
       mode: "string",
       withTimezone: true,
-    }).notNull(),
+    })
+      .defaultNow()
+      .$onUpdateFn(() => new Date().toISOString()),
   },
   (table) => [index("session_user_id_idx").on(table.userId)],
 );
@@ -49,20 +50,5 @@ export const messages = pgTable("messages", {
   createdAt: timestamp("created_at", {
     mode: "string",
     withTimezone: true,
-  }).notNull(),
+  }).defaultNow(),
 });
-
-export const relations = defineRelations({ sessions, messages }, (r) => ({
-  sessions: {
-    messages: r.many.messages({
-      from: r.sessions.id,
-      to: r.messages.sessionId,
-    }),
-  },
-  messages: {
-    session: r.one.sessions({
-      from: r.messages.sessionId,
-      to: r.sessions.id,
-    }),
-  },
-}));

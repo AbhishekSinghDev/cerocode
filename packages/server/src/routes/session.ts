@@ -1,41 +1,24 @@
+import { desc } from "@cerocode/database";
+import { db } from "@cerocode/database/client";
+import {
+  messages,
+  modeEnum,
+  roleEnum,
+  sessions,
+} from "@cerocode/database/schema";
 import { findSupportedChatModelById } from "@cerocode/shared";
 import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 import { z } from "zod";
-
-type MockMessage = {
-  id: string;
-  role: string;
-  content: string;
-  mode: string;
-  model: string;
-  status: string;
-  parts: null;
-  duration: null;
-  createdAt: string;
-  sessionId: string;
-};
-
-type MockSession = {
-  id: string;
-  title: string;
-  cwd: string | null;
-  userId: string;
-  createdAt: string;
-  messages: MockMessage[];
-};
-
-const sessions: MockSession[] = [];
-let nextId = 1;
 
 const createSessionSchema = z.object({
   title: z.string(),
   cwd: z.string().nullable(),
   initialMessage: z
     .object({
-      role: z.string(),
+      role: z.enum(roleEnum.enumValues),
       content: z.string(),
-      mode: z.string(),
+      mode: z.enum(modeEnum.enumValues),
       model: z
         .string()
         .refine((id) => !!findSupportedChatModelById(id), "Unsupported model"),
@@ -55,11 +38,15 @@ const createSessionValidator = zValidator(
 
 const app = new Hono()
   .get("/", async (c) => {
-    const result = sessions.map(({ id, title, createdAt }) => ({
-      id,
-      title,
-      createdAt,
-    }));
+    const result = await db
+      .select({
+        id: sessions.id,
+        title: sessions.title,
+        createdAt: sessions.createdAt,
+      })
+      .from(sessions)
+      .orderBy(desc(sessions.createdAt));
+
     return c.json(result);
   })
   .get("/:id", async (c) => {
@@ -69,13 +56,20 @@ const app = new Hono()
     // });
 
     const id = c.req.param("id");
-    const session = sessions.find((s) => s.id === id);
+    const result = await db.query.sessions.findFirst({
+      where: { id: id },
+      with: {
+        messages: {
+          orderBy: { createdAt: "asc" },
+        },
+      },
+    });
 
-    if (!session) {
+    if (!result) {
       return c.json({ error: "Session not found" }, 404);
     }
 
-    return c.json(session);
+    return c.json(result);
   })
   .post("/", createSessionValidator, async (c) => {
     // await new Promise((resolve) => setTimeout(resolve, 5000));
@@ -85,38 +79,51 @@ const app = new Hono()
 
     const { initialMessage, ...data } = c.req.valid("json");
 
-    const id = String(nextId++);
-    const now = new Date().toISOString();
+    const result = await db.transaction(async (tx) => {
+      const sessionResult = await tx
+        .insert(sessions)
+        .values({
+          title: data.title,
+          cwd: data.cwd,
+          userId: "user-id-placeholder", // Replace with actual user ID from auth context
+        })
+        .returning({
+          id: sessions.id,
+          title: sessions.title,
+          cwd: sessions.cwd,
+          createdAt: sessions.createdAt,
+          updatedAt: sessions.updatedAt,
+        });
 
-    const messages: MockMessage[] = [];
+      const session = sessionResult[0];
 
-    if (initialMessage) {
-      messages.push({
-        id: String(nextId++),
-        role: initialMessage.role,
-        content: initialMessage.content,
-        mode: initialMessage.mode,
-        model: initialMessage.model,
-        status: "COMPLETED",
-        parts: null,
-        duration: null,
-        createdAt: now,
-        sessionId: id,
-      });
-    }
+      if (!session) {
+        throw new Error("Failed to create session");
+      }
 
-    const session: MockSession = {
-      id,
-      title: data.title,
-      cwd: data.cwd ?? null,
-      userId: "mock-user-id",
-      createdAt: now,
-      messages,
-    };
+      const messageResult = initialMessage
+        ? await tx
+            .insert(messages)
+            .values({
+              content: initialMessage.content,
+              role: initialMessage.role,
+              model: initialMessage.model,
+              mode: initialMessage.mode,
+              sessionId: session.id,
+              status: "COMPLETE",
+            })
+            .returning()
+        : null;
 
-    sessions.push(session);
+      return {
+        session: {
+          ...session,
+          messages: messageResult || [],
+        },
+      };
+    });
 
-    return c.json(session, 201);
+    return c.json(result, 201);
   });
 
 export default app;
