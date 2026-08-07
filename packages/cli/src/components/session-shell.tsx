@@ -39,6 +39,7 @@ export function SessionShell(props: Props) {
       >
         <box flexDirection="row" alignItems="center" gap={2}>
           {props.loading ? <Spinner /> : null}
+          <text attributes={TextAttributes.DIM}>{process.cwd()}</text>
         </box>
 
         <box flexDirection="row" gap={1} flexShrink={0} marginLeft="auto">
