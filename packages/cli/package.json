@@ -1,23 +1,27 @@
 {
   "name": "@cerocode/cli",
-  "module": "src/index.tsx",
-  "type": "module",
   "private": true,
+  "type": "module",
+  "module": "src/index.tsx",
   "scripts": {
     "dev": "bun run --watch src/index.tsx"
   },
+  "dependencies": {
+    "@cerocode/shared": "workspace:*",
+    "@opentui/core": "^0.4.5",
+    "@opentui/react": "^0.4.5",
+    "hono": "^4.13.0",
+    "opentui-spinner": "^0.0.7",
+    "react": "^19.2.8",
+    "react-router": "^8.3.0",
+    "zod": "^4.4.3"
+  },
   "devDependencies": {
+    "@cerocode/server": "workspace:*",
     "@types/bun": "latest",
     "@types/react": "^19.2.14"
   },
   "peerDependencies": {
     "typescript": "^5"
-  },
-  "dependencies": {
-    "@opentui/core": "^0.4.5",
-    "@opentui/react": "^0.4.5",
-    "opentui-spinner": "^0.0.7",
-    "react": "^19.2.8",
-    "react-router": "^8.3.0"
   }
 }

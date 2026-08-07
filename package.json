@@ -2,9 +2,13 @@
   "name": "cerocode",
   "version": "1.0.0",
   "scripts": {
+    "dev:server": "bun run --hot packages/server/src/index.ts",
     "dev:cli": "bun run --watch packages/cli/src/index.tsx"
   },
   "workspaces": [
     "packages/*"
-  ]
+  ],
+  "devDependencies": {
+    "typescript": "^5"
+  }
 }
