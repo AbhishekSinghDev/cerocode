@@ -54,7 +54,7 @@ const createSessionValidator = zValidator(
 );
 
 const app = new Hono()
-  .get("/", (c) => {
+  .get("/", async (c) => {
     const result = sessions.map(({ id, title, createdAt }) => ({
       id,
       title,
