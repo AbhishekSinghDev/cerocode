@@ -94,4 +94,4 @@ export function findSupportedChatModelById(id: string) {
 }
 
 export const DEFAULT_SUPPORTED_CHAT_MODEL: SupportedChatModelId =
-  "claude-haiku-4-5";
+  "gemini-3.5-flash-lite";
