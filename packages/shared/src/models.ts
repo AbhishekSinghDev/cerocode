@@ -47,17 +47,6 @@ export const SUPPORTED_CHAT_MODELS = [
       outputUsdPerMillionTokens: 0,
     },
   },
-  {
-    // Reasoning model — slower/more verbose per call (thinking tokens eat into
-    // TPM fastest), so it burns through free-tier budget quickest. Use sparingly,
-    // for planning/debugging steps only.
-    id: "deepseek-r1-distill-llama-70b",
-    provider: "groq",
-    pricing: {
-      inputUsdPerMillionTokens: 0,
-      outputUsdPerMillionTokens: 0,
-    },
-  },
 
   // --- Mistral (free "Experiment" tier, no card, phone verification) ---
   // Rate limit is uniform across all models (1 req/sec, 500K TPM, 1B tokens/month),
@@ -156,4 +145,4 @@ export function findSupportedChatModelById(id: string) {
 // Default points at the highest-headroom free-tier model so the harness can run
 // a lot of test iterations before hitting any rate limit.
 export const DEFAULT_SUPPORTED_CHAT_MODEL: SupportedChatModelId =
-  "openai/gpt-oss-20b";
+  "devstral-small-latest";

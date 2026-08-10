@@ -11,7 +11,7 @@ export function StatusBar() {
       <text
         fg={mode === "BUILD" ? theme.colors.primary : theme.colors.selection}
       >
-        {mode}
+        {mode.toLocaleLowerCase()}
       </text>
       <text attributes={TextAttributes.DIM} fg={theme.colors.textMuted}>
         &#8250;

@@ -4,6 +4,7 @@ import type {
   ClientToolCallPart,
 } from "../../hooks/use-chat";
 import { useTheme } from "../../providers/theme";
+import { MessageMarkdown } from "../markdown";
 
 type Props = {
   parts: ClientMessagePart[];
@@ -106,7 +107,8 @@ export function BotMessage({
 
             return (
               <box key={`text-${i}`} paddingX={2} width="100%">
-                <text fg={theme.colors.text}>{part.text}</text>
+                {/* <text fg={theme.colors.text}>{part.text}</text> */}
+                <MessageMarkdown content={part.text} streaming={!streaming} />
               </box>
             );
           })}
@@ -115,53 +117,61 @@ export function BotMessage({
 
       <box paddingX={3} paddingBottom={1} gap={1} width="100%">
         <box flexDirection="row" gap={2}>
+          <text
+            fg={
+              interrupted
+                ? theme.colors.textMuted
+                : mode === "PLAN"
+                  ? theme.colors.info
+                  : theme.colors.primary
+            }
+          >
+            {">"}
+          </text>
+
+          <box flexDirection="row" gap={1}>
             <text
-              fg={
-                interrupted
-                  ? theme.colors.textMuted
-                  : mode === "PLAN"
-                    ? theme.colors.info
-                    : theme.colors.primary
-              }
+              fg={interrupted ? theme.colors.textMuted : theme.colors.text}
+              attributes={interrupted ? TextAttributes.DIM : 0}
+            >
+              {mode === "PLAN" ? "Plan" : "Build"}
+            </text>
+            <text
+              attributes={TextAttributes.DIM}
+              fg={interrupted ? theme.colors.textMuted : theme.colors.textMuted}
             >
               {">"}
             </text>
-
-            <box flexDirection="row" gap={1}>
-              <text
-                fg={interrupted ? theme.colors.textMuted : theme.colors.text}
-                attributes={interrupted ? TextAttributes.DIM : 0}
-              >
-                {mode === "PLAN" ? "Plan" : "Build"}
-              </text>
-              <text
-                attributes={TextAttributes.DIM}
-                fg={interrupted ? theme.colors.textMuted : theme.colors.textMuted}
-              >
-                {">"}
-              </text>
-              <text
-                fg={interrupted ? theme.colors.textMuted : theme.colors.textMuted}
-                attributes={TextAttributes.DIM}
-              >
-                {model}
-              </text>
-              {duration || interrupted ? (
-                <>
-                  <text
-                    attributes={TextAttributes.DIM}
-                    fg={interrupted ? theme.colors.textMuted : theme.colors.textMuted}
-                  >
-                    {">"}
-                  </text>
-                  <text
-                    attributes={TextAttributes.DIM}
-                    fg={interrupted ? theme.colors.textMuted : theme.colors.textMuted}
-                  >
-                    {interrupted ? "interrupted" : duration}
-                  </text>
-                </>
-              ) : null}
+            <text
+              fg={interrupted ? theme.colors.textMuted : theme.colors.textMuted}
+              attributes={TextAttributes.DIM}
+            >
+              {model}
+            </text>
+            {duration || interrupted ? (
+              <>
+                <text
+                  attributes={TextAttributes.DIM}
+                  fg={
+                    interrupted
+                      ? theme.colors.textMuted
+                      : theme.colors.textMuted
+                  }
+                >
+                  {">"}
+                </text>
+                <text
+                  attributes={TextAttributes.DIM}
+                  fg={
+                    interrupted
+                      ? theme.colors.textMuted
+                      : theme.colors.textMuted
+                  }
+                >
+                  {interrupted ? "interrupted" : duration}
+                </text>
+              </>
+            ) : null}
           </box>
         </box>
       </box>
