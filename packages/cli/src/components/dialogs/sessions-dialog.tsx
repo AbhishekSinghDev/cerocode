@@ -7,6 +7,7 @@ import { useNavigate } from "react-router";
 import { getErrorMessage } from "../../lib/http-errors";
 import { TextAttributes } from "@opentui/core";
 import { DialogSearchList } from "../dialog-search-list";
+import { useTheme } from "../../providers/theme";
 import { format } from "date-fns";
 
 type Session = InferResponseType<
@@ -62,6 +63,8 @@ export const SessionDialogContent = () => {
     [close, navigate],
   );
 
+  const { theme } = useTheme();
+
   if (loading) {
     return (
       <box flexDirection="column">
@@ -79,13 +82,13 @@ export const SessionDialogContent = () => {
       }
       renderItem={(session, isSelected) => (
         <>
-          <text selectable={false} fg={isSelected ? "black" : "white"}>
+          <text selectable={false} fg={isSelected ? theme.colors.textOnSelection : theme.colors.text}>
             {session.title}
           </text>
           <box flexGrow={1} />
           <text
             selectable={false}
-            fg={isSelected ? "black" : undefined}
+            fg={isSelected ? theme.colors.textOnSelection : theme.colors.textMuted}
             attributes={TextAttributes.DIM}
           >
             {session.createdAt

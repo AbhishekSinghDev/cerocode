@@ -1,5 +1,6 @@
 import { useCallback } from "react";
 import { useDialog } from "../../providers/dialog";
+import { useTheme } from "../../providers/theme";
 import { DialogSearchList } from "../dialog-search-list";
 import type { SupportedChatModelId } from "@cerocode/shared";
 
@@ -10,6 +11,7 @@ type ModelsDialogProps = {
 
 export const ModelsDialog = ({ models, onSelectModel }: ModelsDialogProps) => {
   const dialog = useDialog();
+  const { theme } = useTheme();
 
   const handleSelect = useCallback(
     (modelId: SupportedChatModelId) => {
@@ -27,7 +29,7 @@ export const ModelsDialog = ({ models, onSelectModel }: ModelsDialogProps) => {
         modelId.toLowerCase().includes(query.toLowerCase())
       }
       renderItem={(modelId, isSelected) => (
-        <text selectable={false} fg={isSelected ? "black" : "white"}>
+        <text selectable={false} fg={isSelected ? theme.colors.textOnSelection : theme.colors.text}>
           {modelId}
         </text>
       )}

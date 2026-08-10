@@ -25,7 +25,9 @@ export function CommandMenu(props: CommandMenuProps) {
   if (filtered.length === 0) {
     return (
       <box paddingX={1}>
-        <text attributes={TextAttributes.DIM}>No matching commands</text>
+        <text attributes={TextAttributes.DIM} fg={theme.colors.textMuted}>
+          No matching commands
+        </text>
       </box>
     );
   }

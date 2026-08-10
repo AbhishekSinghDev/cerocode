@@ -16,9 +16,6 @@ export function UserMessage({ message, mode }: Props) {
           paddingX={2}
           paddingY={1}
           backgroundColor={theme.colors.surface}
-          borderColor={
-            mode === "PLAN" ? theme.colors.selection : theme.colors.primary
-          }
           width="100%"
         >
           <text fg={theme.colors.text}>{message}</text>

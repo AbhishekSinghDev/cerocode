@@ -104,52 +104,64 @@ export function BotMessage({
               );
             }
 
-            if (part.type === "text") {
-              return (
-                <box key={`text-${i}`} paddingX={2} width="100%">
-                  <text>{part.text}</text>
-                </box>
-              );
-            }
-
-            return null;
+            return (
+              <box key={`text-${i}`} paddingX={2} width="100%">
+                <text fg={theme.colors.text}>{part.text}</text>
+              </box>
+            );
           })}
         </box>
       ))}
 
       <box paddingX={3} paddingBottom={1} gap={1} width="100%">
         <box flexDirection="row" gap={2}>
-          <text
-            attributes={interrupted ? TextAttributes.DIM : 0}
-            fg={
-              interrupted
-                ? undefined
-                : mode === "PLAN"
-                  ? theme.colors.info
-                  : theme.colors.primary
-            }
-          >
-            {">"}
-          </text>
-
-          <box flexDirection="row" gap={1}>
-            <text attributes={interrupted ? TextAttributes.DIM : 0}>
-              {mode === "PLAN" ? "Plan" : "Build"}
-            </text>
-            <text attributes={TextAttributes.DIM} fg={theme.colors.surface}>
+            <text
+              fg={
+                interrupted
+                  ? theme.colors.textMuted
+                  : mode === "PLAN"
+                    ? theme.colors.info
+                    : theme.colors.primary
+              }
+            >
               {">"}
             </text>
-            <text attributes={TextAttributes.DIM}>{model}</text>
-            {duration || interrupted ? (
-              <>
-                <text attributes={TextAttributes.DIM} fg={theme.colors.surface}>
-                  {">"}
-                </text>
-                <text attributes={TextAttributes.DIM}>
-                  {interrupted ? "interrupted" : duration}
-                </text>
-              </>
-            ) : null}
+
+            <box flexDirection="row" gap={1}>
+              <text
+                fg={interrupted ? theme.colors.textMuted : theme.colors.text}
+                attributes={interrupted ? TextAttributes.DIM : 0}
+              >
+                {mode === "PLAN" ? "Plan" : "Build"}
+              </text>
+              <text
+                attributes={TextAttributes.DIM}
+                fg={interrupted ? theme.colors.textMuted : theme.colors.textMuted}
+              >
+                {">"}
+              </text>
+              <text
+                fg={interrupted ? theme.colors.textMuted : theme.colors.textMuted}
+                attributes={TextAttributes.DIM}
+              >
+                {model}
+              </text>
+              {duration || interrupted ? (
+                <>
+                  <text
+                    attributes={TextAttributes.DIM}
+                    fg={interrupted ? theme.colors.textMuted : theme.colors.textMuted}
+                  >
+                    {">"}
+                  </text>
+                  <text
+                    attributes={TextAttributes.DIM}
+                    fg={interrupted ? theme.colors.textMuted : theme.colors.textMuted}
+                  >
+                    {interrupted ? "interrupted" : duration}
+                  </text>
+                </>
+              ) : null}
           </box>
         </box>
       </box>

@@ -94,7 +94,7 @@ export function DialogSearchList<T>(props: DialogSearchListProps<T>) {
       />
 
       {filtered.length === 0 ? (
-        <text attributes={TextAttributes.DIM}>
+        <text attributes={TextAttributes.DIM} fg={theme.colors.textMuted}>
           {props.emptyText ?? "No results found."}
         </text>
       ) : (

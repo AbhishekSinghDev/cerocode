@@ -1,5 +1,6 @@
 import { useCallback } from "react";
 import { useDialog } from "../../providers/dialog";
+import { useTheme } from "../../providers/theme";
 import { DialogSearchList } from "../dialog-search-list";
 
 type AgentsDialogProps = {
@@ -23,6 +24,7 @@ export const AgentsDialog = ({
   onSelectMode,
 }: AgentsDialogProps) => {
   const dialog = useDialog();
+  const { theme } = useTheme();
 
   const handleSelect = useCallback(
     (nextMode: "BUILD" | "PLAN") => {
@@ -40,7 +42,7 @@ export const AgentsDialog = ({
         getModelLabel(item).toLowerCase().includes(query.toLowerCase())
       }
       renderItem={(item, isSelected) => (
-        <text selectable={false} fg={isSelected ? "black" : "white"}>
+        <text selectable={false} fg={isSelected ? theme.colors.textOnSelection : theme.colors.text}>
           {getModelLabel(item)}
         </text>
       )}

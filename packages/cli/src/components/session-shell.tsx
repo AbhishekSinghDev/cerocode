@@ -2,6 +2,7 @@ import { TextAttributes } from "@opentui/core";
 import { InputBar } from "./input-bar";
 import { Spinner } from "./spinner";
 import { usePromptConfig } from "../providers/prompt-config";
+import { useTheme } from "../providers/theme";
 
 type Props = {
   children?: React.ReactNode;
@@ -13,6 +14,7 @@ type Props = {
 
 export function SessionShell(props: Props) {
   const { mode } = usePromptConfig();
+  const { theme } = useTheme();
 
   return (
     <box
@@ -45,15 +47,17 @@ export function SessionShell(props: Props) {
           {props.loading ? (
             <>
               <Spinner mode={mode} />
-              {props.interruptible ? <text>esc to interrupt</text> : null}
+              {props.interruptible ? (
+                <text fg={theme.colors.textMuted}>esc to interrupt</text>
+              ) : null}
             </>
           ) : null}
-          <text attributes={TextAttributes.DIM}>{process.cwd()}</text>
+          <text fg={theme.colors.textMuted} attributes={TextAttributes.DIM}>{process.cwd()}</text>
         </box>
 
         <box flexDirection="row" gap={1} flexShrink={0} marginLeft="auto">
-          <text>tab</text>
-          <text attributes={TextAttributes.DIM}>agents</text>
+          <text fg={theme.colors.textMuted}>tab</text>
+          <text attributes={TextAttributes.DIM} fg={theme.colors.textMuted}>agents</text>
         </box>
       </box>
     </box>
