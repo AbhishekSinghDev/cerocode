@@ -5,8 +5,8 @@ import { SessionShell } from "../components/session-shell";
 import { z } from "zod";
 import { useToast } from "../providers/toast";
 import { apiClient } from "../lib/api-client";
-import { DEFAULT_SUPPORTED_CHAT_MODEL } from "@cerocode/shared";
 import { getErrorMessage } from "../lib/http-errors";
+import { usePromptConfig } from "../providers/prompt-config";
 
 const newSessionStateSchema = z.object({
   message: z.string(),
@@ -17,6 +17,7 @@ export function NewSessionScreen() {
   const location = useLocation();
   const toast = useToast();
   const hasStartedRef = useRef(false);
+  const { mode, model } = usePromptConfig();
 
   const state = useMemo(() => {
     const parsed = newSessionStateSchema.safeParse(location.state);
@@ -45,8 +46,8 @@ export function NewSessionScreen() {
             initialMessage: {
               role: "USER",
               content: state.message,
-              mode: "BUILD",
-              model: DEFAULT_SUPPORTED_CHAT_MODEL,
+              mode: mode,
+              model: model,
             },
           },
         });

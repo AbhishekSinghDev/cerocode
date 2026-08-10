@@ -1,5 +1,9 @@
 import type { Command } from "./types";
 import { ThemeDialogContent } from "../theme-dialog-content";
+import { SessionDialogContent } from "../dialogs/sessions-dialog";
+import { AgentsDialog } from "../dialogs/agents-dialog";
+import { ModelsDialog } from "../dialogs/models-dialog";
+import { SUPPORTED_CHAT_MODELS } from "@cerocode/shared";
 
 export const COMMANDS: Command[] = [
   {
@@ -7,9 +11,7 @@ export const COMMANDS: Command[] = [
     description: "Start a new conversation",
     value: "/new",
     action: (ctx) => {
-      ctx.toast.show({
-        message: "Starting a new conversation...",
-      });
+      ctx.navigate("/");
     },
   },
   {
@@ -19,7 +21,9 @@ export const COMMANDS: Command[] = [
     action: (ctx) => {
       ctx.dialog.open({
         title: "Switch Agents",
-        children: <text>Agent selection comming soon..</text>,
+        children: (
+          <AgentsDialog currentMode={ctx.mode} onSelectMode={ctx.setMode} />
+        ),
       });
     },
   },
@@ -30,7 +34,12 @@ export const COMMANDS: Command[] = [
     action: (ctx) => {
       ctx.dialog.open({
         title: "Select Model",
-        children: <text>Model selection comming soon..</text>,
+        children: (
+          <ModelsDialog
+            models={SUPPORTED_CHAT_MODELS.map((model) => model.id)}
+            onSelectModel={ctx.setModel}
+          />
+        ),
       });
     },
   },
@@ -39,8 +48,9 @@ export const COMMANDS: Command[] = [
     description: "View and manage your conversations",
     value: "/sessions",
     action: (ctx) => {
-      ctx.toast.show({
-        message: "Loading sessions...",
+      ctx.dialog.open({
+        title: "Select Theme",
+        children: <SessionDialogContent />,
       });
     },
   },
