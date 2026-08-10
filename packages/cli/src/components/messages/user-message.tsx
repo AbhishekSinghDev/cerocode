@@ -2,9 +2,10 @@ import { useTheme } from "../../providers/theme";
 
 type Props = {
   message: string;
+  mode: "PLAN" | "BUILD";
 };
 
-export function UserMessage({ message }: Props) {
+export function UserMessage({ message, mode }: Props) {
   const { theme } = useTheme();
 
   return (
@@ -15,6 +16,9 @@ export function UserMessage({ message }: Props) {
           paddingX={2}
           paddingY={1}
           backgroundColor={theme.colors.surface}
+          borderColor={
+            mode === "PLAN" ? theme.colors.selection : theme.colors.primary
+          }
           width="100%"
         >
           <text fg={theme.colors.text}>{message}</text>

@@ -15,9 +15,7 @@ type Props = {
 };
 
 function formatToolName(name: string) {
-  return name
-    .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
-    .replace(/^./, (c) => c.toUpperCase());
+  return name.replace(/([a-z0-9])([A-Z])/g, "$1_$2").toLowerCase();
 }
 
 function formatToolArgs(tc: ClientToolCallPart): string {
@@ -94,6 +92,12 @@ export function BotMessage({
                 >
                   <text attributes={TextAttributes.DIM}>
                     <em fg={theme.colors.info}>{formatToolName(part.name)}</em>
+                    {Object.keys(part.args).length > 0 ? (
+                      <em fg={theme.colors.textMuted}>
+                        {" "}
+                        {formatToolArgs(part)}
+                      </em>
+                    ) : null}
                     {part.status === "calling" ? ".." : ""}
                   </text>
                 </box>

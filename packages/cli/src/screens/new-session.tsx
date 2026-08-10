@@ -6,10 +6,11 @@ import { z } from "zod";
 import { useToast } from "../providers/toast";
 import { apiClient } from "../lib/api-client";
 import { getErrorMessage } from "../lib/http-errors";
-import { usePromptConfig } from "../providers/prompt-config";
 
 const newSessionStateSchema = z.object({
   message: z.string(),
+  mode: z.enum(["PLAN", "BUILD"]),
+  model: z.string(),
 });
 
 export function NewSessionScreen() {
@@ -17,7 +18,6 @@ export function NewSessionScreen() {
   const location = useLocation();
   const toast = useToast();
   const hasStartedRef = useRef(false);
-  const { mode, model } = usePromptConfig();
 
   const state = useMemo(() => {
     const parsed = newSessionStateSchema.safeParse(location.state);
@@ -46,8 +46,8 @@ export function NewSessionScreen() {
             initialMessage: {
               role: "USER",
               content: state.message,
-              mode: mode,
-              model: model,
+              mode: state.mode,
+              model: state.model,
             },
           },
         });
@@ -83,7 +83,7 @@ export function NewSessionScreen() {
 
   return (
     <SessionShell onSubmit={() => {}} inputDisabled loading>
-      <UserMessage message={state.message} />
+      <UserMessage message={state.message} mode={state.mode} />
     </SessionShell>
   );
 }

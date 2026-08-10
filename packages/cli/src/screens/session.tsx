@@ -7,14 +7,19 @@ import { useLocation, useNavigate, useParams } from "react-router";
 import { useToast } from "../providers/toast";
 import { useEffect, useMemo, useState } from "react";
 import { getErrorMessage } from "../lib/http-errors";
-import { useChat, type Message } from "../hooks/use-chat";
 import {
-  DEFAULT_SUPPORTED_CHAT_MODEL,
+  useChat,
+  type ClientMessagePart,
+  type Message,
+} from "../hooks/use-chat";
+import {
+  messagePartsSchema,
   type SupportedChatModelId,
 } from "@cerocode/shared";
 import prettyMilliseconds from "pretty-ms";
 import { useKeyboardLayer } from "../providers/kebboard";
 import { useKeyboard } from "@opentui/react";
+import { usePromptConfig } from "../providers/prompt-config";
 
 type SessionData = InferResponseType<
   (typeof apiClient.sessions)[":id"]["$get"],
@@ -43,13 +48,21 @@ function mapDbMessages(dbMessages: SessionData["messages"]): Message[] {
       };
     }
 
+    const parsedParts =
+      msg.parts === null ? null : messagePartsSchema.safeParse(msg.parts);
+    const parts: ClientMessagePart[] = parsedParts?.success
+      ? parsedParts.data.map((p) =>
+          p.type === "tool-call" ? { ...p, status: "done" as const } : p,
+        )
+      : [];
+
     return {
       id: msg.id,
       role: "assistant",
       content: msg.content,
       model: msg.model as SupportedChatModelId,
       mode: msg.mode,
-      parts: [{ type: "text", text: msg.content }],
+      parts: parts,
       ...(msg.duration !== null
         ? { duration: prettyMilliseconds(msg.duration * 1000) }
         : {}),
@@ -120,6 +133,7 @@ function SessionChat({ session }: { session: SessionData }) {
     session.id,
     initialMessages,
   );
+  const { mode, model } = usePromptConfig();
 
   useEffect(() => {
     return () => abort();
@@ -141,8 +155,8 @@ function SessionChat({ session }: { session: SessionData }) {
       onSubmit={(text) =>
         submit({
           userText: text,
-          mode: "BUILD",
-          model: DEFAULT_SUPPORTED_CHAT_MODEL,
+          mode: mode,
+          model: model,
         })
       }
       loading={streaming.status === "streaming"}
@@ -165,7 +179,7 @@ function SessionChat({ session }: { session: SessionData }) {
 
 function ChatMessage({ message }: { message: Message }) {
   if (message.role === "user") {
-    return <UserMessage message={message.content} />;
+    return <UserMessage message={message.content} mode={message.mode} />;
   }
 
   if (message.role === "error") {

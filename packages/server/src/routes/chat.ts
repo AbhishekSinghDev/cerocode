@@ -8,7 +8,7 @@ import z from "zod";
 import { isSupportedChatModel, resolveChatModel } from "../lib/models";
 import { zValidator } from "@hono/zod-validator";
 import { streamSSE, type SSEStreamingApi } from "hono/streaming";
-import { streamText as aiStreamText } from "ai";
+import { streamText as aiStreamText, stepCountIs } from "ai";
 import {
   messagePartsSchema,
   toolCallArgsSchema,
@@ -17,6 +17,8 @@ import {
 } from "@cerocode/shared";
 import { db } from "@cerocode/database/client";
 import { Hono } from "hono";
+import { createTools } from "../tools";
+import { buildSystemPrompt } from "../system-prompt";
 
 const submitSchema = z.object({
   content: z.string(),
@@ -70,14 +72,16 @@ function getResumeableUserMessage(
 type StreamParams = {
   sessionId: string;
   model: string;
+  cwd: string | null;
   history: { role: "user" | "assistant"; content: string }[];
   mode: (typeof modeEnum.enumValues)[number];
   abortController: AbortController;
 };
 
 async function streamAIResponse(stream: SSEStreamingApi, params: StreamParams) {
-  const { sessionId, model, history, mode, abortController } = params;
+  const { sessionId, model, cwd, history, mode, abortController } = params;
   const startTime = Date.now();
+  const tools = cwd ? createTools(cwd, mode) : undefined;
   const parts: MessagePart[] = [];
   const resolvedModel = resolveChatModel(model);
 
@@ -108,7 +112,10 @@ async function streamAIResponse(stream: SSEStreamingApi, params: StreamParams) {
   try {
     const result = aiStreamText({
       model: resolvedModel.model,
+      system: buildSystemPrompt({ cwd, mode }),
       messages: history,
+      tools: tools,
+      stopWhen: tools ? stepCountIs(50) : undefined,
       abortSignal: abortController.signal,
       providerOptions: resolvedModel.providerOptions,
     });
@@ -324,6 +331,7 @@ const app = new Hono()
             await streamAIResponse(stream, {
               sessionId: sessionId,
               model: resumeableMessage.model,
+              cwd: session.cwd,
               history: history,
               mode: resumeableMessage.mode,
               abortController: abortController,
@@ -396,6 +404,7 @@ const app = new Hono()
         await streamAIResponse(stream, {
           sessionId: sessionId,
           model: data.model,
+          cwd: session.cwd,
           history: history,
           mode: data.mode,
           abortController: abortController,
