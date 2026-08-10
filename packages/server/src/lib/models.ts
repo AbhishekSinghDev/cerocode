@@ -1,4 +1,6 @@
 import { google, type GoogleGenerativeAIProviderOptions } from "@ai-sdk/google";
+import { groq } from "@ai-sdk/groq";
+import { mistral } from "@ai-sdk/mistral";
 import {
   findSupportedChatModelById,
   type SupportedChatModel,
@@ -10,6 +12,11 @@ import type { ProviderOptions } from "@ai-sdk/provider-utils";
 import type { LanguageModel } from "ai";
 
 type GoogleModelId = Extract<SupportedChatModel, { provider: "google" }>["id"];
+type GroqModelId = Extract<SupportedChatModel, { provider: "groq" }>["id"];
+type MistralModelId = Extract<
+  SupportedChatModel,
+  { provider: "mistral" }
+>["id"];
 
 export type ResolvedModel = {
   model: LanguageModel;
@@ -46,6 +53,18 @@ const GOOGLE_PROVIDER_OPTIONS: Partial<Record<GoogleModelId, ProviderOptions>> =
     },
   };
 
+const GROQ_PROVIDER_OPTIONS: Partial<Record<GroqModelId, ProviderOptions>> = {
+  "deepseek-r1-distill-llama-70b": {
+    groq: {
+      reasoningFormat: "parsed",
+    },
+  },
+};
+
+const MISTRAL_PROVIDER_OPTIONS: Partial<
+  Record<MistralModelId, ProviderOptions>
+> = {};
+
 function assertUnsupportedProvider(provider: never): never {
   throw new Error(`Unsupported provider: ${provider}`);
 }
@@ -59,12 +78,34 @@ function resolveGoogleModel(modelId: GoogleModelId): ResolvedModel {
   };
 }
 
+function resolveGroqModel(modelId: GroqModelId): ResolvedModel {
+  return {
+    model: groq(modelId),
+    provider: "groq",
+    modelId: modelId,
+    providerOptions: GROQ_PROVIDER_OPTIONS[modelId],
+  };
+}
+
+function resolveMistralModel(modelId: MistralModelId): ResolvedModel {
+  return {
+    model: mistral(modelId),
+    provider: "mistral",
+    modelId: modelId,
+    providerOptions: MISTRAL_PROVIDER_OPTIONS[modelId],
+  };
+}
+
 function resolveSupportedChatModel(model: SupportedChatModel): ResolvedModel {
   const provider = model.provider;
 
   switch (provider) {
     case "google":
       return resolveGoogleModel(model.id);
+    case "groq":
+      return resolveGroqModel(model.id);
+    case "mistral":
+      return resolveMistralModel(model.id);
     default:
       return assertUnsupportedProvider(provider);
   }

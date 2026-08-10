@@ -11,9 +11,9 @@
     "build": "bun build src/index.ts --outdir dist --target bun"
   },
   "dependencies": {
-    "@ai-sdk/anthropic": "^4.0.36",
     "@ai-sdk/google": "^4.0.39",
-    "@ai-sdk/openai": "^4.0.36",
+    "@ai-sdk/groq": "^4.0.26",
+    "@ai-sdk/mistral": "^4.0.27",
     "@ai-sdk/provider-utils": "^5.0.25",
     "@cerocode/database": "workspace:*",
     "@cerocode/shared": "workspace:*",
