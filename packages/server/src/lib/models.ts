@@ -1,21 +1,13 @@
-import { anthropic } from "@ai-sdk/anthropic";
-import { google } from "@ai-sdk/google";
-import { openai } from "@ai-sdk/openai";
+import { google, type GoogleGenerativeAIProviderOptions } from "@ai-sdk/google";
 import {
   findSupportedChatModelById,
   type SupportedChatModel,
   type SupportedChatModelId,
   type SupportedProvider,
 } from "@cerocode/shared";
+import type { ProviderOptions } from "@ai-sdk/provider-utils";
 
 import type { LanguageModel } from "ai";
-
-type AnthropicModelId = Extract<
-  SupportedChatModel,
-  { provider: "anthropic" }
->["id"];
-
-type OpenAIModelId = Extract<SupportedChatModel, { provider: "openai" }>["id"];
 
 type GoogleModelId = Extract<SupportedChatModel, { provider: "google" }>["id"];
 
@@ -23,26 +15,39 @@ export type ResolvedModel = {
   model: LanguageModel;
   provider: SupportedProvider;
   modelId: SupportedChatModelId;
+  providerOptions?: ProviderOptions;
 };
+
+const GOOGLE_PROVIDER_OPTIONS: Partial<Record<GoogleModelId, ProviderOptions>> =
+  {
+    "gemini-3.1-pro-preview": {
+      google: {
+        thinkingConfig: {
+          thinkingLevel: "high",
+          includeThoughts: true,
+        },
+      } satisfies GoogleGenerativeAIProviderOptions,
+    },
+    "gemini-3.5-flash-lite": {
+      google: {
+        thinkingConfig: {
+          thinkingLevel: "low",
+          includeThoughts: true,
+        },
+      } satisfies GoogleGenerativeAIProviderOptions,
+    },
+    "gemini-3.6-flash": {
+      google: {
+        thinkingConfig: {
+          thinkingLevel: "high",
+          includeThoughts: true,
+        },
+      } satisfies GoogleGenerativeAIProviderOptions,
+    },
+  };
 
 function assertUnsupportedProvider(provider: never): never {
   throw new Error(`Unsupported provider: ${provider}`);
-}
-
-function resolveAnthropicModel(modelId: AnthropicModelId): ResolvedModel {
-  return {
-    model: anthropic(modelId),
-    provider: "anthropic",
-    modelId: modelId,
-  };
-}
-
-function resolveOpenAIModel(modelId: OpenAIModelId): ResolvedModel {
-  return {
-    model: openai(modelId),
-    provider: "openai",
-    modelId: modelId,
-  };
 }
 
 function resolveGoogleModel(modelId: GoogleModelId): ResolvedModel {
@@ -50,6 +55,7 @@ function resolveGoogleModel(modelId: GoogleModelId): ResolvedModel {
     model: google(modelId),
     provider: "google",
     modelId: modelId,
+    providerOptions: GOOGLE_PROVIDER_OPTIONS[modelId],
   };
 }
 
@@ -57,10 +63,6 @@ function resolveSupportedChatModel(model: SupportedChatModel): ResolvedModel {
   const provider = model.provider;
 
   switch (provider) {
-    case "anthropic":
-      return resolveAnthropicModel(model.id);
-    case "openai":
-      return resolveOpenAIModel(model.id);
     case "google":
       return resolveGoogleModel(model.id);
     default:

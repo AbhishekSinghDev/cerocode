@@ -1,5 +1,8 @@
 import { TextAttributes } from "@opentui/core";
-import type { ClientMessagePart } from "../../hooks/use-chat";
+import type {
+  ClientMessagePart,
+  ClientToolCallPart,
+} from "../../hooks/use-chat";
 import { useTheme } from "../../providers/theme";
 
 type Props = {
@@ -11,6 +14,44 @@ type Props = {
   interrupted?: boolean;
 };
 
+function formatToolName(name: string) {
+  return name
+    .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
+    .replace(/^./, (c) => c.toUpperCase());
+}
+
+function formatToolArgs(tc: ClientToolCallPart): string {
+  return Object.values(tc.args).map(String).join(" ");
+}
+
+type PartGroup = {
+  type: ClientMessagePart["type"];
+  parts: ClientMessagePart[];
+  key: string;
+};
+
+function groupConsecutiveParts(parts: ClientMessagePart[]): PartGroup[] {
+  const groups: PartGroup[] = [];
+
+  for (const part of parts) {
+    let i = 0;
+    const lastGroup = groups[groups.length - 1];
+
+    if (lastGroup && lastGroup.type === part.type) {
+      lastGroup.parts.push(part);
+    } else {
+      const key =
+        part.type === "tool-call"
+          ? `group-tc-${part.id}`
+          : `group-${part.type}-${i}`;
+      groups.push({ type: part.type, parts: [part], key });
+    }
+    i++;
+  }
+
+  return groups;
+}
+
 export function BotMessage({
   parts,
   model,
@@ -20,18 +61,57 @@ export function BotMessage({
   interrupted = false,
 }: Props) {
   const { theme } = useTheme();
-  const text = parts
-    .filter((p) => p.type === "text")
-    .map((p) => p.text)
-    .join("");
 
   return (
     <box width="100%" alignItems="center">
-      <box paddingY={1} width="100%">
-        <box paddingX={3} width="100%">
-          <text fg={theme.colors.text}>{text}</text>
+      {groupConsecutiveParts(parts).map((group) => (
+        <box key={group.key} padding={1} width="100%">
+          {group.parts.map((part, i) => {
+            if (part.type === "reasoning") {
+              return (
+                <box
+                  key={`reasoning-${i}`}
+                  border={["left"]}
+                  borderColor={theme.colors.border}
+                  width="100%"
+                  paddingX={2}
+                >
+                  <text attributes={TextAttributes.DIM}>
+                    <em fg={theme.colors.textMuted}>{part.text}</em>
+                  </text>
+                </box>
+              );
+            }
+
+            if (part.type === "tool-call") {
+              return (
+                <box
+                  key={part.id}
+                  border={["left"]}
+                  borderColor={theme.colors.border}
+                  width="100%"
+                  paddingX={2}
+                >
+                  <text attributes={TextAttributes.DIM}>
+                    <em fg={theme.colors.info}>{formatToolName(part.name)}</em>
+                    {part.status === "calling" ? ".." : ""}
+                  </text>
+                </box>
+              );
+            }
+
+            if (part.type === "text") {
+              return (
+                <box key={`text-${i}`} paddingX={2} width="100%">
+                  <text>{part.text}</text>
+                </box>
+              );
+            }
+
+            return null;
+          })}
         </box>
-      </box>
+      ))}
 
       <box paddingX={3} paddingBottom={1} gap={1} width="100%">
         <box flexDirection="row" gap={2}>
