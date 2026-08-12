@@ -1,4 +1,4 @@
-import { desc } from "@cerocode/database";
+import { desc, eq } from "@cerocode/database";
 import { db } from "@cerocode/database/client";
 import {
   messages,
@@ -10,6 +10,7 @@ import { findSupportedChatModelById } from "@cerocode/shared";
 import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 import { z } from "zod";
+import type { AuthenticatedEnv } from "../middleware/require-auth";
 
 const createSessionSchema = z.object({
   title: z.string(),
@@ -36,8 +37,10 @@ const createSessionValidator = zValidator(
   },
 );
 
-const app = new Hono()
+const app = new Hono<AuthenticatedEnv>()
   .get("/", async (c) => {
+    const userId = c.get("userId");
+
     const result = await db
       .select({
         id: sessions.id,
@@ -45,6 +48,7 @@ const app = new Hono()
         createdAt: sessions.createdAt,
       })
       .from(sessions)
+      .where(eq(sessions.userId, userId))
       .orderBy(desc(sessions.createdAt));
 
     return c.json(result);
@@ -56,8 +60,10 @@ const app = new Hono()
     // });
 
     const id = c.req.param("id");
+    const userId = c.get("userId");
+
     const result = await db.query.sessions.findFirst({
-      where: { id: id },
+      where: { id: id, userId: userId },
       with: {
         messages: {
           orderBy: { createdAt: "asc" },
@@ -77,6 +83,7 @@ const app = new Hono()
     //   message: "Mock error: session creation failed",
     // });
 
+    const userId = c.get("userId");
     const { initialMessage, ...data } = c.req.valid("json");
 
     const result = await db.transaction(async (tx) => {
@@ -85,7 +92,7 @@ const app = new Hono()
         .values({
           title: data.title,
           cwd: data.cwd,
-          userId: "user-id-placeholder", // Replace with actual user ID from auth context
+          userId: userId,
         })
         .returning({
           id: sessions.id,

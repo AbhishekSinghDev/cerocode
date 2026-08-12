@@ -4,6 +4,8 @@ import { SessionDialogContent } from "../dialogs/sessions-dialog";
 import { AgentsDialog } from "../dialogs/agents-dialog";
 import { ModelsDialog } from "../dialogs/models-dialog";
 import { SUPPORTED_CHAT_MODELS } from "@cerocode/shared";
+import { performLogin } from "../../lib/oauth";
+import { clearAuth } from "../../lib/auth";
 
 export const COMMANDS: Command[] = [
   {
@@ -69,10 +71,21 @@ export const COMMANDS: Command[] = [
     name: "login",
     description: "Sign in to your browser",
     value: "/login",
-    action: (ctx) => {
+    action: async (ctx) => {
       ctx.toast.show({
         message: "Opening browser to sign in...",
       });
+      try {
+        await performLogin();
+        ctx.toast.show({ variant: "success", message: "Signed in" });
+      } catch (error) {
+        const message =
+          error instanceof Error
+            ? error.message
+            : "Sign in failed or timed out";
+
+        ctx.toast.show({ variant: "error", message });
+      }
     },
   },
   {
@@ -80,6 +93,7 @@ export const COMMANDS: Command[] = [
     description: "Sign out of your account",
     value: "/logout",
     action: (ctx) => {
+      clearAuth();
       ctx.toast.show({
         message: "Signing out...",
       });
