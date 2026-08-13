@@ -6,10 +6,11 @@ import { z } from "zod";
 import { useToast } from "../providers/toast";
 import { apiClient } from "../lib/api-client";
 import { getErrorMessage } from "../lib/http-errors";
+import { modeSchema } from "@cerocode/shared";
 
 const newSessionStateSchema = z.object({
   message: z.string(),
-  mode: z.enum(["PLAN", "BUILD"]),
+  mode: modeSchema,
   model: z.string(),
 });
 
@@ -42,13 +43,6 @@ export function NewSessionScreen() {
         const res = await apiClient.sessions.$post({
           json: {
             title: state.message.slice(0, 50),
-            cwd: process.cwd(),
-            initialMessage: {
-              role: "USER",
-              content: state.message,
-              mode: state.mode,
-              model: state.model,
-            },
           },
         });
 
@@ -57,10 +51,10 @@ export function NewSessionScreen() {
           throw new Error(await getErrorMessage(res));
         }
 
-        const { session } = await res.json();
+        const session = await res.json();
         navigate(`/sessions/${session.id}`, {
           replace: true,
-          state: { session },
+          state: { session, initialPrompt: state },
         });
       } catch (error) {
         if (ignore) return;

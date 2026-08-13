@@ -7,11 +7,12 @@
     "dev": "bun run --watch src/index.tsx"
   },
   "dependencies": {
+    "@ai-sdk/react": "^4.0.67",
     "@cerocode/shared": "workspace:*",
     "@opentui/core": "^0.4.5",
     "@opentui/react": "^0.4.5",
+    "ai": "^7.0.64",
     "date-fns": "^4.4.0",
-    "eventsource-parser": "^3.1.0",
     "hono": "^4.13.0",
     "open": "^11.0.0",
     "opentui-spinner": "^0.0.7",

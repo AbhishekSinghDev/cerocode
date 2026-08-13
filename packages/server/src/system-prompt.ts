@@ -1,13 +1,10 @@
-import type { modeEnum } from "@cerocode/database/schema";
-
-type Mode = (typeof modeEnum.enumValues)[number];
+import type { ModeType } from "@cerocode/shared";
 
 type SystemPromptParams = {
-  cwd: string | null;
-  mode: Mode;
+  mode: ModeType;
 };
 
-function getToolsSection(mode: Mode): string {
+function getToolsSection(mode: ModeType): string {
   if (mode === "PLAN") {
     return `- **readFile** - Read a file's contents
 - **listDirectory** - List entries in a directory
@@ -24,7 +21,7 @@ function getToolsSection(mode: Mode): string {
 - **bash** - Run a shell command in the project directory`;
 }
 
-export function buildSystemPrompt({ cwd, mode }: SystemPromptParams): string {
+export function buildSystemPrompt({ mode }: SystemPromptParams): string {
   const parts: string[] = [];
 
   parts.push(`You are Cerocode, an expert software engineer working as a coding agent inside a terminal application.
@@ -34,10 +31,6 @@ The application has two modes the user can switch between:
 - **BUILD** - Full implementation with read and write tools.
 
 You are currently in **${mode}** mode.`);
-
-  if (cwd) {
-    parts.push(`\nThe user's project directory is: ${cwd}`);
-  }
 
   parts.push(`
 ## Tools

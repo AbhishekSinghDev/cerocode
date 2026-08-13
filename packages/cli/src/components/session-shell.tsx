@@ -27,7 +27,7 @@ export function SessionShell(props: Props) {
       gap={1}
     >
       <scrollbox flexGrow={1} width="100%" stickyScroll stickyStart="bottom">
-        <box gap={1}>{props.children}</box>
+        <box>{props.children}</box>
       </scrollbox>
 
       <box flexShrink={0}>
@@ -52,12 +52,16 @@ export function SessionShell(props: Props) {
               ) : null}
             </>
           ) : null}
-          <text fg={theme.colors.textMuted} attributes={TextAttributes.DIM}>{process.cwd()}</text>
+          <text fg={theme.colors.textMuted} attributes={TextAttributes.DIM}>
+            {process.cwd()}
+          </text>
         </box>
 
         <box flexDirection="row" gap={1} flexShrink={0} marginLeft="auto">
           <text fg={theme.colors.textMuted}>tab</text>
-          <text attributes={TextAttributes.DIM} fg={theme.colors.textMuted}>agents</text>
+          <text attributes={TextAttributes.DIM} fg={theme.colors.textMuted}>
+            agents
+          </text>
         </box>
       </box>
     </box>

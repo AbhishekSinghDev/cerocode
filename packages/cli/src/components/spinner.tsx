@@ -1,8 +1,9 @@
 import "opentui-spinner/react";
 import { useTheme } from "../providers/theme";
+import type { ModeType } from "@cerocode/shared";
 
 type SpinnerProps = {
-  mode?: "BUILD" | "PLAN";
+  mode?: ModeType;
 };
 
 export function Spinner({ mode }: SpinnerProps) {

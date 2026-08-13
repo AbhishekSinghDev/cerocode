@@ -2,13 +2,14 @@ import { useCallback } from "react";
 import { useDialog } from "../../providers/dialog";
 import { useTheme } from "../../providers/theme";
 import { DialogSearchList } from "../dialog-search-list";
+import type { ModeType } from "@cerocode/shared";
 
 type AgentsDialogProps = {
-  currentMode: "BUILD" | "PLAN";
-  onSelectMode: (mode: "BUILD" | "PLAN") => void;
+  currentMode: ModeType;
+  onSelectMode: (mode: ModeType) => void;
 };
 
-function getModelLabel(mode: "BUILD" | "PLAN") {
+function getModelLabel(mode: ModeType) {
   switch (mode) {
     case "BUILD":
       return "Build";
@@ -17,7 +18,7 @@ function getModelLabel(mode: "BUILD" | "PLAN") {
   }
 }
 
-const AVAILABLE_MODES: ("BUILD" | "PLAN")[] = ["BUILD", "PLAN"];
+const AVAILABLE_MODES: ModeType[] = ["BUILD", "PLAN"];
 
 export const AgentsDialog = ({
   currentMode,
@@ -27,7 +28,7 @@ export const AgentsDialog = ({
   const { theme } = useTheme();
 
   const handleSelect = useCallback(
-    (nextMode: "BUILD" | "PLAN") => {
+    (nextMode: ModeType) => {
       onSelectMode(nextMode);
       dialog.close();
     },
@@ -42,7 +43,10 @@ export const AgentsDialog = ({
         getModelLabel(item).toLowerCase().includes(query.toLowerCase())
       }
       renderItem={(item, isSelected) => (
-        <text selectable={false} fg={isSelected ? theme.colors.textOnSelection : theme.colors.text}>
+        <text
+          selectable={false}
+          fg={isSelected ? theme.colors.textOnSelection : theme.colors.text}
+        >
           {getModelLabel(item)}
         </text>
       )}

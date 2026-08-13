@@ -1,4 +1,4 @@
-import type { SupportedChatModelId } from "@cerocode/shared";
+import type { ModeType, SupportedChatModelId } from "@cerocode/shared";
 import type { DialogContextValue } from "../../providers/dialog";
 import type { ToastContextValue } from "../../providers/toast";
 
@@ -7,8 +7,8 @@ export type CommandContext = {
   toast: ToastContextValue;
   dialog: DialogContextValue;
   navigate: (path: string) => void;
-  mode: "BUILD" | "PLAN";
-  setMode: (mode: "BUILD" | "PLAN") => void;
+  mode: ModeType;
+  setMode: (mode: ModeType) => void;
   setModel: (model: SupportedChatModelId) => void;
 };
 

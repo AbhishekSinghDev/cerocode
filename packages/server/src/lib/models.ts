@@ -54,7 +54,7 @@ const GOOGLE_PROVIDER_OPTIONS: Partial<Record<GoogleModelId, ProviderOptions>> =
   };
 
 const GROQ_PROVIDER_OPTIONS: Partial<Record<GroqModelId, ProviderOptions>> = {
-  "deepseek-r1-distill-llama-70b": {
+  "openai/gpt-oss-120b": {
     groq: {
       reasoningFormat: "parsed",
     },

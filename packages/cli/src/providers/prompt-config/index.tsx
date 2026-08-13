@@ -1,15 +1,14 @@
 import {
   DEFAULT_SUPPORTED_CHAT_MODEL,
+  type ModeType,
   type SupportedChatModelId,
 } from "@cerocode/shared";
 import { createContext, useCallback, useContext, useState } from "react";
 
-type Mode = "BUILD" | "PLAN";
-
 type PromptConfigContextValue = {
-  mode: Mode;
+  mode: ModeType;
   toggleMode: () => void;
-  setMode: (mode: Mode) => void;
+  setMode: (mode: ModeType) => void;
   model: SupportedChatModelId;
   setModel: (model: SupportedChatModelId) => void;
 };
@@ -33,7 +32,7 @@ type PromptConfigProviderProps = {
 };
 
 export function PromptConfigProvider({ children }: PromptConfigProviderProps) {
-  const [mode, setMode] = useState<Mode>("BUILD");
+  const [mode, setMode] = useState<ModeType>("BUILD");
   const [model, setModel] = useState<SupportedChatModelId>(
     DEFAULT_SUPPORTED_CHAT_MODEL,
   );

@@ -5,18 +5,10 @@ import z from "zod";
 import { BotMessage, ErrorMessage, UserMessage } from "../components/messages";
 import { useLocation, useNavigate, useParams } from "react-router";
 import { useToast } from "../providers/toast";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { getErrorMessage } from "../lib/http-errors";
-import {
-  useChat,
-  type ClientMessagePart,
-  type Message,
-} from "../hooks/use-chat";
-import {
-  messagePartsSchema,
-  type SupportedChatModelId,
-} from "@cerocode/shared";
-import prettyMilliseconds from "pretty-ms";
+import { useChat, type Message } from "../hooks/use-chat";
+import { type ModeType, type SupportedChatModelId } from "@cerocode/shared";
 import { useKeyboardLayer } from "../providers/kebboard";
 import { useKeyboard } from "@opentui/react";
 import { usePromptConfig } from "../providers/prompt-config";
@@ -30,46 +22,12 @@ const sessionLocationSchema = z.object({
   session: z.custom<SessionData>(
     (val) => val != null && typeof val === "object" && "id" in val,
   ),
+  initialPrompt: z.object({
+    message: z.string(),
+    mode: z.custom<ModeType>(),
+    model: z.custom<SupportedChatModelId>().optional(),
+  }),
 });
-
-function mapDbMessages(dbMessages: SessionData["messages"]): Message[] {
-  return dbMessages.map((msg): Message => {
-    if (msg.role === "ERROR") {
-      return { id: msg.id, role: "error", content: msg.content };
-    }
-
-    if (msg.role === "USER") {
-      return {
-        id: msg.id,
-        role: "user",
-        content: msg.content,
-        mode: msg.mode,
-        model: msg.model as SupportedChatModelId,
-      };
-    }
-
-    const parsedParts =
-      msg.parts === null ? null : messagePartsSchema.safeParse(msg.parts);
-    const parts: ClientMessagePart[] = parsedParts?.success
-      ? parsedParts.data.map((p) =>
-          p.type === "tool-call" ? { ...p, status: "done" as const } : p,
-        )
-      : [];
-
-    return {
-      id: msg.id,
-      role: "assistant",
-      content: msg.content,
-      model: msg.model as SupportedChatModelId,
-      mode: msg.mode,
-      parts: parts,
-      ...(msg.duration !== null
-        ? { duration: prettyMilliseconds(msg.duration * 1000) }
-        : {}),
-      interrupted: msg.status === "INTERRUPTED",
-    };
-  });
-}
 
 export function SessionScreen() {
   const { id } = useParams();
@@ -79,13 +37,15 @@ export function SessionScreen() {
 
   const prefetched = useMemo(() => {
     const parsed = sessionLocationSchema.safeParse(location.state);
-    return parsed.success ? parsed.data.session : null;
+    return parsed.success ? parsed.data : null;
   }, [location.state]);
 
-  const [session, setSession] = useState<SessionData | null>(prefetched);
+  const [session, setSession] = useState<SessionData | null>(
+    prefetched?.session ?? null,
+  );
 
   useEffect(() => {
-    if (prefetched) return;
+    if (prefetched?.session) return;
     setSession(null);
     if (!id) return;
 
@@ -123,32 +83,66 @@ export function SessionScreen() {
     return <SessionShell onSubmit={() => {}} inputDisabled loading />;
   }
 
-  return <SessionChat key={session.id} session={session} />;
+  return (
+    <SessionChat
+      key={session.id}
+      session={session}
+      initialPrompt={prefetched?.initialPrompt}
+    />
+  );
 }
 
-function SessionChat({ session }: { session: SessionData }) {
-  const [initialMessages] = useState(() => mapDbMessages(session.messages));
+function SessionChat({
+  session,
+  initialPrompt,
+}: {
+  session: SessionData;
+  initialPrompt?: {
+    message: string;
+    mode: ModeType;
+    model?: SupportedChatModelId;
+  };
+}) {
+  const [initialMessages] = useState<Message[]>(
+    Array.isArray(session.messages)
+      ? (session.messages as unknown as Message[])
+      : [],
+  );
   const { isTop } = useKeyboardLayer();
-  const { messages, streaming, submit, abort, interrupt } = useChat(
+  const { messages, status, submit, abort, error, interrupt } = useChat(
     session.id,
     initialMessages,
   );
   const { mode, model } = usePromptConfig();
 
+  const hasSubmittedInitialPromptRef = useRef(false);
+
   useEffect(() => {
-    return () => abort();
+    return () => void abort();
   }, [abort]);
 
   useKeyboard((key) => {
-    if (
-      key.name === "escape" &&
-      isTop("base") &&
-      streaming.status === "streaming"
-    ) {
+    if (key.name === "escape" && isTop("base") && status === "streaming") {
       key.preventDefault();
       interrupt();
     }
   });
+
+  useEffect(() => {
+    if (
+      !initialPrompt ||
+      !initialPrompt.model ||
+      hasSubmittedInitialPromptRef.current
+    )
+      return;
+
+    hasSubmittedInitialPromptRef.current = true;
+    void submit({
+      userText: initialPrompt.message,
+      mode: initialPrompt.mode,
+      model: initialPrompt.model,
+    });
+  }, [initialPrompt, submit]);
 
   return (
     <SessionShell
@@ -159,41 +153,36 @@ function SessionChat({ session }: { session: SessionData }) {
           model: model,
         })
       }
-      loading={streaming.status === "streaming"}
-      interruptible={streaming.status === "streaming"}
+      loading={status === "submitted" || status === "streaming"}
+      interruptible={status === "submitted" || status === "streaming"}
     >
       {messages.map((msg) => (
         <ChatMessage key={msg.id} message={msg} />
       ))}
-      {streaming.status === "streaming" && (
-        <BotMessage
-          parts={streaming.parts}
-          model={streaming.model}
-          mode={streaming.mode}
-          streaming
-        />
-      )}
+      {error && <ErrorMessage message={error.message} />}
     </SessionShell>
   );
 }
 
 function ChatMessage({ message }: { message: Message }) {
   if (message.role === "user") {
-    return <UserMessage message={message.content} mode={message.mode} />;
-  }
+    const text = message.parts
+      .filter((p) => p.type === "text")
+      .map((p) => p.text)
+      .join("");
 
-  if (message.role === "error") {
-    return <ErrorMessage message={message.content} />;
+    return (
+      <UserMessage message={text} mode={message.metadata?.mode ?? "BUILD"} />
+    );
   }
 
   return (
     <BotMessage
       parts={message.parts}
-      model={message.model}
-      mode={message.mode}
-      duration={message.duration}
+      model={message.metadata?.model ?? "unknown"}
+      mode={message.metadata?.mode ?? "BUILD"}
+      duration={message.metadata?.durationMs}
       streaming={false}
-      interrupted={message.interrupted}
     />
   );
 }
