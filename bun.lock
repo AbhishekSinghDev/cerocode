@@ -4,6 +4,9 @@
   "workspaces": {
     "": {
       "name": "cerocode",
+      "dependencies": {
+        "dotenv": "^17.4.2",
+      },
       "devDependencies": {
         "typescript": "^5",
       },
