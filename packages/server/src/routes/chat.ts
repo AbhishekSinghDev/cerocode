@@ -121,7 +121,10 @@ const app = new Hono<AuthenticatedEnv>().post(
       tools: tools,
     });
 
-    const modelMessages = await convertToModelMessages(nextMessages, { tools });
+    const modelMessages = await convertToModelMessages(nextMessages, {
+      tools,
+      ignoreIncompleteToolCalls: true,
+    });
     let completedUsage: LanguageModelUsage | null = null;
 
     const aiResult = streamText({
@@ -156,10 +159,14 @@ const app = new Hono<AuthenticatedEnv>().post(
 
         if (hasPendingToolCalls(event.responseMessage)) return;
 
-        await db
-          .update(sessions)
-          .set({ messages: event.messages })
-          .where(and(eq(sessions.id, id), eq(sessions.userId, userId)));
+        try {
+          await db
+            .update(sessions)
+            .set({ messages: event.messages })
+            .where(and(eq(sessions.id, id), eq(sessions.userId, userId)));
+        } catch (error) {
+          console.error("Failed to persist session messages", error);
+        }
       },
     });
   },

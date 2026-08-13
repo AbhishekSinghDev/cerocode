@@ -40,12 +40,13 @@ export function SessionScreen() {
     return parsed.success ? parsed.data : null;
   }, [location.state]);
 
-  const [session, setSession] = useState<SessionData | null>(
-    prefetched?.session ?? null,
-  );
+  const [session, setSession] = useState<SessionData | null>(null);
 
   useEffect(() => {
-    if (prefetched?.session) return;
+    if (prefetched?.session) {
+      setSession(prefetched.session);
+      return;
+    }
     setSession(null);
     if (!id) return;
 
@@ -122,7 +123,11 @@ function SessionChat({
   }, [abort]);
 
   useKeyboard((key) => {
-    if (key.name === "escape" && isTop("base") && status === "streaming") {
+    if (
+      key.name === "escape" &&
+      isTop("base") &&
+      (status === "streaming" || status === "submitted")
+    ) {
       key.preventDefault();
       interrupt();
     }

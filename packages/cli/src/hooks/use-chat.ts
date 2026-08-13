@@ -32,6 +32,78 @@ type ChatTools = {
 
 export type Message = UIMessage<ChatMessageMetadata, never, ChatTools>;
 
+const REQUEST_TIMEOUT_MS = 60_000;
+const STREAM_IDLE_TIMEOUT_MS = 90_000;
+const LOCAL_TOOL_TIMEOUT_MS = 60_000;
+
+function withToolTimeout<T>(promise: Promise<T>, toolName: string) {
+  return new Promise<T>((resolve, reject) => {
+    const timer = setTimeout(
+      () => reject(new Error(`Tool '${toolName}' timed out`)),
+      LOCAL_TOOL_TIMEOUT_MS,
+    );
+    promise.then(
+      (value) => {
+        clearTimeout(timer);
+        resolve(value);
+      },
+      (error) => {
+        clearTimeout(timer);
+        reject(error);
+      },
+    );
+  });
+}
+
+function withRequestTimeout(
+  parentSignal: AbortSignal | null | undefined,
+  timeoutMs: number,
+) {
+  const controller = new AbortController();
+  const onAbort = () => controller.abort();
+  parentSignal?.addEventListener("abort", onAbort, { once: true });
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+  return {
+    signal: controller.signal,
+    cleanup: () => {
+      clearTimeout(timer);
+      parentSignal?.removeEventListener("abort", onAbort);
+    },
+  };
+}
+
+function withStreamIdleTimeout(
+  stream: ReadableStream<Uint8Array>,
+  timeoutMs: number,
+) {
+  let idleTimer: ReturnType<typeof setTimeout> | null = null;
+  let resetIdle: () => void = () => {};
+
+  return stream.pipeThrough(
+    new TransformStream<Uint8Array, Uint8Array>({
+      start(controller) {
+        resetIdle = () => {
+          if (idleTimer) clearTimeout(idleTimer);
+          idleTimer = setTimeout(() => {
+            controller.error(
+              new Error("Response stream stalled: no data received"),
+            );
+          }, timeoutMs);
+        };
+        resetIdle();
+      },
+      transform(chunk, controller) {
+        resetIdle();
+        controller.enqueue(chunk);
+      },
+      flush() {
+        if (idleTimer) clearTimeout(idleTimer);
+      },
+    }),
+  );
+}
+
 export function useChat(sessionId: string, initialMessages: Message[]) {
   const transport = useMemo(() => {
     return new DefaultChatTransport<Message>({
@@ -40,25 +112,46 @@ export function useChat(sessionId: string, initialMessages: Message[]) {
         const auth = getAuth();
         return auth ? { Authorization: `Bearer ${auth.token}` } : new Headers();
       },
+      fetch: (async (
+        input: string | Request | URL,
+        init?: RequestInit,
+      ) => {
+        const { signal, cleanup } = withRequestTimeout(
+          init?.signal,
+          REQUEST_TIMEOUT_MS,
+        );
+
+        try {
+          const response = await fetch(input, { ...init, signal });
+
+          if (!response.body) return response;
+
+          return new Response(
+            withStreamIdleTimeout(response.body, STREAM_IDLE_TIMEOUT_MS),
+            {
+              status: response.status,
+              statusText: response.statusText,
+              headers: response.headers,
+            },
+          );
+        } finally {
+          cleanup();
+        }
+      }) as typeof fetch,
       prepareSendMessagesRequest({ messages }) {
-        const message = messages[messages.length - 1];
-        if (!message) {
+        if (messages.length === 0) {
           throw new Error("No messages to send");
         }
 
+        const message = messages[messages.length - 1]!;
         const metadata = messages.findLast(
           (m) => m.metadata?.mode && m.metadata?.model,
         )?.metadata;
-        const previousMessage = messages[messages.length - 2];
-        const requestMessages =
-          message.role === "assistant" && previousMessage?.role === "user"
-            ? [previousMessage, message]
-            : [message];
 
         return {
           body: {
             id: sessionId,
-            messages: requestMessages,
+            messages,
             mode: message.metadata?.mode ?? metadata?.mode,
             model: message.metadata?.model ?? metadata?.model,
           },
@@ -74,7 +167,10 @@ export function useChat(sessionId: string, initialMessages: Message[]) {
     onToolCall({ toolCall }) {
       const mode = chat.messages.at(-1)?.metadata?.mode ?? "BUILD";
 
-      void executeLocalTool(toolCall.toolName, toolCall.input, mode)
+      void withToolTimeout(
+        executeLocalTool(toolCall.toolName, toolCall.input, mode),
+        toolCall.toolName,
+      )
         .then((output) =>
           chat.addToolOutput({
             tool: toolCall.toolName as keyof ChatTools,
