@@ -1,14 +1,40 @@
 {
-  "name": "@cerocode/cli",
-  "private": true,
+  "name": "cerocode",
+  "version": "1.0.0",
+  "description": "Interactive terminal UI for chatting with CeroCode AI agents",
+  "keywords": [
+    "cli",
+    "tui",
+    "chat",
+    "ai",
+    "terminal",
+    "bun"
+  ],
+  "license": "MIT",
   "type": "module",
-  "module": "src/index.tsx",
+  "main": "./dist/index.js",
+  "exports": {
+    ".": "./dist/index.js"
+  },
   "bin": {
     "cerocode": "./bin/cerocode"
   },
+  "files": [
+    "dist",
+    "bin",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "bun": ">=1.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "dev": "bun run --watch src/index.tsx",
-    "build": "bun build src/index.tsx --outdir dist --target bun --external '@opentui/core-*'"
+    "build": "bun build src/index.tsx --outdir dist --target bun --packages external",
+    "prepublishOnly": "npm run build"
   },
   "dependencies": {
     "@ai-sdk/react": "^4.0.67",
@@ -17,6 +43,7 @@
     "@opentui/react": "^0.4.5",
     "ai": "^7.0.64",
     "date-fns": "^4.4.0",
+    "dotenv": "^17.4.2",
     "hono": "^4.13.0",
     "open": "^11.0.0",
     "opentui-spinner": "^0.0.7",
