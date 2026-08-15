@@ -1,8 +1,9 @@
 import { hc } from "hono/client";
 import type { AppType } from "@cerocode/server";
 import { clearAuth, getAuth } from "./auth";
+import { API_URL } from "./config";
 
-export const apiClient = hc<AppType>(process.env.API_URL!, {
+export const apiClient = hc<AppType>(API_URL, {
   fetch: async (
     input: Parameters<typeof fetch>[0],
     init?: Parameters<typeof fetch>[1],

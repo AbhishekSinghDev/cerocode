@@ -5,7 +5,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import type { DialogConfig } from "./types";
+import type { ConfirmConfig, ConfirmResult, DialogConfig } from "./types";
 import { useKeyboardLayer } from "../kebboard";
 import { useKeyboard, useTerminalDimensions } from "@opentui/react";
 import { RGBA, TextAttributes } from "@opentui/core";
@@ -14,6 +14,7 @@ import { useTheme } from "../theme";
 export type DialogContextValue = {
   open: (config: DialogConfig) => void;
   close: () => void;
+  confirm: (config: ConfirmConfig) => Promise<ConfirmResult>;
 };
 
 const DialogContext = createContext<DialogContextValue | null>(null);
@@ -30,14 +31,31 @@ type DialogProviderProps = {
   children: ReactNode;
 };
 
+type PendingConfirm = ConfirmConfig & {
+  resolve: (result: ConfirmResult) => void;
+};
+
 export function DialogProvider({ children }: DialogProviderProps) {
   const [currentDialog, setCurrentDialog] = useState<DialogConfig | null>(null);
+  const [pendingConfirm, setPendingConfirm] =
+    useState<PendingConfirm | null>(null);
   const { push, pop } = useKeyboardLayer();
 
   const close = useCallback(() => {
     setCurrentDialog(null);
     pop("dialog");
   }, [pop]);
+
+  const resolveConfirm = useCallback(
+    (result: ConfirmResult) => {
+      setPendingConfirm((current) => {
+        current?.resolve(result);
+        return null;
+      });
+      pop("confirm");
+    },
+    [pop],
+  );
 
   const open = useCallback(
     (config: DialogConfig) => {
@@ -50,10 +68,27 @@ export function DialogProvider({ children }: DialogProviderProps) {
     [push, close],
   );
 
+  const confirm = useCallback(
+    (config: ConfirmConfig) => {
+      return new Promise<ConfirmResult>((resolve) => {
+        setPendingConfirm({ ...config, resolve });
+        push("confirm", () => {
+          resolveConfirm("denied");
+          return true;
+        });
+      });
+    },
+    [push, resolveConfirm],
+  );
+
   return (
-    <DialogContext.Provider value={{ open, close }}>
+    <DialogContext.Provider value={{ open, close, confirm }}>
       {children}
       <Dialog currentDialog={currentDialog} close={close} />
+      <ConfirmDialog
+        pendingConfirm={pendingConfirm}
+        onResolve={resolveConfirm}
+      />
     </DialogContext.Provider>
   );
 }
@@ -125,6 +160,90 @@ function Dialog({ currentDialog, close }: DialogProps) {
         </box>
 
         <box flexGrow={1}>{children}</box>
+      </box>
+    </box>
+  );
+}
+
+type ConfirmDialogProps = {
+  pendingConfirm: PendingConfirm | null;
+  onResolve: (result: ConfirmResult) => void;
+};
+
+function ConfirmDialog({ pendingConfirm, onResolve }: ConfirmDialogProps) {
+  const { isTop } = useKeyboardLayer();
+  const dimensions = useTerminalDimensions();
+  const { theme } = useTheme();
+
+  useKeyboard((key) => {
+    if (!pendingConfirm || !isTop("confirm")) return false;
+
+    if (key.name === "return" || key.name === "enter") {
+      onResolve("approved");
+      return true;
+    }
+
+    if (key.name === "a" || key.name === "A") {
+      onResolve("approved-all");
+      return true;
+    }
+
+    if (key.name === "escape") {
+      onResolve("denied");
+      return true;
+    }
+
+    return false;
+  });
+
+  if (!pendingConfirm) return null;
+
+  const scrim = RGBA.fromHex(theme.colors.background);
+  scrim.a = 150;
+
+  return (
+    <box
+      position="absolute"
+      left={0}
+      top={0}
+      width={dimensions.width}
+      height={dimensions.height}
+      justifyContent="center"
+      alignItems="center"
+      backgroundColor={scrim}
+      zIndex={101}
+    >
+      <box
+        width={Math.min(80, dimensions.width - 4)}
+        height="auto"
+        backgroundColor={theme.colors.surface}
+        paddingX={4}
+        paddingY={1}
+        flexDirection="column"
+        gap={1}
+      >
+        <text attributes={TextAttributes.BOLD} fg={theme.colors.text}>
+          {pendingConfirm.title}
+        </text>
+        <text wrapMode="word" width="100%" fg={theme.colors.text}>
+          {pendingConfirm.message}
+        </text>
+        <box
+          flexDirection="row"
+          justifyContent="space-between"
+          alignItems="center"
+          paddingTop={1}
+        >
+          <text attributes={TextAttributes.BOLD} fg={theme.colors.success}>
+            enter  approve
+          </text>
+          <text attributes={TextAttributes.BOLD} fg={theme.colors.info}>
+            a  approve all
+          </text>
+          <text attributes={TextAttributes.BOLD} fg={theme.colors.error}>
+            esc  deny
+          </text>
+        </box>
       </box>
     </box>
   );

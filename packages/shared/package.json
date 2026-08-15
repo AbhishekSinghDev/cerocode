@@ -2,6 +2,9 @@
   "name": "@cerocode/shared",
   "private": "true",
   "type": "module",
+  "scripts": {
+    "clean": "git clean -xdf node_modules"
+  },
   "exports": {
     ".": "./src/index.ts"
   },

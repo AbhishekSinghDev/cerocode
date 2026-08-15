@@ -7,9 +7,10 @@
   "private": true,
   "scripts": {
     "dev:server": "bun run --hot packages/server/src/index.ts",
-    "dev:cli": "bun run --watch packages/cli/src/index.tsx",
+    "dev:cli": "NODE_ENV=development bun run --watch packages/cli/src/index.tsx",
     "build:cli": "bun run --filter cerocode build",
-    "link:cli": "bun run build:cli && cd packages/cli && bun link"
+    "link:cli": "bun run build:cli && cd packages/cli && bun link",
+    "clean": "bun run --filter cerocode clean && bun run --filter @cerocode/server clean && git clean -xdf node_modules"
   },
   "workspaces": [
     "packages/*"

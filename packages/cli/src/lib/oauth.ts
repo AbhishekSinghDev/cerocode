@@ -1,4 +1,5 @@
 import { saveAuth } from "./auth";
+import { API_URL, CLERK_FRONTEND_API, CLERK_OAUTH_CLIENT_ID } from "./config";
 import open from "open";
 
 const LOGIN_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes
@@ -38,21 +39,9 @@ function getErrorMessage(error: unknown) {
 }
 
 export async function performLogin() {
-  const clerkFrontendApi = process.env.CLERK_FRONTEND_API;
-  const clerkClientId = process.env.CLERK_OAUTH_CLIENT_ID;
-  const apiUrl = process.env.API_URL;
-
-  if (!clerkFrontendApi)
-    throw new Error(
-      "CLERK_FRONTEND_API is not set in the environment variables.",
-    );
-  if (!clerkClientId)
-    throw new Error(
-      "CLERK_OAUTH_CLIENT_ID is not set in the environment variables.",
-    );
-  if (!apiUrl) {
-    throw new Error("API_URL is not set in the environment variables.");
-  }
+  const apiUrl = API_URL;
+  const clerkFrontendApi = CLERK_FRONTEND_API;
+  const clerkClientId = CLERK_OAUTH_CLIENT_ID;
 
   const nonce = crypto.randomUUID();
   const codeVerifier = toBase64Url(crypto.getRandomValues(new Uint8Array(32)));
@@ -63,6 +52,7 @@ export async function performLogin() {
   return new Promise<{ token: string }>((resolve, reject) => {
     const server = Bun.serve({
       port: 0,
+      hostname: "127.0.0.1",
       async fetch(req) {
         const url = new URL(req.url);
 
@@ -92,7 +82,7 @@ export async function performLogin() {
         try {
           const payload = decodeState(state);
 
-          if (payload.nonce !== nonce) {
+          if (payload.nonce !== nonce || payload.port !== server.port) {
             throw new Error("Invalid state parameter.");
           }
         } catch (error) {

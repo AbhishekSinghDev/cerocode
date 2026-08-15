@@ -1,6 +1,13 @@
 import { Mode, toolInputSchemas, type ModeType } from "@cerocode/shared";
-import { mkdir, readdir, readFile, stat, writeFile } from "fs/promises";
-import { dirname, isAbsolute, join, relative, resolve } from "path";
+import {
+  mkdir,
+  readdir,
+  readFile,
+  realpath,
+  stat,
+  writeFile,
+} from "fs/promises";
+import { basename, dirname, isAbsolute, join, relative, resolve } from "path";
 
 const MAX_FILE_SIZE = 10_000;
 const MAX_RESULTS = 200;
@@ -8,7 +15,24 @@ const MAX_MATCHES = 50;
 const MAX_OUTPUT = 20_000;
 const DEFAULT_TIMEOUT = 30_000;
 
-function resolveCwd(path: string) {
+async function resolveRealPath(target: string): Promise<string> {
+  try {
+    return await realpath(target);
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+    const parent = dirname(target);
+    if (parent === target) throw error;
+    const realParent = await resolveRealPath(parent);
+    return join(realParent, basename(target));
+  }
+}
+
+function isInside(parent: string, child: string) {
+  const rel = relative(parent, child);
+  return rel === "" || (!rel.startsWith("..") && !isAbsolute(rel));
+}
+
+async function resolveCwd(path: string) {
   const cwd = process.cwd();
   const resolved = resolve(cwd, path);
   const rel = relative(cwd, resolved);
@@ -17,7 +41,14 @@ function resolveCwd(path: string) {
     throw new Error("Path is outside the project directory");
   }
 
-  return { cwd, resolved };
+  const realCwd = await realpath(cwd);
+  const realPath = await resolveRealPath(resolved);
+
+  if (!isInside(realCwd, realPath)) {
+    throw new Error("Path resolves outside the project directory");
+  }
+
+  return { cwd, resolved, realPath };
 }
 
 function truncate(value: string, limit: number) {
@@ -41,8 +72,8 @@ export async function executeLocalTool(
   switch (toolName) {
     case "readFile": {
       const { path } = toolInputSchemas.readFile.parse(input);
-      const { resolved } = resolveCwd(path);
-      const content = await readFile(resolved, "utf-8");
+      const { realPath } = await resolveCwd(path);
+      const content = await readFile(realPath, "utf-8");
       return content.length > MAX_FILE_SIZE
         ? {
             content: content.slice(0, MAX_FILE_SIZE),
@@ -53,13 +84,13 @@ export async function executeLocalTool(
     }
     case "listDirectory": {
       const { path } = toolInputSchemas.listDirectory.parse(input);
-      const { cwd, resolved } = resolveCwd(path);
-      const entries = await readdir(resolved);
+      const { cwd, resolved, realPath } = await resolveCwd(path);
+      const entries = await readdir(realPath);
       const results: { name: string; type: "file" | "directory" }[] = [];
 
       for (const entry of entries) {
         if (entry.startsWith(".") || entry === "node_modules") continue;
-        const info = await stat(join(resolved, entry));
+        const info = await stat(join(realPath, entry));
         results.push({
           name: entry,
           type: info.isDirectory() ? "directory" : "file",
@@ -81,7 +112,7 @@ export async function executeLocalTool(
     }
     case "glob": {
       const { path, pattern } = toolInputSchemas.glob.parse(input);
-      const { cwd, resolved } = resolveCwd(path);
+      const { cwd, resolved } = await resolveCwd(path);
       const glob = new Bun.Glob(pattern);
       const files: string[] = [];
       let truncated = false;
@@ -107,7 +138,7 @@ export async function executeLocalTool(
     }
     case "grep": {
       const { pattern, path, include } = toolInputSchemas.grep.parse(input);
-      const { cwd, resolved } = resolveCwd(path);
+      const { cwd, resolved } = await resolveCwd(path);
       const args = [
         "-rn",
         "--color=never",
@@ -166,9 +197,9 @@ export async function executeLocalTool(
     }
     case "writeFile": {
       const { path, content } = toolInputSchemas.writeFile.parse(input);
-      const { cwd, resolved } = resolveCwd(path);
-      await mkdir(dirname(resolved), { recursive: true });
-      await writeFile(resolved, content, "utf-8");
+      const { cwd, resolved, realPath } = await resolveCwd(path);
+      await mkdir(dirname(realPath), { recursive: true });
+      await writeFile(realPath, content, "utf-8");
 
       return {
         success: true as const,
@@ -179,15 +210,15 @@ export async function executeLocalTool(
     case "editFile": {
       const { path, oldString, newString } =
         toolInputSchemas.editFile.parse(input);
-      const { cwd, resolved } = resolveCwd(path);
-      const content = await readFile(resolved, "utf-8");
+      const { cwd, resolved, realPath } = await resolveCwd(path);
+      const content = await readFile(realPath, "utf-8");
       const occurrences = content.split(oldString).length - 1;
 
       if (occurrences === 0) throw new Error("oldString not found in file");
       if (occurrences > 1)
         throw new Error(`oldString found ${occurrences} times in file`);
 
-      await writeFile(resolved, content.replace(oldString, newString), "utf-8");
+      await writeFile(realPath, content.replace(oldString, newString), "utf-8");
 
       return {
         success: true as const,
@@ -197,11 +228,21 @@ export async function executeLocalTool(
     case "bash": {
       const { command, timeout = DEFAULT_TIMEOUT } =
         toolInputSchemas.bash.parse(input);
+
+      const env: Record<string, string> = {
+        PATH: process.env.PATH ?? "/usr/bin:/bin",
+        TERM: "dumb",
+        LANG: process.env.LANG ?? "C.UTF-8",
+      };
+      if (process.env.HOME) env.HOME = process.env.HOME;
+      if (process.env.TMPDIR) env.TMPDIR = process.env.TMPDIR;
+
+      const { realPath } = await resolveCwd(".");
       const proc = Bun.spawn(["bash", "-c", command], {
-        cwd: resolveCwd(".").resolved,
+        cwd: realPath,
         stdout: "pipe",
         stderr: "pipe",
-        env: { ...process.env, TERM: "dumb" },
+        env: env,
       });
       const timer = setTimeout(() => proc.kill(), timeout);
       const [stdout, stderr] = await Promise.all([

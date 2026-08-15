@@ -1,4 +1,5 @@
 import {
+  chmodSync,
   existsSync,
   mkdirSync,
   readFileSync,
@@ -32,7 +33,8 @@ export function saveAuth(data: AuthData) {
   }
 
   const authData = JSON.stringify(data);
-  writeFileSync(AUTH_FILE, authData, "utf-8");
+  writeFileSync(AUTH_FILE, authData, { encoding: "utf-8", mode: 0o600 });
+  chmodSync(AUTH_FILE, 0o600);
 }
 
 export function clearAuth() {

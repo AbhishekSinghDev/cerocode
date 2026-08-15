@@ -5,11 +5,12 @@ import z from "zod";
 import { BotMessage, ErrorMessage, UserMessage } from "../components/messages";
 import { useLocation, useNavigate, useParams } from "react-router";
 import { useToast } from "../providers/toast";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { getErrorMessage } from "../lib/http-errors";
-import { useChat, type Message } from "../hooks/use-chat";
+import { useChat, type ConfirmTool, type Message } from "../hooks/use-chat";
 import { type ModeType, type SupportedChatModelId } from "@cerocode/shared";
 import { useKeyboardLayer } from "../providers/kebboard";
+import { useDialog } from "../providers/dialog";
 import { useKeyboard } from "@opentui/react";
 import { usePromptConfig } from "../providers/prompt-config";
 
@@ -110,9 +111,23 @@ function SessionChat({
       : [],
   );
   const { isTop } = useKeyboardLayer();
+  const dialog = useDialog();
+
+  const confirmTool = useCallback<ConfirmTool>(
+    async (_toolName, detail) => {
+      return dialog.confirm({
+        title: "Approve tool execution",
+        message:
+          detail || "The agent requested an action. Approve it, or deny to cancel.",
+      });
+    },
+    [dialog],
+  );
+
   const { messages, status, submit, abort, error, interrupt } = useChat(
     session.id,
     initialMessages,
+    confirmTool,
   );
   const { mode, model } = usePromptConfig();
 
