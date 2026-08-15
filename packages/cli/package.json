@@ -1,6 +1,6 @@
 {
   "name": "cerocode",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Interactive terminal UI for chatting with CeroCode AI agents",
   "keywords": [
     "cli",
