@@ -1,6 +1,7 @@
 import { google, type GoogleGenerativeAIProviderOptions } from "@ai-sdk/google";
 import { groq } from "@ai-sdk/groq";
 import { mistral } from "@ai-sdk/mistral";
+import { createOpenRouter } from "@openrouter/ai-sdk-provider";
 import {
   findSupportedChatModelById,
   type SupportedChatModel,
@@ -16,6 +17,10 @@ type GroqModelId = Extract<SupportedChatModel, { provider: "groq" }>["id"];
 type MistralModelId = Extract<
   SupportedChatModel,
   { provider: "mistral" }
+>["id"];
+type OpenRouterModelId = Extract<
+  SupportedChatModel,
+  { provider: "openrouter" }
 >["id"];
 
 export type ResolvedModel = {
@@ -65,6 +70,13 @@ const MISTRAL_PROVIDER_OPTIONS: Partial<
   Record<MistralModelId, ProviderOptions>
 > = {};
 
+const OPENROUTER_PROVIDER_OPTIONS: Partial<
+  Record<OpenRouterModelId, ProviderOptions>
+> = {};
+
+// Reads the OPENROUTER_API_KEY environment variable.
+const openrouter = createOpenRouter();
+
 function assertUnsupportedProvider(provider: never): never {
   throw new Error(`Unsupported provider: ${provider}`);
 }
@@ -96,6 +108,15 @@ function resolveMistralModel(modelId: MistralModelId): ResolvedModel {
   };
 }
 
+function resolveOpenRouterModel(modelId: OpenRouterModelId): ResolvedModel {
+  return {
+    model: openrouter.chat(modelId),
+    provider: "openrouter",
+    modelId: modelId,
+    providerOptions: OPENROUTER_PROVIDER_OPTIONS[modelId],
+  };
+}
+
 function resolveSupportedChatModel(model: SupportedChatModel): ResolvedModel {
   const provider = model.provider;
 
@@ -106,6 +127,8 @@ function resolveSupportedChatModel(model: SupportedChatModel): ResolvedModel {
       return resolveGroqModel(model.id);
     case "mistral":
       return resolveMistralModel(model.id);
+    case "openrouter":
+      return resolveOpenRouterModel(model.id);
     default:
       return assertUnsupportedProvider(provider);
   }

@@ -8,7 +8,8 @@ export type SupportedProvider =
   | "openai"
   | "google"
   | "groq"
-  | "mistral";
+  | "mistral"
+  | "openrouter";
 
 type SupportedChatModelDefinition = {
   id: string;
@@ -97,6 +98,19 @@ export const SUPPORTED_CHAT_MODELS = [
     pricing: {
       inputUsdPerMillionTokens: 0,
       outputUsdPerMillionTokens: 0,
+    },
+  },
+
+  // --- OpenRouter (paid, one key for hundreds of models) ---
+  {
+    // GA release of DeepSeek V4 Flash (re-post-trained revision, Jul 31 2026).
+    // Sparse MoE — 13B active params out of 284B — 1M-token context, built for
+    // coding, reasoning, and agent workflows.
+    id: "deepseek/deepseek-v4-flash-0731",
+    provider: "openrouter",
+    pricing: {
+      inputUsdPerMillionTokens: 0.07826,
+      outputUsdPerMillionTokens: 0.1565,
     },
   },
 
