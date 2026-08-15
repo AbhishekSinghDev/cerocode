@@ -1,5 +1,14 @@
 {
   "name": "@cerocode/database",
+  "description": "Postgres database layer for cerocode: Drizzle schema and client",
+  "author": "AbhishekSinghDev <abhishek.code.tech@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AbhishekSinghDev/cerocode.git"
+  },
+  "bugs": {
+    "url": "https://github.com/AbhishekSinghDev/cerocode/issues"
+  },
   "private": "true",
   "type": "module",
   "exports": {

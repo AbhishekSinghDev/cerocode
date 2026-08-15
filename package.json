@@ -1,13 +1,23 @@
 {
   "name": "cerocode-monorepo",
   "version": "1.0.0",
+  "author": "AbhishekSinghDev <abhishek.code.tech@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AbhishekSinghDev/cerocode.git"
+  },
   "devDependencies": {
     "typescript": "^5"
   },
+  "bugs": {
+    "url": "https://github.com/AbhishekSinghDev/cerocode/issues"
+  },
+  "description": "Monorepo for cerocode — a terminal AI coding agent (TUI CLI, Hono server, shared schemas, database)",
   "private": true,
   "scripts": {
     "dev:server": "bun run --hot packages/server/src/index.ts",
     "dev:cli": "NODE_ENV=development bun run --watch packages/cli/src/index.tsx",
+    "build": "bun run --filter cerocode build && bun run --filter @cerocode/server build",
     "build:cli": "bun run --filter cerocode build",
     "link:cli": "bun run build:cli && cd packages/cli && bun link",
     "clean": "bun run --filter cerocode clean && bun run --filter @cerocode/server clean && git clean -xdf node_modules"

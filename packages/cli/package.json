@@ -8,8 +8,18 @@
     "chat",
     "ai",
     "terminal",
+    "coding-agent",
+    "opentui",
     "bun"
   ],
+  "author": "AbhishekSinghDev <abhishek.code.tech@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AbhishekSinghDev/cerocode.git"
+  },
+  "bugs": {
+    "url": "https://github.com/AbhishekSinghDev/cerocode/issues"
+  },
   "license": "MIT",
   "type": "module",
   "main": "./dist/index.js",

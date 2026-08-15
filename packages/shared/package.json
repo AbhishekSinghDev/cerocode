@@ -1,5 +1,14 @@
 {
   "name": "@cerocode/shared",
+  "description": "Shared types, model registry, modes, and tool contracts for cerocode",
+  "author": "AbhishekSinghDev <abhishek.code.tech@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AbhishekSinghDev/cerocode.git"
+  },
+  "bugs": {
+    "url": "https://github.com/AbhishekSinghDev/cerocode/issues"
+  },
   "private": "true",
   "type": "module",
   "scripts": {
