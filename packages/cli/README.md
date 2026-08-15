@@ -15,7 +15,7 @@ bun add -g cerocode
 or with npm:
 
 ```sh
-npm install -g @cerocode/cli
+npm install -g cerocode
 ```
 
 ## Usage

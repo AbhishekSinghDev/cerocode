@@ -12,11 +12,10 @@
       "name": "cerocode",
       "version": "1.0.0",
       "bin": {
-        "cerocode": "./bin/cerocode",
+        "cerocode": "bin/cerocode",
       },
       "dependencies": {
         "@ai-sdk/react": "^4.0.67",
-        "@cerocode/shared": "workspace:*",
         "@opentui/core": "^0.4.5",
         "@opentui/react": "^0.4.5",
         "ai": "^7.0.64",
@@ -31,6 +30,7 @@
       },
       "devDependencies": {
         "@cerocode/server": "workspace:*",
+        "@cerocode/shared": "workspace:*",
         "@types/bun": "latest",
         "@types/react": "^19.2.14",
       },
