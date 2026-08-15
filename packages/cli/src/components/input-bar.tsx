@@ -28,6 +28,7 @@ import { readdir } from "fs/promises";
 type InputBarProps = {
   onSubmit: (value: string) => void;
   disabled?: boolean;
+  totalTokens?: number;
 };
 
 export const TEXTAREA_KEY_BINDINGS: KeyBinding[] = [
@@ -571,7 +572,7 @@ export function InputBar(props: InputBarProps) {
             placeholder={`Ask anything... "Fix a bug in the database"`}
             style={{ minWidth: "100%", maxWidth: "100%" }}
           />
-          <StatusBar />
+          <StatusBar totalTokens={props.totalTokens} />
         </box>
       </box>
     </box>

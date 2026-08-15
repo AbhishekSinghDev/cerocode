@@ -125,7 +125,6 @@ const app = new Hono<AuthenticatedEnv>().post(
       tools,
       ignoreIncompleteToolCalls: true,
     });
-    let completedUsage: LanguageModelUsage | null = null;
 
     const aiResult = streamText({
       model: resolvedModel.model,
@@ -133,9 +132,6 @@ const app = new Hono<AuthenticatedEnv>().post(
       messages: modelMessages,
       tools: tools,
       providerOptions: resolvedModel.providerOptions,
-      onFinish: (event) => {
-        completedUsage = event.totalUsage;
-      },
     });
 
     return aiResult.toUIMessageStreamResponse<CerocodeUIMessage>({
@@ -151,7 +147,7 @@ const app = new Hono<AuthenticatedEnv>().post(
           mode: mode,
           model: model,
           durationMs: Date.now() - startTime,
-          ...(completedUsage ? { usage: completedUsage } : {}),
+          ...(part.totalUsage ? { usage: part.totalUsage } : {}),
         };
       },
       onFinish: async (event) => {

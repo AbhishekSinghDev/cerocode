@@ -10,6 +10,7 @@ type Props = {
   inputDisabled?: boolean;
   loading?: boolean;
   interruptible?: boolean;
+  totalTokens?: number;
 };
 
 export function SessionShell(props: Props) {
@@ -31,7 +32,11 @@ export function SessionShell(props: Props) {
       </scrollbox>
 
       <box flexShrink={0}>
-        <InputBar onSubmit={props.onSubmit} disabled={props.inputDisabled} />
+        <InputBar
+          onSubmit={props.onSubmit}
+          disabled={props.inputDisabled}
+          totalTokens={props.totalTokens}
+        />
       </box>
 
       <box

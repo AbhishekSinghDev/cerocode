@@ -131,6 +131,17 @@ function SessionChat({
   );
   const { mode, model } = usePromptConfig();
 
+  const totalTokens = useMemo(() => {
+    let count = 0;
+    for (const msg of messages) {
+      const usage = msg.metadata?.usage;
+      if (typeof usage?.totalTokens === "number") {
+        count += usage.totalTokens;
+      }
+    }
+    return count;
+  }, [messages]);
+
   const hasSubmittedInitialPromptRef = useRef(false);
 
   useEffect(() => {
@@ -175,6 +186,7 @@ function SessionChat({
       }
       loading={status === "submitted" || status === "streaming"}
       interruptible={status === "submitted" || status === "streaming"}
+      totalTokens={totalTokens}
     >
       {messages.map((msg) => (
         <ChatMessage key={msg.id} message={msg} />

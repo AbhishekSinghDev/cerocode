@@ -19,12 +19,117 @@ type Props = {
   streaming?: boolean;
 };
 
+const MAX_OUTPUT_LINES = 8;
+const MAX_LINE_LENGTH = 160;
+
 function formatToolName(name: string) {
   return name.replace(/([a-z0-9])([A-Z])/g, "$1_$2").toLowerCase();
 }
 
 function isToolPart(part: ClientMessagePart): part is ToolPart {
   return part.type === "dynamic-tool" || part.type.startsWith("tool-");
+}
+
+function formatOutputLines(output: unknown): string[] {
+  if (output == null) return [];
+
+  if (typeof output === "string") {
+    return output.split("\n");
+  }
+
+  if (Array.isArray(output)) {
+    return output.map((item) =>
+      item != null && typeof item === "object"
+        ? JSON.stringify(item)
+        : String(item),
+    );
+  }
+
+  if (typeof output === "object") {
+    const obj = output as Record<string, unknown>;
+
+    if (typeof obj.stdout === "string" || typeof obj.stderr === "string") {
+      const lines = [
+        ...(typeof obj.stdout === "string" && obj.stdout.trim()
+          ? obj.stdout.trim().split("\n")
+          : []),
+        ...(typeof obj.stderr === "string" && obj.stderr.trim()
+          ? obj.stderr
+              .trim()
+              .split("\n")
+              .map((l) => `stderr: ${l}`)
+          : []),
+      ];
+      if (obj.exitCode != null && obj.exitCode !== 0) {
+        lines.push(`exit code: ${String(obj.exitCode)}`);
+      }
+      if (lines.length === 0 && obj.exitCode === 0) lines.push("ok");
+      return lines;
+    }
+
+    if (typeof obj.content === "string") {
+      const lines = obj.content.split("\n");
+      if (obj.truncated === true) {
+        lines.push(
+          `... truncated${typeof obj.totalLength === "number" ? `, ${obj.totalLength} total chars` : ""}`,
+        );
+      }
+      return lines;
+    }
+
+    if (Array.isArray(obj.entries)) {
+      const header = typeof obj.path === "string" && obj.path ? obj.path : ".";
+      const entries = (obj.entries as { name?: string; type?: string }[]).map(
+        (entry) =>
+          entry?.type === "directory" ? `${entry.name}/` : (entry?.name ?? ""),
+      );
+      if (entries.length === 0) return [header];
+      return [header, ...entries];
+    }
+
+    if (Array.isArray(obj.files)) {
+      const lines = (obj.files as string[]).slice();
+      if (obj.truncated === true) lines.push("... truncated");
+      return lines;
+    }
+
+    if (Array.isArray(obj.matches)) {
+      const lines = (
+        obj.matches as { file?: string; line?: number; content?: string }[]
+      ).map((match) => `${match.file}:${match.line}: ${match.content}`);
+      if (typeof obj.messages === "string") lines.unshift(obj.messages);
+      if (obj.truncated === true && typeof obj.totalMatches === "number") {
+        lines.push(`... truncated, ${obj.totalMatches} total matches`);
+      }
+      return lines;
+    }
+
+    if (obj.success === true) {
+      if (typeof obj.bytesWritten === "number") {
+        return [`Wrote ${obj.bytesWritten} bytes to ${String(obj.path)}`];
+      }
+      return [`Edited ${String(obj.path)}`];
+    }
+
+    return JSON.stringify(obj, null, 0).split("\n");
+  }
+
+  return [String(output)];
+}
+
+function capOutputLines(lines: string[]) {
+  const capped = lines.map((line) =>
+    line.length > MAX_LINE_LENGTH
+      ? `${line.slice(0, MAX_LINE_LENGTH - 3)}...`
+      : line,
+  );
+
+  if (capped.length <= MAX_OUTPUT_LINES) {
+    return { lines: capped, omitted: 0 };
+  }
+
+  const omitted = capped.length - (MAX_OUTPUT_LINES - 1);
+  return { lines: capped.slice(0, MAX_OUTPUT_LINES - 1), omitted };
 }
 
 function formatToolArgs(tc: ToolPart): string {
@@ -96,6 +201,18 @@ export function BotMessage({
                   ? part.toolName
                   : part.type.slice("tool-".length);
 
+              const done =
+                part.state === "output-available" ||
+                part.state === "output-error";
+              let outputLines: string[] | null = null;
+              let omittedLines = 0;
+
+              if (part.state === "output-available") {
+                const preview = capOutputLines(formatOutputLines(part.output));
+                outputLines = preview.lines;
+                omittedLines = preview.omitted;
+              }
+
               return (
                 <box
                   key={part.toolCallId}
@@ -103,16 +220,34 @@ export function BotMessage({
                   borderColor={theme.colors.border}
                   width="100%"
                   paddingX={2}
+                  flexDirection="column"
                 >
                   <text attributes={TextAttributes.DIM}>
-                    <em fg={theme.colors.info}>{formatToolName(toolName)} </em>
-                    <em fg={theme.colors.textMuted}>{formatToolArgs(part)}</em>
-                    {part.state !== "output-available" &&
-                    part.state !== "output-error"
-                      ? ".."
-                      : ""}
-                    {part.state === "output-error" ? `${part.errorText}` : ""}
+                    <span fg={theme.colors.info}>
+                      {formatToolName(toolName)}{" "}
+                    </span>
+                    <span fg={theme.colors.textMuted}>
+                      {formatToolArgs(part)}
+                    </span>
+                    {!done ? ".." : ""}
+                    {part.state === "output-error" ? ` ${part.errorText}` : ""}
                   </text>
+                  {outputLines && outputLines.length > 0 ? (
+                    <box flexDirection="column" width="100%" paddingTop={1}>
+                      {outputLines.map((line, i) => (
+                        <text key={`out-${i}`} wrapMode="char" width="100%">
+                          <span fg={theme.colors.textMuted}>{line}</span>
+                        </text>
+                      ))}
+                      {omittedLines > 0 ? (
+                        <text attributes={TextAttributes.DIM} width="100%">
+                          <span fg={theme.colors.textMuted}>
+                            ... {omittedLines} more lines
+                          </span>
+                        </text>
+                      ) : null}
+                    </box>
+                  ) : null}
                 </box>
               );
             }

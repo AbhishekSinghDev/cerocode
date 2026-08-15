@@ -112,7 +112,7 @@ function describeToolCall(toolName: string, input: unknown) {
     return parsed.command ? `$ ${parsed.command}` : "";
   }
 
-  if (toolName === "writeFile") {
+  if (toolName === "writeFile" || toolName === "editFile") {
     return parsed.path ? `path: ${parsed.path}` : "";
   }
 
@@ -208,29 +208,19 @@ export function useChat(
   initialMessages: Message[],
   confirm?: ConfirmTool,
 ) {
-  const trustRef = useRef({ writeFileAllow: false, allowAll: false });
+  const trustRef = useRef({ allowAll: false });
 
-  function needsApproval(
-    toolName: string,
-    input: unknown,
-  ): boolean {
-    if (toolName === "bash") {
-      const parsed = input as { command?: string };
-      if (parsed.command && isSafeBashCommand(parsed.command)) return false;
-      return true;
+  function needsApproval(toolName: string, input: unknown): boolean {
+    if (trustRef.current.allowAll) return false;
+
+    if (toolName === "writeFile" || toolName === "editFile") {
+      const parsed = input as { path?: string };
+      return Boolean(parsed.path && isSensitivePath(parsed.path));
     }
 
-    if (toolName === "writeFile") {
-      if (trustRef.current.allowAll) return false;
-      const parsed = input as { path?: string };
-      if (
-        parsed.path &&
-        !isSensitivePath(parsed.path) &&
-        trustRef.current.writeFileAllow
-      ) {
-        return false;
-      }
-      return true;
+    if (toolName === "bash") {
+      const parsed = input as { command?: string };
+      return !(parsed.command && isSafeBashCommand(parsed.command));
     }
 
     return false;
@@ -323,7 +313,6 @@ export function useChat(
             if (result === "approved-all") {
               trustRef.current.allowAll = true;
             }
-            trustRef.current.writeFileAllow = true;
           }
 
           const output = await withToolTimeout(
@@ -368,7 +357,7 @@ export function useChat(
     },
     abort: chat.stop,
     interrupt: () => {
-      trustRef.current = { writeFileAllow: false, allowAll: false };
+      trustRef.current = { allowAll: false };
       chat.stop();
     },
   };
