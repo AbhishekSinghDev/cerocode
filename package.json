@@ -17,6 +17,9 @@
   "scripts": {
     "dev:server": "bun run --hot packages/server/src/index.ts",
     "dev:cli": "NODE_ENV=development bun run --watch packages/cli/src/index.tsx",
+    "dev:web": "bun run --filter @cerocode/web dev",
+    "build:web": "bun run --filter @cerocode/web build",
+    "lint:web": "bun run --filter @cerocode/web lint",
     "build": "bun run --filter cerocode build && bun run --filter @cerocode/server build",
     "build:cli": "bun run --filter cerocode build",
     "link:cli": "bun run build:cli && cd packages/cli && bun link",
