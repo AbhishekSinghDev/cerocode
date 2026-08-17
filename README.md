@@ -1,12 +1,11 @@
 # cerocode
 
-<!-- TODO: add demo screenshot/gif -->
+cerocode is an AI coding agent that lives in your terminal: an interactive TUI
+for chatting with CeroCode agents as they read, search, edit, and write files,
+and run shell commands in your project directory. Every response streams back
+as you chat, and sessions are stored server-side, so they survive restarts.
 
-cerocode is a terminal AI coding agent: an interactive TUI for chatting with
-CeroCode AI agents from your terminal. Run it inside a project directory and
-the agent can read, search, edit, and write files and run shell commands in
-that directory, streaming its responses back as you chat. Sessions are stored
-server-side and survive restarts.
+<video src="packages/web/public/cerocode-demo.mp4" controls muted poster="packages/web/public/cerocode-demo-poster.jpg"></video>
 
 It is built as a Bun monorepo:
 

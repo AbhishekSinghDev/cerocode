@@ -1,5 +1,6 @@
 import { Nav } from "@/components/marketing/nav";
 import { Hero } from "@/components/marketing/hero";
+import { DemoSection } from "@/components/marketing/demo-section";
 import { ModelsSection } from "@/components/marketing/models-section";
 import { ModesSection } from "@/components/marketing/modes-section";
 import { ToolsSection } from "@/components/marketing/tools-section";
@@ -15,6 +16,7 @@ export default function Home() {
       <Nav />
       <main className="flex-1">
         <Hero />
+        <DemoSection />
         <ModelsSection />
         <ModesSection />
         <ToolsSection />
