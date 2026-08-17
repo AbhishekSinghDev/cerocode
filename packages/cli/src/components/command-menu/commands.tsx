@@ -13,7 +13,7 @@ export const COMMANDS: Command[] = [
     description: "Start a new conversation",
     value: "/new",
     action: (ctx) => {
-      ctx.navigate("/");
+      ctx.startNewSession();
     },
   },
   {
@@ -51,8 +51,8 @@ export const COMMANDS: Command[] = [
     value: "/sessions",
     action: (ctx) => {
       ctx.dialog.open({
-        title: "Select Theme",
-        children: <SessionDialogContent />,
+        title: "Your Sessions",
+        children: <SessionDialogContent onSelectSession={ctx.openSession} />,
       });
     },
   },

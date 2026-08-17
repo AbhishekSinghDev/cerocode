@@ -316,7 +316,12 @@ export function useChat(
           }
 
           const output = await withToolTimeout(
-            executeLocalTool(toolCall.toolName, toolCall.input, mode),
+            executeLocalTool(
+              toolCall.toolName,
+              toolCall.input,
+              mode,
+              toolCall.toolCallId,
+            ),
             toolCall.toolName,
           );
 

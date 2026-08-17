@@ -8,6 +8,7 @@ import {
   writeFile,
 } from "fs/promises";
 import { basename, dirname, isAbsolute, join, relative, resolve } from "path";
+import { setDiffSnapshot } from "./diff-cache";
 
 const MAX_FILE_SIZE = 10_000;
 const MAX_RESULTS = 200;
@@ -61,6 +62,7 @@ export async function executeLocalTool(
   toolName: string,
   input: unknown,
   mode: ModeType,
+  toolCallId?: string,
 ) {
   if (
     mode === Mode.PLAN &&
@@ -198,8 +200,23 @@ export async function executeLocalTool(
     case "writeFile": {
       const { path, content } = toolInputSchemas.writeFile.parse(input);
       const { cwd, resolved, realPath } = await resolveCwd(path);
+
+      const previousContent = await readFile(realPath, "utf-8").catch(
+        (error) => {
+          if ((error as NodeJS.ErrnoException).code === "ENOENT") return "";
+          throw error;
+        },
+      );
+
       await mkdir(dirname(realPath), { recursive: true });
       await writeFile(realPath, content, "utf-8");
+
+      if (toolCallId) {
+        setDiffSnapshot(toolCallId, {
+          oldContent: previousContent,
+          newContent: content,
+        });
+      }
 
       return {
         success: true as const,
@@ -218,7 +235,12 @@ export async function executeLocalTool(
       if (occurrences > 1)
         throw new Error(`oldString found ${occurrences} times in file`);
 
-      await writeFile(realPath, content.replace(oldString, newString), "utf-8");
+      const newContent = content.replace(oldString, newString);
+      await writeFile(realPath, newContent, "utf-8");
+
+      if (toolCallId) {
+        setDiffSnapshot(toolCallId, { oldContent: content, newContent });
+      }
 
       return {
         success: true as const,

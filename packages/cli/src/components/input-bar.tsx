@@ -4,8 +4,8 @@ import {
   TextAttributes,
   type KeyBinding,
 } from "@opentui/core";
-import { StatusBar } from "./status-bar";
 import { CommandMenu } from "./command-menu";
+import { GLYPH } from "./ui/glyphs";
 import {
   useCallback,
   useEffect,
@@ -20,15 +20,15 @@ import { useToast } from "../providers/toast";
 import { useKeyboardLayer } from "../providers/kebboard";
 import { useDialog } from "../providers/dialog";
 import { useTheme } from "../providers/theme";
-import { useNavigate } from "react-router";
 import { usePromptConfig } from "../providers/prompt-config";
 import { isAbsolute, relative, resolve } from "path";
 import { readdir } from "fs/promises";
 
 type InputBarProps = {
   onSubmit: (value: string) => void;
+  onNewSession: () => void;
+  onOpenSession: (id: string) => void;
   disabled?: boolean;
-  totalTokens?: number;
 };
 
 export const TEXTAREA_KEY_BINDINGS: KeyBinding[] = [
@@ -248,9 +248,8 @@ export function InputBar(props: InputBarProps) {
   const dialog = useDialog();
   const { theme } = useTheme();
   const renderer = useRenderer();
-  const navigate = useNavigate();
   const { isTop, setResponder, push, pop } = useKeyboardLayer();
-  const { mode, toggleMode, setMode, setModel } = usePromptConfig();
+  const { mode, model, toggleMode, setMode, setModel } = usePromptConfig();
 
   const {
     showCommandMenu,
@@ -368,7 +367,8 @@ export function InputBar(props: InputBarProps) {
           exit: () => renderer.destroy(),
           toast,
           dialog,
-          navigate,
+          startNewSession: props.onNewSession,
+          openSession: props.onOpenSession,
           mode,
           setMode,
           setModel,
@@ -377,7 +377,7 @@ export function InputBar(props: InputBarProps) {
         textarea.insertText(command.value + " ");
       }
     },
-    [renderer, toast, dialog, navigate, setMode, setModel],
+    [renderer, toast, dialog, props.onNewSession, props.onOpenSession, mode, setMode, setModel],
   );
 
   useEffect(() => {
@@ -506,58 +506,69 @@ export function InputBar(props: InputBarProps) {
     }
   });
 
+  const accentColor =
+    mode === "PLAN" ? theme.colors.info : theme.colors.primary;
+
   return (
     <box width="100%" alignItems="center">
       <box
-        border={["left"]}
-        borderColor={
-          mode === "BUILD" ? theme.colors.primary : theme.colors.selection
-        }
-        borderStyle="heavy"
+        border
+        borderStyle="rounded"
+        borderColor={accentColor}
+        title={mode === "PLAN" ? "plan" : "build"}
+        titleColor={accentColor}
+        titleAlignment="left"
+        bottomTitle={`${model}  ·  shift+enter newline`}
+        bottomTitleAlignment="right"
+        width="100%"
       >
         <box
           position="relative"
           justifyContent="center"
           paddingX={2}
-          paddingY={1}
-          backgroundColor={theme.colors.surface}
+          paddingY={0}
           width="100%"
-          gap={1}
         >
           {showCommandMenu && (
-            <box
-              position="absolute"
-              bottom="100%"
-              left={0}
-              width="100%"
-              backgroundColor={theme.colors.surface}
-              zIndex={10}
-            >
-              <CommandMenu
-                query={commandQuery}
-                selectedIndex={selectedIndex}
-                scrollRef={scrollRef}
-                onSelect={setSelectedIndex}
-                onExecute={handleCommandExecute}
-              />
+            <box position="absolute" bottom="100%" left={0} width="100%" zIndex={10}>
+              <box
+                border
+                borderStyle="rounded"
+                borderColor={theme.colors.border}
+                backgroundColor={theme.colors.surface}
+                title="commands"
+                titleColor={theme.colors.textMuted}
+                marginBottom={1}
+              >
+                <CommandMenu
+                  query={commandQuery}
+                  selectedIndex={selectedIndex}
+                  scrollRef={scrollRef}
+                  onSelect={setSelectedIndex}
+                  onExecute={handleCommandExecute}
+                />
+              </box>
             </box>
           )}
           {!showCommandMenu && showMentionMenu && (
-            <box
-              position="absolute"
-              bottom="100%"
-              left={0}
-              width="100%"
-              backgroundColor={theme.colors.surface}
-              zIndex={10}
-            >
-              <FileMentionMenu
-                candidates={mentionCandidates}
-                selectedIndex={mentionSelectedIndex}
-                scrollRef={mentionScrollRef}
-                onSelect={setMentionSelectedIndex}
-                onExecute={handleMentionExecute}
-              />
+            <box position="absolute" bottom="100%" left={0} width="100%" zIndex={10}>
+              <box
+                border
+                borderStyle="rounded"
+                borderColor={theme.colors.border}
+                backgroundColor={theme.colors.surface}
+                title="files"
+                titleColor={theme.colors.textMuted}
+                marginBottom={1}
+              >
+                <FileMentionMenu
+                  candidates={mentionCandidates}
+                  selectedIndex={mentionSelectedIndex}
+                  scrollRef={mentionScrollRef}
+                  onSelect={setMentionSelectedIndex}
+                  onExecute={handleMentionExecute}
+                />
+              </box>
             </box>
           )}
           <textarea
@@ -572,7 +583,6 @@ export function InputBar(props: InputBarProps) {
             placeholder={`Ask anything... "Fix a bug in the database"`}
             style={{ minWidth: "100%", maxWidth: "100%" }}
           />
-          <StatusBar totalTokens={props.totalTokens} />
         </box>
       </box>
     </box>
@@ -600,7 +610,7 @@ function FileMentionMenu({
   if (candidates.length === 0) {
     return (
       <box paddingX={1}>
-        <text attributes={TextAttributes.DIM}>
+        <text attributes={TextAttributes.DIM} fg={theme.colors.textMuted}>
           No matching files or folders
         </text>
       </box>
@@ -616,6 +626,7 @@ function FileMentionMenu({
           <box
             key={candidate.path}
             flexDirection="row"
+            gap={1}
             paddingX={1}
             height={1}
             overflow="hidden"
@@ -623,14 +634,29 @@ function FileMentionMenu({
             onMouseMove={() => onSelect(index)}
             onMouseDown={() => onExecute(index)}
           >
+            <box width={1} flexShrink={0}>
+              <text
+                selectable={false}
+                fg={isSelected ? theme.colors.textOnSelection : theme.colors.textMuted}
+              >
+                {isSelected ? GLYPH.cursor : " "}
+              </text>
+            </box>
             <box flexGrow={1} flexShrink={1} overflow="hidden">
-              <text selectable={false} fg={isSelected ? "black" : "white"}>
-                {candidate.path}
+              <text
+                selectable={false}
+                fg={isSelected ? theme.colors.textOnSelection : theme.colors.text}
+              >
+                {candidate.kind === "directory" ? GLYPH.dir : GLYPH.file} {candidate.path}
               </text>
             </box>
 
-            <box width={8} alignItems="flex-end" flexShrink={0}>
-              <text selectable={false} fg={isSelected ? "black" : "gray"}>
+            <box width={4} alignItems="flex-end" flexShrink={0}>
+              <text
+                selectable={false}
+                attributes={TextAttributes.DIM}
+                fg={isSelected ? theme.colors.textOnSelection : theme.colors.textMuted}
+              >
                 {candidate.kind === "directory" ? "dir" : "file"}
               </text>
             </box>

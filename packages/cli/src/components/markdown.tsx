@@ -1,6 +1,8 @@
 import { SyntaxStyle, RGBA } from "@opentui/core";
 
-const syntaxStyle = SyntaxStyle.fromStyles({
+// Shared with DiffView so tool-call diffs use the same code-highlighting
+// palette as markdown code blocks, independent of the active UI theme.
+export const syntaxStyle = SyntaxStyle.fromStyles({
   // Keywords
   keyword: { fg: RGBA.fromHex("#FF7B72"), bold: true },
   "keyword.import": { fg: RGBA.fromHex("#FF7B72"), bold: true },

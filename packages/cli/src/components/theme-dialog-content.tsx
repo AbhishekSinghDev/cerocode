@@ -3,6 +3,7 @@ import { useDialog } from "../providers/dialog";
 import { DialogSearchList } from "./dialog-search-list";
 import { TextAttributes } from "@opentui/core";
 import type { Theme } from "../providers/theme/types";
+import { GLYPH } from "./ui/glyphs";
 
 export function ThemeDialogContent() {
   const { theme, setTheme, themes } = useTheme();
@@ -45,13 +46,13 @@ export function ThemeDialogContent() {
               }
               attributes={TextAttributes.BOLD}
             >
-              {" "}active
+              {" "}{GLYPH.success} active
             </text>
           )}
         </>
       )}
       onHighlight={(t) => {
-        setTheme(t);
+        setTheme(t, false);
       }}
       onSelect={(t) => {
         setTheme(t);
