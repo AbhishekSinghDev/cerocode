@@ -10,8 +10,10 @@ import {
   type ToastOptions,
   type ToastVariant,
 } from "./types";
+import { TextAttributes } from "@opentui/core";
 import { useTerminalDimensions } from "@opentui/react";
 import { useTheme } from "../theme";
+import { GLYPH } from "../../components/ui/glyphs";
 
 export type ToastContextValue = {
   show: (options: ToastOptions) => void;
@@ -79,6 +81,12 @@ type ToastProps = {
   currentToast: ToastOptions | null;
 };
 
+const VARIANT_GLYPH: Record<ToastVariant, string> = {
+  info: GLYPH.info,
+  success: GLYPH.success,
+  error: GLYPH.error,
+};
+
 function Toast({ currentToast }: ToastProps) {
   const { width } = useTerminalDimensions();
   const { theme } = useTheme();
@@ -93,30 +101,39 @@ function Toast({ currentToast }: ToastProps) {
     error: theme.colors.error,
   };
 
-  const borderColor = currentToast.variant
-    ? variantColors[currentToast.variant]
-    : variantColors.info;
+  const variant = currentToast.variant ?? "info";
+  const accentColor = variantColors[variant];
 
   return (
     <box
       position="absolute"
       justifyContent="center"
-      alignItems="flex-start"
-      top={2}
-      right={2}
-      width={Math.max(1, Math.min(60, width - 6))}
-      paddingLeft={2}
-      paddingRight={2}
-      paddingTop={1}
-      paddingBottom={1}
-      backgroundColor={theme.colors.surface}
-      borderColor={borderColor}
-      border={["left", "right"]}
+      alignItems="center"
+      bottom={2}
+      left={0}
+      width="100%"
+      zIndex={200}
     >
-      <box flexDirection="column" gap={1} width="100%">
-        <text fg={theme.colors.text} wrapMode="word" width="100%">
-          {currentToast.message}
+      <box
+        border
+        borderStyle="rounded"
+        borderColor={accentColor}
+        backgroundColor={theme.colors.surface}
+        width={Math.max(1, Math.min(60, width - 6))}
+        paddingX={2}
+        paddingY={0}
+        flexDirection="row"
+        gap={1}
+        alignItems="flex-start"
+      >
+        <text attributes={TextAttributes.BOLD} fg={accentColor}>
+          {VARIANT_GLYPH[variant]}
         </text>
+        <box flexGrow={1}>
+          <text fg={theme.colors.text} wrapMode="word" width="100%">
+            {currentToast.message}
+          </text>
+        </box>
       </box>
     </box>
   );

@@ -3,7 +3,6 @@ import { useCallback, useEffect, useState } from "react";
 import { apiClient } from "../../lib/api-client";
 import { useDialog } from "../../providers/dialog";
 import { useToast } from "../../providers/toast";
-import { useNavigate } from "react-router";
 import { getErrorMessage } from "../../lib/http-errors";
 import { TextAttributes } from "@opentui/core";
 import { DialogSearchList } from "../dialog-search-list";
@@ -15,12 +14,15 @@ type Session = InferResponseType<
   200
 >[number];
 
-export const SessionDialogContent = () => {
+type SessionDialogContentProps = {
+  onSelectSession: (id: string) => void;
+};
+
+export const SessionDialogContent = ({ onSelectSession }: SessionDialogContentProps) => {
   const [sessions, setSessions] = useState<Session[]>([]);
   const [loading, setLoading] = useState(true);
   const { close } = useDialog();
   const { show } = useToast();
-  const navigate = useNavigate();
 
   useEffect(() => {
     let ignore = false;
@@ -58,9 +60,9 @@ export const SessionDialogContent = () => {
   const handleSessionSelect = useCallback(
     (session: Session) => {
       close();
-      navigate(`/sessions/${session.id}`);
+      onSelectSession(session.id);
     },
-    [close, navigate],
+    [close, onSelectSession],
   );
 
   const { theme } = useTheme();

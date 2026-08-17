@@ -3,6 +3,7 @@ import { COMMANDS } from "./commands";
 import { TextAttributes, type ScrollBoxRenderable } from "@opentui/core";
 import { getFilteredCommands } from "./filter-commands";
 import { useTheme } from "../../providers/theme";
+import { GLYPH } from "../ui/glyphs";
 
 const MAX_VISIBLE_COMMANDS = 8;
 
@@ -41,6 +42,7 @@ export function CommandMenu(props: CommandMenuProps) {
           <box
             key={command.value}
             flexDirection="row"
+            gap={1}
             paddingX={1}
             height={1}
             overflow="hidden"
@@ -48,6 +50,14 @@ export function CommandMenu(props: CommandMenuProps) {
             onMouseMove={() => props.onSelect(index)}
             onMouseDown={() => props.onExecute(index)}
           >
+            <box width={1} flexShrink={0}>
+              <text
+                selectable={false}
+                fg={isSelected ? theme.colors.textOnSelection : theme.colors.textMuted}
+              >
+                {isSelected ? GLYPH.cursor : " "}
+              </text>
+            </box>
             <box width={COMMAND_COL_WIDTH} flexShrink={0}>
               <text
                 selectable={false}

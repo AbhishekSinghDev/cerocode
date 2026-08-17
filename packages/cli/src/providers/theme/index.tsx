@@ -1,10 +1,11 @@
 import { createContext, useCallback, useContext, useState, type ReactNode } from "react";
 import type { Theme } from "./types";
 import { THEMES } from "./themes";
+import { getSettings, saveSettings } from "../../lib/settings";
 
 export type ThemeContextValue = {
   theme: Theme;
-  setTheme: (theme: Theme) => void;
+  setTheme: (theme: Theme, persist?: boolean) => void;
   themes: Theme[];
 };
 
@@ -22,11 +23,19 @@ type ThemeProviderProps = {
   children: ReactNode;
 };
 
-export function ThemeProvider({ children }: ThemeProviderProps) {
-  const [theme, setThemeState] = useState<Theme>(THEMES[0]!);
+function getInitialTheme(): Theme {
+  const savedId = getSettings().themeId;
+  return THEMES.find((t) => t.id === savedId) ?? THEMES[0]!;
+}
 
-  const setTheme = useCallback((t: Theme) => {
+export function ThemeProvider({ children }: ThemeProviderProps) {
+  const [theme, setThemeState] = useState<Theme>(getInitialTheme);
+
+  const setTheme = useCallback((t: Theme, persist = true) => {
     setThemeState(t);
+    if (persist) {
+      saveSettings({ themeId: t.id });
+    }
   }, []);
 
   return (

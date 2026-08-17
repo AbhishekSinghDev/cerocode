@@ -1,6 +1,6 @@
 {
   "name": "cerocode",
-  "version": "1.0.3",
+  "version": "1.1.0",
   "description": "Interactive terminal UI for chatting with CeroCode AI agents",
   "keywords": [
     "cli",
@@ -53,12 +53,12 @@
     "@opentui/react": "^0.4.5",
     "ai": "^7.0.64",
     "date-fns": "^4.4.0",
+    "diff": "^9.0.0",
     "hono": "^4.13.0",
     "open": "^11.0.0",
     "opentui-spinner": "^0.0.7",
     "pretty-ms": "^9.3.0",
     "react": "^19.2.8",
-    "react-router": "^8.3.0",
     "zod": "^4.4.3"
   },
   "devDependencies": {

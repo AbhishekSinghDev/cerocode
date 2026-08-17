@@ -10,6 +10,7 @@ import { useKeyboardLayer } from "../kebboard";
 import { useKeyboard, useTerminalDimensions } from "@opentui/react";
 import { RGBA, TextAttributes } from "@opentui/core";
 import { useTheme } from "../theme";
+import { GLYPH } from "../../components/ui/glyphs";
 
 export type DialogContextValue = {
   open: (config: DialogConfig) => void;
@@ -116,7 +117,7 @@ function Dialog({ currentDialog, close }: DialogProps) {
   const { title, children } = currentDialog;
 
   const scrim = RGBA.fromHex(theme.colors.background);
-  scrim.a = 150;
+  scrim.a = 0.6;
 
   return (
     <box
@@ -132,33 +133,22 @@ function Dialog({ currentDialog, close }: DialogProps) {
       onMouseDown={() => close()}
     >
       <box
+        border
+        borderStyle="rounded"
+        borderColor={theme.colors.border}
         width={Math.min(60, dimensions.width - 4)}
         height="auto"
         backgroundColor={theme.colors.surface}
-        paddingX={4}
+        title={`${GLYPH.brand} ${title}`}
+        titleColor={theme.colors.primary}
+        bottomTitle="[esc] close"
+        bottomTitleAlignment="right"
+        paddingX={3}
         paddingY={1}
         flexDirection="column"
         gap={1}
         onMouseDown={(e) => e.stopPropagation()}
       >
-        <box
-          paddingBottom={1}
-          flexDirection="row"
-          alignItems="center"
-          justifyContent="space-between"
-        >
-          <text attributes={TextAttributes.BOLD} fg={theme.colors.text}>
-            {title}
-          </text>
-          <text
-            attributes={TextAttributes.DIM}
-            fg={theme.colors.textMuted}
-            onMouseDown={() => close()}
-          >
-            esc
-          </text>
-        </box>
-
         <box flexGrow={1}>{children}</box>
       </box>
     </box>
@@ -199,7 +189,7 @@ function ConfirmDialog({ pendingConfirm, onResolve }: ConfirmDialogProps) {
   if (!pendingConfirm) return null;
 
   const scrim = RGBA.fromHex(theme.colors.background);
-  scrim.a = 150;
+  scrim.a = 0.6;
 
   return (
     <box
@@ -214,17 +204,19 @@ function ConfirmDialog({ pendingConfirm, onResolve }: ConfirmDialogProps) {
       zIndex={101}
     >
       <box
+        border
+        borderStyle="rounded"
+        borderColor={theme.colors.error}
         width={Math.min(80, dimensions.width - 4)}
         height="auto"
         backgroundColor={theme.colors.surface}
-        paddingX={4}
+        title={`${GLYPH.warn} ${pendingConfirm.title}`}
+        titleColor={theme.colors.error}
+        paddingX={3}
         paddingY={1}
         flexDirection="column"
         gap={1}
       >
-        <text attributes={TextAttributes.BOLD} fg={theme.colors.text}>
-          {pendingConfirm.title}
-        </text>
         <text wrapMode="word" width="100%" fg={theme.colors.text}>
           {pendingConfirm.message}
         </text>
@@ -235,13 +227,13 @@ function ConfirmDialog({ pendingConfirm, onResolve }: ConfirmDialogProps) {
           paddingTop={1}
         >
           <text attributes={TextAttributes.BOLD} fg={theme.colors.success}>
-            enter  approve
+            [enter] approve
           </text>
           <text attributes={TextAttributes.BOLD} fg={theme.colors.info}>
-            a  approve all
+            [a] approve all
           </text>
           <text attributes={TextAttributes.BOLD} fg={theme.colors.error}>
-            esc  deny
+            [esc] deny
           </text>
         </box>
       </box>

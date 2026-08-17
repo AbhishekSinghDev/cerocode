@@ -142,8 +142,8 @@ packages/
 
 No configuration is required — production endpoints are baked in:
 
-| Variable | Effect |
-| --- | --- |
+| Variable   | Effect                                                                                                                                             |
+| ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `NODE_ENV` | `development` switches the API base URL to `http://localhost:3000` and the dev Clerk app; anything else uses the hosted CeroCode API and Clerk app |
 
 The auth token lives in `~/.cerocode/auth.json`; delete it to sign out.
@@ -153,36 +153,36 @@ The auth token lives in `~/.cerocode/auth.json`; delete it to sign out.
 Bun loads `.env` from the working directory automatically. Copy
 [.env.example](.env.example) to `.env` and fill in:
 
-| Variable | Required | Purpose |
-| --- | --- | --- |
-| `DATABASE_URL` | yes | Postgres connection string (server + drizzle-kit) |
-| `CLERK_SECRET_KEY` | yes | Clerk backend secret; the server throws at startup if missing |
-| `CLERK_PUBLISHABLE_KEY` | yes | Clerk frontend API key; the server throws at startup if missing |
-| `GOOGLE_GENERATIVE_AI_API_KEY` | no | Enables Google models |
-| `GROQ_API_KEY` | no | Enables Groq models |
-| `MISTRAL_API_KEY` | no | Enables Mistral models (default model) |
+| Variable                       | Required | Purpose                                                         |
+| ------------------------------ | -------- | --------------------------------------------------------------- |
+| `DATABASE_URL`                 | yes      | Postgres connection string (server + drizzle-kit)               |
+| `CLERK_SECRET_KEY`             | yes      | Clerk backend secret; the server throws at startup if missing   |
+| `CLERK_PUBLISHABLE_KEY`        | yes      | Clerk frontend API key; the server throws at startup if missing |
+| `GOOGLE_GENERATIVE_AI_API_KEY` | no       | Enables Google models                                           |
+| `GROQ_API_KEY`                 | no       | Enables Groq models                                             |
+| `MISTRAL_API_KEY`              | no       | Enables Mistral models (default model)                          |
 
 ## Scripts
 
-| Script | Package | Description |
-| --- | --- | --- |
-| `dev:server` | root | Run the Hono server with hot reload |
-| `dev:cli` | root | Run the CLI in watch mode (development endpoints) |
-| `build` | root | Build the CLI and server bundles |
-| `build:cli` | root | Build the CLI bundle only |
-| `link:cli` | root | Build the CLI and link it globally with `bun link` |
-| `clean` | root | Remove build output and `node_modules` in all packages |
-| `dev` | cli | Run the CLI in watch mode (same as root `dev:cli`) |
-| `build` | cli | Bundle `src/index.tsx` into `dist/` for the Bun runtime |
-| `prepublishOnly` | cli | npm hook — runs `build` before publishing |
-| `clean` | cli | Remove `node_modules` and `dist` |
-| `dev` | server | Run the server with hot reload |
-| `start` | server | Run the compiled server from `dist/index.js` |
-| `build` | server | Bundle `src/index.ts` into `dist/` |
-| `clean` | server | Remove `node_modules` |
-| `clean` | shared | Remove `node_modules` |
-| `push` | database | Push the Drizzle schema to the database |
-| `studio` | database | Open Drizzle Studio |
+| Script           | Package  | Description                                             |
+| ---------------- | -------- | ------------------------------------------------------- |
+| `dev:server`     | root     | Run the Hono server with hot reload                     |
+| `dev:cli`        | root     | Run the CLI in watch mode (development endpoints)       |
+| `build`          | root     | Build the CLI and server bundles                        |
+| `build:cli`      | root     | Build the CLI bundle only                               |
+| `link:cli`       | root     | Build the CLI and link it globally with `bun link`      |
+| `clean`          | root     | Remove build output and `node_modules` in all packages  |
+| `dev`            | cli      | Run the CLI in watch mode (same as root `dev:cli`)      |
+| `build`          | cli      | Bundle `src/index.tsx` into `dist/` for the Bun runtime |
+| `prepublishOnly` | cli      | npm hook — runs `build` before publishing               |
+| `clean`          | cli      | Remove `node_modules` and `dist`                        |
+| `dev`            | server   | Run the server with hot reload                          |
+| `start`          | server   | Run the compiled server from `dist/index.js`            |
+| `build`          | server   | Bundle `src/index.ts` into `dist/`                      |
+| `clean`          | server   | Remove `node_modules`                                   |
+| `clean`          | shared   | Remove `node_modules`                                   |
+| `push`           | database | Push the Drizzle schema to the database                 |
+| `studio`         | database | Open Drizzle Studio                                     |
 
 ## Contributing
 

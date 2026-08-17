@@ -7,6 +7,7 @@ import { useCallback, useRef, useState } from "react";
 import { useKeyboardLayer } from "../providers/kebboard";
 import { useKeyboard } from "@opentui/react";
 import { useTheme } from "../providers/theme";
+import { GLYPH } from "./ui/glyphs";
 
 const MAX_VISIBLE_ITEMS = 6;
 
@@ -105,6 +106,8 @@ export function DialogSearchList<T>(props: DialogSearchListProps<T>) {
               <box
                 key={props.getKey(item)}
                 flexDirection="row"
+                gap={1}
+                paddingX={1}
                 height={1}
                 overflow="hidden"
                 backgroundColor={isSelected ? theme.colors.selection : undefined}
@@ -114,6 +117,14 @@ export function DialogSearchList<T>(props: DialogSearchListProps<T>) {
                 }}
                 onMouseDown={() => props.onSelect(item)}
               >
+                <box width={1} flexShrink={0}>
+                  <text
+                    selectable={false}
+                    fg={isSelected ? theme.colors.textOnSelection : theme.colors.textMuted}
+                  >
+                    {isSelected ? GLYPH.cursor : " "}
+                  </text>
+                </box>
                 {props.renderItem(item, isSelected)}
               </box>
             );

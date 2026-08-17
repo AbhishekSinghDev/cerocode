@@ -1,10 +1,10 @@
-import { Outlet } from "react-router";
 import { DialogProvider } from "../providers/dialog";
 import { KeyboardProvider } from "../providers/kebboard";
 import { ThemeProvider } from "../providers/theme";
 import { ToastProvider } from "../providers/toast";
 import { ThemedRoot } from "./themed-root";
 import { PromptConfigProvider } from "../providers/prompt-config";
+import { ChatScreen } from "../screens/chat-screen";
 
 export function RootLayout() {
   return (
@@ -14,7 +14,7 @@ export function RootLayout() {
           <DialogProvider>
             <PromptConfigProvider>
               <ThemedRoot>
-                <Outlet />
+                <ChatScreen />
               </ThemedRoot>
             </PromptConfigProvider>
           </DialogProvider>

@@ -1,9 +1,14 @@
 import { TextAttributes } from "@opentui/core";
 import { useTheme } from "../../providers/theme";
 import { MessageMarkdown } from "../markdown";
+import { DiffView } from "../diff-view";
+import { getDiffSnapshot } from "../../lib/diff-cache";
 import type { ModeType } from "@cerocode/shared";
 import type { Message } from "../../hooks/use-chat";
+import { GLYPH } from "../ui/glyphs";
 import prettyMilliseconds from "pretty-ms";
+
+const FILE_EDIT_TOOLS = new Set(["writeFile", "editFile"]);
 
 type ClientMessagePart = Message["parts"][number];
 type ToolPart = Extract<
@@ -132,37 +137,17 @@ function capOutputLines(lines: string[]) {
   return { lines: capped.slice(0, MAX_OUTPUT_LINES - 1), omitted };
 }
 
-function formatToolArgs(tc: ToolPart): string {
+function formatToolArgs(tc: ToolPart, toolName: string): string {
   if (!("input" in tc) || tc.input == null) return "";
   if (typeof tc.input !== "object") return String(tc.input);
-  return Object.values(tc.input).map(String).join(" ");
-}
-
-type PartGroup = {
-  type: ClientMessagePart["type"];
-  parts: ClientMessagePart[];
-  key: string;
-};
-
-function groupConsecutiveParts(parts: ClientMessagePart[]): PartGroup[] {
-  const groups: PartGroup[] = [];
-
-  for (const part of parts) {
-    let i = 0;
-    const lastGroup = groups[groups.length - 1];
-
-    if (lastGroup && lastGroup.type === part.type) {
-      lastGroup.parts.push(part);
-    } else {
-      const key = isToolPart(part)
-        ? `group-tc-${part.toolCallId}`
-        : `group-${part.type}-${i}`;
-      groups.push({ type: part.type, parts: [part], key });
-    }
-    i++;
+  // For file edits the args are shown as a diff instead, so just surface
+  // the path here rather than dumping the whole content/oldString/newString
+  // inline as text.
+  if (FILE_EDIT_TOOLS.has(toolName)) {
+    const path = (tc.input as { path?: unknown }).path;
+    return typeof path === "string" ? path : "";
   }
-
-  return groups;
+  return Object.values(tc.input).map(String).join(" ");
 }
 
 export function BotMessage({
@@ -173,117 +158,172 @@ export function BotMessage({
   streaming = false,
 }: Props) {
   const { theme } = useTheme();
+  const accent = mode === "PLAN" ? theme.colors.info : theme.colors.primary;
 
   return (
-    <box width="100%" alignItems="center">
-      {groupConsecutiveParts(parts).map((group, i) => (
-        <box key={group.key} width="100%" paddingTop={i === 0 ? 0 : 1}>
-          {group.parts.map((part, i) => {
-            if (part.type === "reasoning") {
-              return (
-                <box
-                  key={`reasoning-${i}`}
-                  border={["left"]}
-                  borderColor={theme.colors.border}
-                  width="100%"
-                  paddingX={2}
-                >
-                  <text attributes={TextAttributes.DIM}>
-                    <em fg={theme.colors.textMuted}>{part.text}</em>
-                  </text>
-                </box>
-              );
-            }
+    <box width="100%" flexDirection="column" paddingTop={1}>
+      <box
+        flexDirection="row"
+        alignItems="center"
+        gap={1}
+        paddingX={2}
+        paddingBottom={1}
+        width="100%"
+      >
+        <text fg={accent}>{GLYPH.brand}</text>
+        <text attributes={TextAttributes.BOLD} fg={theme.colors.text}>
+          cerocode
+        </text>
+        <text attributes={TextAttributes.DIM} fg={theme.colors.textMuted}>
+          {GLYPH.dot}
+        </text>
+        <text attributes={TextAttributes.DIM} fg={theme.colors.textMuted}>
+          {mode === "PLAN" ? "plan" : "build"}
+        </text>
+        <text attributes={TextAttributes.DIM} fg={theme.colors.textMuted}>
+          {GLYPH.dot}
+        </text>
+        <text attributes={TextAttributes.DIM} fg={theme.colors.textMuted}>
+          {model}
+        </text>
+        {duration ? (
+          <>
+            <text attributes={TextAttributes.DIM} fg={theme.colors.textMuted}>
+              {GLYPH.dot}
+            </text>
+            <text attributes={TextAttributes.DIM} fg={theme.colors.textMuted}>
+              {prettyMilliseconds(duration)}
+            </text>
+          </>
+        ) : null}
+      </box>
 
-            if (isToolPart(part)) {
-              const toolName =
-                part.type === "dynamic-tool"
-                  ? part.toolName
-                  : part.type.slice("tool-".length);
-
-              const done =
-                part.state === "output-available" ||
-                part.state === "output-error";
-              let outputLines: string[] | null = null;
-              let omittedLines = 0;
-
-              if (part.state === "output-available") {
-                const preview = capOutputLines(formatOutputLines(part.output));
-                outputLines = preview.lines;
-                omittedLines = preview.omitted;
-              }
-
-              return (
-                <box
-                  key={part.toolCallId}
-                  border={["left"]}
-                  borderColor={theme.colors.border}
-                  width="100%"
-                  paddingX={2}
-                  flexDirection="column"
-                >
-                  <text attributes={TextAttributes.DIM}>
-                    <span fg={theme.colors.info}>
-                      {formatToolName(toolName)}{" "}
-                    </span>
-                    <span fg={theme.colors.textMuted}>
-                      {formatToolArgs(part)}
-                    </span>
-                    {!done ? ".." : ""}
-                    {part.state === "output-error" ? ` ${part.errorText}` : ""}
-                  </text>
-                  {outputLines && outputLines.length > 0 ? (
-                    <box flexDirection="column" width="100%" paddingTop={1}>
-                      {outputLines.map((line, i) => (
-                        <text key={`out-${i}`} wrapMode="char" width="100%">
-                          <span fg={theme.colors.textMuted}>{line}</span>
-                        </text>
-                      ))}
-                      {omittedLines > 0 ? (
-                        <text attributes={TextAttributes.DIM} width="100%">
-                          <span fg={theme.colors.textMuted}>
-                            ... {omittedLines} more lines
-                          </span>
-                        </text>
-                      ) : null}
-                    </box>
-                  ) : null}
-                </box>
-              );
-            }
-
-            if (part.type !== "text") return null;
-
+      {/* Every part below shares one `gap`-driven rhythm — exactly one blank
+          row between any two blocks, regardless of part type or ordering.
+          Reasoning and tool-call blocks additionally get a left rule in a
+          status color, setting "process" steps apart from the plain final
+          reply text and from each other at a glance. */}
+      <box flexDirection="column" width="100%" paddingX={2} gap={1}>
+        {parts.map((part, i) => {
+          if (part.type === "reasoning") {
             return (
-              <box key={`text-${i}`} paddingX={2} width="100%">
-                {/* <text fg={theme.colors.text}>{part.text}</text> */}
-                <MessageMarkdown content={part.text} streaming={!streaming} />
+              <box
+                key={`reasoning-${i}`}
+                width="100%"
+                flexDirection="column"
+                border={["left"]}
+                borderColor={theme.colors.textMuted}
+                paddingLeft={1}
+              >
+                <text
+                  attributes={TextAttributes.DIM}
+                  fg={theme.colors.textMuted}
+                >
+                  thinking
+                </text>
+                <text attributes={TextAttributes.DIM}>
+                  <em fg={theme.colors.textMuted}>{part.text}</em>
+                </text>
               </box>
             );
-          })}
-        </box>
-      ))}
+          }
 
-      <box paddingX={3} paddingY={1} gap={1} width="100%">
-        <box flexDirection="row" gap={2}>
-          <text fg={mode === "PLAN" ? theme.colors.info : theme.colors.primary}>
-            {">"}
-          </text>
+          if (isToolPart(part)) {
+            const toolName =
+              part.type === "dynamic-tool"
+                ? part.toolName
+                : part.type.slice("tool-".length);
 
-          <box flexDirection="row" gap={1}>
-            <text>{mode === "PLAN" ? "Plan" : "Build"}</text>
-            <text attributes={TextAttributes.DIM}>{">"}</text>
-            <text attributes={TextAttributes.DIM}>{model}</text>
-            {duration ? (
-              <>
-                <text attributes={TextAttributes.DIM}>{">"}</text>
-                <text attributes={TextAttributes.DIM}>
-                  {prettyMilliseconds(duration)}
+            const done =
+              part.state === "output-available" ||
+              part.state === "output-error";
+            const failed = part.state === "output-error";
+            const statusColor = failed
+              ? theme.colors.error
+              : done
+                ? theme.colors.success
+                : theme.colors.info;
+            const statusGlyph = failed
+              ? GLYPH.error
+              : done
+                ? GLYPH.success
+                : GLYPH.thinking;
+
+            const diffSnapshot =
+              part.state === "output-available" &&
+              FILE_EDIT_TOOLS.has(toolName)
+                ? getDiffSnapshot(part.toolCallId)
+                : undefined;
+
+            let outputLines: string[] | null = null;
+            let omittedLines = 0;
+
+            if (part.state === "output-available" && !diffSnapshot) {
+              const preview = capOutputLines(formatOutputLines(part.output));
+              outputLines = preview.lines;
+              omittedLines = preview.omitted;
+            }
+
+            return (
+              <box
+                key={part.toolCallId}
+                width="100%"
+                flexDirection="column"
+                border={["left"]}
+                borderColor={statusColor}
+                paddingLeft={1}
+              >
+                <text fg={statusColor}>
+                  {statusGlyph} {formatToolName(toolName)}
                 </text>
-              </>
-            ) : null}
-          </box>
-        </box>
+                {formatToolArgs(part, toolName) ? (
+                  <text attributes={TextAttributes.DIM}>
+                    <span fg={theme.colors.textMuted}>
+                      {formatToolArgs(part, toolName)}
+                    </span>
+                  </text>
+                ) : null}
+                {part.state === "output-error" ? (
+                  <text fg={theme.colors.error} wrapMode="word" width="100%">
+                    {part.errorText}
+                  </text>
+                ) : null}
+                {diffSnapshot ? (
+                  <box width="100%" paddingTop={1}>
+                    <DiffView
+                      path={formatToolArgs(part, toolName) || "file"}
+                      oldContent={diffSnapshot.oldContent}
+                      newContent={diffSnapshot.newContent}
+                    />
+                  </box>
+                ) : outputLines && outputLines.length > 0 ? (
+                  <box flexDirection="column" width="100%" paddingTop={1}>
+                    {outputLines.map((line, i) => (
+                      <text key={`out-${i}`} wrapMode="char" width="100%">
+                        <span fg={theme.colors.textMuted}>{line}</span>
+                      </text>
+                    ))}
+                    {omittedLines > 0 ? (
+                      <text attributes={TextAttributes.DIM} width="100%">
+                        <span fg={theme.colors.textMuted}>
+                          ... {omittedLines} more lines
+                        </span>
+                      </text>
+                    ) : null}
+                  </box>
+                ) : null}
+              </box>
+            );
+          }
+
+          if (part.type !== "text") return null;
+
+          return (
+            <box key={`text-${i}`} width="100%">
+              <MessageMarkdown content={part.text} streaming={!streaming} />
+            </box>
+          );
+        })}
       </box>
     </box>
   );
