@@ -7,15 +7,8 @@ import { Logo } from "./logo";
 import { Button } from "@/components/ui/button";
 import { Container } from "./section";
 import { cn } from "@/lib/utils";
-
-const NAV_LINKS = [
-  { label: "Modes", href: "#modes" },
-  { label: "Tools", href: "#tools" },
-  { label: "Models", href: "#models" },
-  { label: "Architecture", href: "#architecture" },
-];
-
-const GITHUB_URL = "https://github.com/AbhishekSinghDev/cerocode";
+import { GITHUB_URL } from "@/lib/constants";
+import { SECTION_LINKS } from "@/lib/data/nav";
 
 export function Nav() {
   const [open, setOpen] = useState(false);
@@ -28,7 +21,7 @@ export function Nav() {
         </a>
 
         <nav className="hidden items-center gap-8 lg:flex">
-          {NAV_LINKS.map((link) => (
+          {SECTION_LINKS.map((link) => (
             <a
               key={link.href}
               href={link.href}
@@ -77,7 +70,7 @@ export function Nav() {
         style={{ transition: "max-height 0.3s ease" }}
       >
         <Container className="flex flex-col gap-1 py-4">
-          {NAV_LINKS.map((link) => (
+          {SECTION_LINKS.map((link) => (
             <a
               key={link.href}
               href={link.href}

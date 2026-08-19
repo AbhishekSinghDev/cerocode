@@ -1,24 +1,11 @@
-import type { ModeType } from "@cerocode/shared";
+import { formatToolsForPrompt, getToolContracts, type ModeType } from "@cerocode/shared";
 
 type SystemPromptParams = {
   mode: ModeType;
 };
 
 function getToolsSection(mode: ModeType): string {
-  if (mode === "PLAN") {
-    return `- **readFile** - Read a file's contents
-- **listDirectory** - List entries in a directory
-- **glob** - Find files matching a pattern (e.g. "**/*.ts")
-- **grep** - Search file contents with regex`;
-  }
-
-  return `- **readFile** - Read a file's contents
-- **writeFile** - Create or overwrite a file
-- **editFile** - Make a targeted string replacement in a file (oldString must be unique)
-- **listDirectory** - List entries in a directory
-- **glob** - Find files matching a pattern (e.g. "**/*.ts")
-- **grep** - Search file contents with regex
-- **bash** - Run a shell command in the project directory`;
+  return formatToolsForPrompt(getToolContracts(mode));
 }
 
 export function buildSystemPrompt({ mode }: SystemPromptParams): string {

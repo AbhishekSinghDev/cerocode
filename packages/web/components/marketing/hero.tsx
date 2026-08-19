@@ -7,8 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Container } from "./section";
 import { TerminalPreview } from "./terminal-preview";
 import { InstallCommand } from "./install-command";
-
-const GITHUB_URL = "https://github.com/AbhishekSinghDev/cerocode";
+import { GITHUB_URL } from "@/lib/constants";
+import { EASE_OUT } from "@/lib/motion";
 
 export function Hero() {
   const reduce = useReducedMotion();
@@ -27,7 +27,7 @@ export function Hero() {
         <motion.div
           initial={reduce ? false : { opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 0.6, ease: EASE_OUT }}
         >
           <h1 className="text-balance text-4xl font-medium leading-[1.08] tracking-tight text-foreground sm:text-5xl lg:text-6xl">
             An AI coding agent for your terminal.
@@ -60,7 +60,7 @@ export function Hero() {
         <motion.div
           initial={reduce ? false : { opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 0.6, delay: 0.15, ease: EASE_OUT }}
         >
           <TerminalPreview />
         </motion.div>

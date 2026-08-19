@@ -2,11 +2,13 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import { homedir } from "os";
 import { join } from "path";
 
+import { CONFIG_DIR_NAME } from "./constants";
+
 type Settings = {
   themeId?: string;
 };
 
-const SETTINGS_DIR = join(homedir(), ".cerocode");
+const SETTINGS_DIR = join(homedir(), CONFIG_DIR_NAME);
 const SETTINGS_FILE = join(SETTINGS_DIR, "settings.json");
 
 export function getSettings(): Settings {

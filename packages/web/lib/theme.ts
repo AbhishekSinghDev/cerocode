@@ -1,0 +1,1 @@
+export const TERMINAL_SLATE_HEX = "6C7086";

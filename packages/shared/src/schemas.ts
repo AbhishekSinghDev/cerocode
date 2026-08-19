@@ -97,6 +97,19 @@ export const buildToolContracts = {
 
 export type ToolContracts = typeof buildToolContracts;
 
+export function formatToolsForPrompt(
+  contracts: Record<string, { description?: unknown }>,
+): string {
+  return Object.entries(contracts)
+    .map(([name, contract]) => {
+      const description = contract.description;
+      if (typeof description !== "string") return `- **${name}**`;
+
+      return `- **${name}** - ${description}`;
+    })
+    .join("\n");
+}
+
 export function getToolContracts(mode: ModeType) {
   switch (mode) {
     case "BUILD":

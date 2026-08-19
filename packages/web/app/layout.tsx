@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { SITE_DESCRIPTION, SITE_URL } from "@/lib/constants";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -13,10 +14,6 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
-
-const SITE_URL = "https://cerocode.heyabhishek.in";
-const SITE_DESCRIPTION =
-  "cerocode is a terminal AI coding agent. It reads, searches, edits, and writes files, runs shell commands in your project, and streams every response back to your terminal.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),

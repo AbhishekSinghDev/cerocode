@@ -4,8 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Container } from "./section";
 import { Reveal } from "./reveal";
 import { InstallCommand } from "./install-command";
-
-const GITHUB_URL = "https://github.com/AbhishekSinghDev/cerocode";
+import { GITHUB_URL } from "@/lib/constants";
 
 export function CtaSection() {
   return (

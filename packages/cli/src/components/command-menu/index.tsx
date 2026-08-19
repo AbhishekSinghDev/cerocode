@@ -4,8 +4,7 @@ import { TextAttributes, type ScrollBoxRenderable } from "@opentui/core";
 import { getFilteredCommands } from "./filter-commands";
 import { useTheme } from "../../providers/theme";
 import { GLYPH } from "../ui/glyphs";
-
-const MAX_VISIBLE_COMMANDS = 8;
+import { MAX_VISIBLE_COMMANDS } from "../ui/list-constants";
 
 const COMMAND_COL_WIDTH =
   Math.max(...COMMANDS.map((command) => command.name.length)) + 4;

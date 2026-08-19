@@ -1,19 +1,17 @@
 import {
   getToolContracts,
   modeSchema,
-  type ModeType,
-  type ToolContracts,
+  type CerocodeUIMessage,
+  type ChatMessageMetadata,
 } from "@cerocode/shared";
 import {
   convertToModelMessages,
   streamText,
   validateUIMessages,
-  type InferUITools,
-  type LanguageModelUsage,
-  type UIMessage,
 } from "ai";
 import z from "zod";
 import { isSupportedChatModel, resolveChatModel } from "../lib/models";
+import { hasPendingToolCalls } from "../lib/messages";
 import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 import type { AuthenticatedEnv } from "../middleware/require-auth";
@@ -21,19 +19,6 @@ import { db } from "@cerocode/database/client";
 import { sessions } from "@cerocode/database/schema";
 import { and, eq } from "@cerocode/database";
 import { buildSystemPrompt } from "../system-prompt";
-
-type ChatMessageMetadata = {
-  mode?: ModeType;
-  model?: string;
-  durationMs?: number;
-  usage?: LanguageModelUsage;
-};
-
-type CerocodeUIMessage = UIMessage<
-  ChatMessageMetadata,
-  never,
-  InferUITools<ToolContracts>
->;
 
 const submitSchema = z.object({
   id: z.string(),
@@ -56,17 +41,6 @@ const submitValidator = zValidator("json", submitSchema, (result, c) => {
     return c.json({ error: "Invalid request body" }, 400);
   }
 });
-
-function hasPendingToolCalls(message: CerocodeUIMessage) {
-  return message.parts.some((part) => {
-    if (part.type === "dynamic-tool" || part.type.startsWith("tool-")) {
-      const state = (part as { state?: string }).state;
-      return state !== "output-available" && state !== "output-error";
-    }
-
-    return false;
-  });
-}
 
 const app = new Hono<AuthenticatedEnv>().post(
   "/",

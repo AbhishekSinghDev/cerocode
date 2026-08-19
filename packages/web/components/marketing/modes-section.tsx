@@ -2,31 +2,11 @@
 
 import { useState } from "react";
 import { HugeiconsIcon } from "@hugeicons/react";
-import {
-  File01Icon,
-  FolderIcon,
-  FolderSearchIcon,
-  Search01Icon,
-  PencilEdit02Icon,
-  FileEditIcon,
-  TerminalIcon,
-  LockIcon,
-} from "@hugeicons/core-free-icons";
+import { LockIcon } from "@hugeicons/core-free-icons";
 import { Container, SectionHeading } from "./section";
 import { Reveal } from "./reveal";
 import { cn } from "@/lib/utils";
-
-type ToolDef = { icon: typeof File01Icon; name: string; planSafe: boolean };
-
-const TOOLS: ToolDef[] = [
-  { icon: File01Icon, name: "readFile", planSafe: true },
-  { icon: FolderIcon, name: "listDirectory", planSafe: true },
-  { icon: FolderSearchIcon, name: "glob", planSafe: true },
-  { icon: Search01Icon, name: "grep", planSafe: true },
-  { icon: FileEditIcon, name: "writeFile", planSafe: false },
-  { icon: PencilEdit02Icon, name: "editFile", planSafe: false },
-  { icon: TerminalIcon, name: "bash", planSafe: false },
-];
+import { TOOLS } from "@/lib/data/tools";
 
 type ModeId = "BUILD" | "PLAN";
 

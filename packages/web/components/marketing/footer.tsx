@@ -2,40 +2,8 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { GithubIcon, ArrowUpRight02Icon } from "@hugeicons/core-free-icons";
 import { Logo } from "./logo";
 import { Container } from "./section";
-
-const GITHUB_URL = "https://github.com/AbhishekSinghDev/cerocode";
-const NPM_URL = "https://www.npmjs.com/package/cerocode";
-const AUTHOR_URL = "https://heyabhishek.in";
-
-type FooterLink = { label: string; href: string; external?: boolean };
-
-const COLUMNS: { heading: string; links: FooterLink[] }[] = [
-  {
-    heading: "Product",
-    links: [
-      { label: "Modes", href: "#modes" },
-      { label: "Tools", href: "#tools" },
-      { label: "Models", href: "#models" },
-      { label: "Architecture", href: "#architecture" },
-    ],
-  },
-  {
-    heading: "Resources",
-    links: [
-      { label: "GitHub", href: GITHUB_URL, external: true },
-      { label: "npm package", href: NPM_URL, external: true },
-      {
-        label: "MIT license",
-        href: `${GITHUB_URL}/blob/main/LICENSE`,
-        external: true,
-      },
-    ],
-  },
-  {
-    heading: "Author",
-    links: [{ label: "Abhishek Singh", href: AUTHOR_URL, external: true }],
-  },
-];
+import { GITHUB_URL } from "@/lib/constants";
+import { FOOTER_COLUMNS } from "@/lib/data/nav";
 
 export function Footer() {
   return (
@@ -49,7 +17,7 @@ export function Footer() {
             </p>
           </div>
 
-          {COLUMNS.map((col) => (
+          {FOOTER_COLUMNS.map((col) => (
             <div key={col.heading}>
               <h3 className="font-mono text-xs tracking-wide text-muted-foreground">
                 {col.heading}

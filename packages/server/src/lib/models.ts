@@ -1,4 +1,4 @@
-import { google, type GoogleGenerativeAIProviderOptions } from "@ai-sdk/google";
+import { google } from "@ai-sdk/google";
 import { groq } from "@ai-sdk/groq";
 import { mistral } from "@ai-sdk/mistral";
 import { createOpenRouter } from "@openrouter/ai-sdk-provider";
@@ -12,16 +12,16 @@ import type { ProviderOptions } from "@ai-sdk/provider-utils";
 
 import type { LanguageModel } from "ai";
 
-type GoogleModelId = Extract<SupportedChatModel, { provider: "google" }>["id"];
-type GroqModelId = Extract<SupportedChatModel, { provider: "groq" }>["id"];
-type MistralModelId = Extract<
-  SupportedChatModel,
-  { provider: "mistral" }
->["id"];
-type OpenRouterModelId = Extract<
-  SupportedChatModel,
-  { provider: "openrouter" }
->["id"];
+import {
+  GOOGLE_PROVIDER_OPTIONS,
+  GROQ_PROVIDER_OPTIONS,
+  type GoogleModelId,
+  type GroqModelId,
+  MISTRAL_PROVIDER_OPTIONS,
+  type MistralModelId,
+  OPENROUTER_PROVIDER_OPTIONS,
+  type OpenRouterModelId,
+} from "./model-provider-options";
 
 export type ResolvedModel = {
   model: LanguageModel;
@@ -29,50 +29,6 @@ export type ResolvedModel = {
   modelId: SupportedChatModelId;
   providerOptions?: ProviderOptions;
 };
-
-const GOOGLE_PROVIDER_OPTIONS: Partial<Record<GoogleModelId, ProviderOptions>> =
-  {
-    "gemini-3.1-pro-preview": {
-      google: {
-        thinkingConfig: {
-          thinkingLevel: "high",
-          includeThoughts: true,
-        },
-      } satisfies GoogleGenerativeAIProviderOptions,
-    },
-    "gemini-3.5-flash-lite": {
-      google: {
-        thinkingConfig: {
-          thinkingLevel: "low",
-          includeThoughts: true,
-        },
-      } satisfies GoogleGenerativeAIProviderOptions,
-    },
-    "gemini-3.6-flash": {
-      google: {
-        thinkingConfig: {
-          thinkingLevel: "high",
-          includeThoughts: true,
-        },
-      } satisfies GoogleGenerativeAIProviderOptions,
-    },
-  };
-
-const GROQ_PROVIDER_OPTIONS: Partial<Record<GroqModelId, ProviderOptions>> = {
-  "openai/gpt-oss-120b": {
-    groq: {
-      reasoningFormat: "parsed",
-    },
-  },
-};
-
-const MISTRAL_PROVIDER_OPTIONS: Partial<
-  Record<MistralModelId, ProviderOptions>
-> = {};
-
-const OPENROUTER_PROVIDER_OPTIONS: Partial<
-  Record<OpenRouterModelId, ProviderOptions>
-> = {};
 
 // Reads the OPENROUTER_API_KEY environment variable.
 const openrouter = createOpenRouter();

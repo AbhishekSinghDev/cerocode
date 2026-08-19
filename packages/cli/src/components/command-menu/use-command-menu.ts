@@ -4,6 +4,7 @@ import type { Command } from "./types";
 import { getFilteredCommands } from "./filter-commands";
 import { useKeyboard } from "@opentui/react";
 import { useKeyboardLayer } from "../../providers/kebboard";
+import { useListNavigation } from "../../hooks/use-list-navigation";
 
 type UseCommandMenuReturn = {
   showCommandMenu: boolean;
@@ -65,6 +66,11 @@ export function useCommandMenu(): UseCommandMenuReturn {
     return command;
   };
 
+  const { moveSelection } = useListNavigation(
+    filteredCommands.length,
+    scrollRef,
+  );
+
   useKeyboard((key) => {
     if (!showCommandMenu || !isTop("command")) return;
 
@@ -73,30 +79,9 @@ export function useCommandMenu(): UseCommandMenuReturn {
       close();
     } else if (key.name === "up") {
       key.preventDefault();
-      setSelectedIndex((i: number) => {
-        const newIndex = Math.max(0, i - 1);
-
-        const sb = scrollRef.current;
-        if (sb && newIndex < sb.scrollTop) {
-          sb.scrollTo(newIndex);
-        }
-        return newIndex;
-      });
+      setSelectedIndex((i: number) => moveSelection("up", i));
     } else if (key.name === "down") {
-      setSelectedIndex((i: number) => {
-        if (filteredCommands.length === 0) return 0;
-
-        const newIndex = Math.min(filteredCommands.length - 1, i + 1);
-        const sb = scrollRef.current;
-        if (sb) {
-          const viewportHeight = sb.viewport.height;
-          const visibledEnd = sb.scrollTop + viewportHeight - 1;
-          if (newIndex > visibledEnd) {
-            sb.scrollTo(newIndex - viewportHeight + 1);
-          }
-        }
-        return newIndex;
-      });
+      setSelectedIndex((i: number) => moveSelection("down", i));
     }
   });
 

@@ -11,14 +11,14 @@ export function DemoSection() {
         />
 
         <Reveal delay={0.1} className="mt-10">
-          <div className="border border-border bg-[#0d0d12] shadow-[0_30px_80px_-40px_rgba(0,0,0,0.8)]">
+          <div className="border border-border bg-terminal-bg shadow-[0_30px_80px_-40px_rgba(0,0,0,0.8)]">
             <div className="flex h-9 items-center gap-3 border-b border-border/80 px-3">
               <div className="flex gap-1.5" aria-hidden="true">
-                <span className="size-2 bg-[#6C7086]" />
-                <span className="size-2 bg-[#6C7086]" />
-                <span className="size-2 bg-[#6C7086]" />
+                <span className="size-2 bg-terminal-slate" />
+                <span className="size-2 bg-terminal-slate" />
+                <span className="size-2 bg-terminal-slate" />
               </div>
-              <span className="font-mono text-[11px] text-[#6C7086]">
+              <span className="font-mono text-[11px] text-terminal-slate">
                 cerocode-demo.mp4
               </span>
             </div>

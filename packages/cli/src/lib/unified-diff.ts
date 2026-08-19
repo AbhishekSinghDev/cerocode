@@ -1,6 +1,6 @@
 import { createPatch, parsePatch } from "diff";
 
-const DIFF_CONTEXT_LINES = 3;
+export const DIFF_CONTEXT_LINES = 3;
 
 /**
  * Builds a unified diff patch string (the same text format `git diff`

@@ -1,14 +1,10 @@
 import { pathToFiletype, TextAttributes } from "@opentui/core";
-import {
-  formatPatch,
-  structuredPatch,
-  type StructuredPatchHunk,
-} from "diff";
+import { formatPatch, structuredPatch, type StructuredPatchHunk } from "diff";
 import { useTheme } from "../providers/theme";
 import { tint } from "./ui/tint";
-import { syntaxStyle } from "./markdown";
+import { DIFF_CONTEXT_LINES } from "../lib/unified-diff";
+import { syntaxStyle } from "../lib/syntax-theme";
 
-const DIFF_CONTEXT_LINES = 3;
 // Keeps a single huge hunk (e.g. writing a large new file) from blowing out
 // the chat transcript — mirrors the line cap already used for plain tool
 // output in bot-message.tsx.
@@ -105,7 +101,7 @@ export function DiffView({ path, oldContent, newContent }: Props) {
         diff={diffText}
         filetype={pathToFiletype(path)}
         syntaxStyle={syntaxStyle}
-        view="unified"
+        view="split"
         showLineNumbers
         wrapMode="char"
         addedBg={tint(theme.colors.success, 0.14)}

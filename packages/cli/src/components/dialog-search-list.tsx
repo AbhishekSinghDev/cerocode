@@ -8,8 +8,8 @@ import { useKeyboardLayer } from "../providers/kebboard";
 import { useKeyboard } from "@opentui/react";
 import { useTheme } from "../providers/theme";
 import { GLYPH } from "./ui/glyphs";
-
-const MAX_VISIBLE_ITEMS = 6;
+import { MAX_VISIBLE_DIALOG_ITEMS } from "./ui/list-constants";
+import { useListNavigation } from "../hooks/use-list-navigation";
 
 type DialogSearchListProps<T> = {
   items: T[];
@@ -46,7 +46,9 @@ export function DialogSearchList<T>(props: DialogSearchListProps<T>) {
     ? props.items.filter((item) => props.filterFn(item, searchValue))
     : props.items;
 
-  const visibleHeight = Math.min(filtered.length, MAX_VISIBLE_ITEMS);
+  const visibleHeight = Math.min(filtered.length, MAX_VISIBLE_DIALOG_ITEMS);
+
+  const { moveSelection } = useListNavigation(filtered.length, scrollRef);
 
   useKeyboard((key) => {
     if (!isTop("dialog")) return;
@@ -58,26 +60,14 @@ export function DialogSearchList<T>(props: DialogSearchListProps<T>) {
       }
     } else if (key.name === "up") {
       setSelectedIndex((i) => {
-        const newIndex = Math.max(i - 1, 0);
-        const sb = scrollRef.current;
-        if (sb && newIndex < sb.scrollTop) {
-          sb.scrollTo(newIndex);
-        }
+        const newIndex = moveSelection("up", i);
         const item = filtered[newIndex];
         if (item && props.onHighlight) props.onHighlight(item);
         return newIndex;
       });
     } else if (key.name === "down") {
       setSelectedIndex((i) => {
-        const newIndex = Math.min(filtered.length - 1, i + 1);
-        const sb = scrollRef.current;
-        if (sb) {
-          const viewportHeight = sb.viewport.height;
-          const visibleEnd = sb.scrollTop + viewportHeight - 1;
-          if (newIndex > visibleEnd) {
-            sb.scrollTo(newIndex - viewportHeight + 1);
-          }
-        }
+        const newIndex = moveSelection("down", i);
         const item = filtered[newIndex];
         if (item && props.onHighlight) props.onHighlight(item);
         return newIndex;

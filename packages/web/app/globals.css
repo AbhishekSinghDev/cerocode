@@ -24,6 +24,13 @@
   --color-chart-3: var(--chart-3);
   --color-chart-2: var(--chart-2);
   --color-chart-1: var(--chart-1);
+  /* Terminal chrome palette for the demo/TUI mockups (lifted from the CLI's
+     Cero theme): near-black shell background, blue prompt, slate chrome,
+     and light body text. */
+  --color-terminal-bg: #0d0d12;
+  --color-terminal-blue: #89b4fa;
+  --color-terminal-slate: #6c7086;
+  --color-terminal-fg: #e1e1e1;
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-border: var(--border);

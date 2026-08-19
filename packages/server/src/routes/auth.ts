@@ -1,5 +1,10 @@
 import { Hono } from "hono";
 
+import {
+  buildLocalCallbackUrl,
+  parseOauthCallbackState,
+} from "../lib/oauth-callback";
+
 const app = new Hono().get("/callback", (c) => {
   const code = c.req.query("code");
   const state = c.req.query("state");
@@ -16,17 +21,9 @@ const app = new Hono().get("/callback", (c) => {
   }
 
   try {
-    const [encoded] = state.split(".");
-    if (!encoded) throw new Error("Invalid state");
+    const { port } = parseOauthCallbackState(state);
 
-    const payload = JSON.parse(Buffer.from(encoded, "base64url").toString());
-    const port = payload.port;
-
-    if (!port || typeof port !== "number") {
-      throw new Error("Invalid port in state");
-    }
-
-    const redirectUrl = `http://localhost:${port}/callback?code=${encodeURIComponent(code)}&state=${encodeURIComponent(state)}`;
+    const redirectUrl = buildLocalCallbackUrl(port, code, state);
 
     return c.redirect(redirectUrl);
   } catch (error) {

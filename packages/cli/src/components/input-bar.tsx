@@ -21,8 +21,14 @@ import { useKeyboardLayer } from "../providers/kebboard";
 import { useDialog } from "../providers/dialog";
 import { useTheme } from "../providers/theme";
 import { usePromptConfig } from "../providers/prompt-config";
-import { isAbsolute, relative, resolve } from "path";
-import { readdir } from "fs/promises";
+import { MAX_VISIBLE_MENTIONS } from "./ui/list-constants";
+import { useListNavigation } from "../hooks/use-list-navigation";
+import {
+  findActiveMention,
+  getMentionCandidates,
+  type MentionCandidate,
+  type MentionMatch,
+} from "../lib/mentions";
 
 type InputBarProps = {
   onSubmit: (value: string) => void;
@@ -38,199 +44,7 @@ export const TEXTAREA_KEY_BINDINGS: KeyBinding[] = [
   { name: "enter", shift: true, action: "newline" },
 ];
 
-const MAX_VISIBLE_MENTIONS = 8;
 const CURRENT_DIRECTORY = process.cwd();
-const MAX_FALLBACK_MENTION_CANDIDATES = 32;
-const MENTION_QUERY_CHARACTER = /[A-Za-z0-9._/-]/;
-const RECURSIVE_MENTION_IGNORED_DIRECTORIES = new Set(["node_modules"]);
-
-type MentionMatch = {
-  start: number;
-  end: number;
-  query: string;
-};
-
-type MentionCandidate = {
-  path: string;
-  kind: "file" | "directory";
-};
-
-function isWithinCurrentDirectory(targetPath: string) {
-  const relativePath = relative(CURRENT_DIRECTORY, targetPath);
-  return (
-    relativePath === "" ||
-    (!relativePath.startsWith("..") && !isAbsolute(relativePath))
-  );
-}
-
-function isMentionQueryCharacter(char: string) {
-  return MENTION_QUERY_CHARACTER.test(char);
-}
-
-function findActiveMention(
-  text: string,
-  cursorOffset: number,
-): MentionMatch | null {
-  const safeOffset = Math.max(0, Math.min(cursorOffset, text.length));
-
-  let start = safeOffset;
-  while (start > 0 && !/\s/.test(text[start - 1]!)) {
-    start -= 1;
-  }
-
-  let end = safeOffset;
-  while (end < text.length && !/\s/.test(text[end]!)) {
-    end += 1;
-  }
-
-  const token = text.slice(start, end);
-  const relativeCursor = safeOffset - start;
-  const mentionStart = token.lastIndexOf("@", relativeCursor);
-
-  if (mentionStart === -1) {
-    return null;
-  }
-
-  const previousCharacter = token[mentionStart - 1];
-  if (previousCharacter && isMentionQueryCharacter(previousCharacter)) {
-    return null;
-  }
-
-  let mentionEnd = mentionStart + 1;
-  while (
-    mentionEnd < token.length &&
-    isMentionQueryCharacter(token[mentionEnd]!)
-  ) {
-    mentionEnd += 1;
-  }
-
-  if (relativeCursor < mentionStart || relativeCursor > mentionEnd) {
-    return null;
-  }
-
-  return {
-    start: start + mentionStart,
-    end: start + mentionEnd,
-    query: token.slice(mentionStart + 1, mentionEnd),
-  };
-}
-
-async function getMentionCandidates(
-  query: string,
-): Promise<MentionCandidate[]> {
-  const normalizedQuery = query.startsWith("./") ? query.slice(2) : query;
-  if (normalizedQuery.startsWith("/")) {
-    return [];
-  }
-
-  const lastSlashIndex = normalizedQuery.lastIndexOf("/");
-
-  const directoryPart =
-    lastSlashIndex === -1
-      ? ""
-      : normalizedQuery.slice(0, lastSlashIndex + 1);
-
-  const namePrefix =
-    lastSlashIndex === -1
-      ? normalizedQuery
-      : normalizedQuery.slice(lastSlashIndex + 1);
-
-  const absoluteDirectory = resolve(CURRENT_DIRECTORY, directoryPart || ".");
-  if (!isWithinCurrentDirectory(absoluteDirectory)) {
-    return [];
-  }
-
-  try {
-    const entries = await readdir(absoluteDirectory, { withFileTypes: true });
-    const lowercasePrefix = namePrefix.toLowerCase();
-    const showHiddenEntries = namePrefix.startsWith(".");
-
-    const directMatches = entries
-      .filter((entry) => showHiddenEntries || !entry.name.startsWith("."))
-      .filter((entry) => {
-        return (
-          lowercasePrefix === "" ||
-          entry.name.toLowerCase().startsWith(lowercasePrefix)
-        );
-      })
-      .sort((left, right) => {
-        if (left.isDirectory() !== right.isDirectory()) {
-          return left.isDirectory() ? -1 : 1;
-        }
-
-        return left.name.localeCompare(right.name);
-      })
-      .map((entry) => {
-        const path = directoryPart
-          ? `${directoryPart}${entry.name}`
-          : entry.name;
-        const kind: MentionCandidate["kind"] = entry.isDirectory()
-          ? "directory"
-          : "file";
-
-        return {
-          path: kind === "directory" ? `${path}/` : path,
-          kind: kind,
-        };
-      });
-
-    if (directMatches.length > 0 || directoryPart !== "" || namePrefix === "") {
-      return directMatches;
-    }
-
-    const fallbackMatches: MentionCandidate[] = [];
-    const visit = async (
-      absoluteDirectory: string,
-      directoryPart: string,
-    ): Promise<void> => {
-      const entries = await readdir(absoluteDirectory, { withFileTypes: true });
-
-      for (const entry of entries) {
-        if (!showHiddenEntries && entry.name.startsWith(".")) {
-          continue;
-        }
-
-        if (
-          entry.isDirectory() &&
-          RECURSIVE_MENTION_IGNORED_DIRECTORIES.has(entry.name)
-        ) {
-          continue;
-        }
-
-        const path = directoryPart
-          ? `${directoryPart}${entry.name}`
-          : entry.name;
-        const kind: MentionCandidate["kind"] = entry.isDirectory()
-          ? "directory"
-          : "file";
-
-        if (entry.name.toLowerCase().startsWith(lowercasePrefix)) {
-          fallbackMatches.push({
-            path: kind === "directory" ? `${path}/` : path,
-            kind: kind,
-          });
-          if (fallbackMatches.length >= MAX_FALLBACK_MENTION_CANDIDATES) {
-            return;
-          }
-        }
-
-        if (entry.isDirectory()) {
-          await visit(resolve(absoluteDirectory, entry.name), `${path}/`);
-          if (fallbackMatches.length >= MAX_FALLBACK_MENTION_CANDIDATES) {
-            return;
-          }
-        }
-      }
-    };
-
-    await visit(CURRENT_DIRECTORY, "");
-    return fallbackMatches.sort((left, right) =>
-      left.path.localeCompare(right.path),
-    );
-  } catch (error) {
-    return [];
-  }
-}
 
 export function InputBar(props: InputBarProps) {
   const textareaRef = useRef<TextareaRenderable>(null);
@@ -262,6 +76,11 @@ export function InputBar(props: InputBarProps) {
   } = useCommandMenu();
 
   const showMentionMenu = activeMention !== null;
+
+  const { moveSelection } = useListNavigation(
+    mentionCandidates.length,
+    mentionScrollRef,
+  );
 
   const closeMentionMenu = useCallback(() => {
     activeMentionRef.current = null;
@@ -388,7 +207,10 @@ export function InputBar(props: InputBarProps) {
 
     let ignore = false;
     const loadCandidates = async () => {
-      const nextCandidates = await getMentionCandidates(activeMention.query);
+      const nextCandidates = await getMentionCandidates(
+        activeMention.query,
+        CURRENT_DIRECTORY,
+      );
       if (ignore) return;
 
       setMentionCandidates(nextCandidates);
@@ -471,38 +293,14 @@ export function InputBar(props: InputBarProps) {
       closeMentionMenu();
     } else if (key.name === "up") {
       key.preventDefault();
-      setMentionSelectedIndex((currentIndex) => {
-        const nextIndex = Math.max(0, currentIndex - 1);
-        const scrollbox = mentionScrollRef.current;
-
-        if (scrollbox && nextIndex < scrollbox.scrollTop) {
-          scrollbox.scrollTo(nextIndex);
-        }
-
-        return nextIndex;
-      });
+      setMentionSelectedIndex((currentIndex) =>
+        moveSelection("up", currentIndex),
+      );
     } else if (key.name === "down") {
       key.preventDefault();
-      setMentionSelectedIndex((currentIndex) => {
-        if (mentionCandidates.length === 0) return 0;
-
-        const nextIndex = Math.min(
-          mentionCandidates.length - 1,
-          currentIndex + 1,
-        );
-        const scrollbox = mentionScrollRef.current;
-
-        if (scrollbox) {
-          const viewportHeight = scrollbox.viewport.height;
-          const visibleEnd = scrollbox.scrollTop + viewportHeight - 1;
-
-          if (nextIndex > visibleEnd) {
-            scrollbox.scrollTo(nextIndex - viewportHeight + 1);
-          }
-        }
-
-        return nextIndex;
-      });
+      setMentionSelectedIndex((currentIndex) =>
+        moveSelection("down", currentIndex),
+      );
     }
   });
 

@@ -9,11 +9,13 @@ import {
 import { homedir } from "os";
 import { join } from "path";
 
+import { CONFIG_DIR_NAME } from "./constants";
+
 type AuthData = {
   token: string;
 };
 
-const AUTH_DIR = join(homedir(), ".cerocode");
+const AUTH_DIR = join(homedir(), CONFIG_DIR_NAME);
 const AUTH_FILE = join(AUTH_DIR, "auth.json");
 
 export function getAuth(): AuthData | null {

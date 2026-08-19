@@ -3,17 +3,19 @@ import { sentry } from "@sentry/hono/bun";
 import { HTTPException } from "hono/http-exception";
 import * as Sentry from "@sentry/hono/bun";
 
+import { SENTRY_DSN, SENTRY_TRACES_SAMPLE_RATE, SERVER_IDLE_TIMEOUT, SERVER_PORT } from "./config";
 import sessions from "./routes/session";
 import chat from "./routes/chat";
 import auth from "./routes/auth";
+import debug from "./routes/debug";
 import { requireAuth } from "./middleware/require-auth";
 
 const app = new Hono();
 
 app.use(
   sentry(app, {
-    dsn: "https://a0ba6f5b52cfe253fc6a17a70c1df14b@o4511868031008768.ingest.de.sentry.io/4511870270505040",
-    tracesSampleRate: 1.0,
+    dsn: SENTRY_DSN,
+    tracesSampleRate: SENTRY_TRACES_SAMPLE_RATE,
     enableLogs: true,
     dataCollection: {
       // To disable sending user data and HTTP bodies, uncomment the lines below. For more info visit:
@@ -23,16 +25,6 @@ app.use(
     },
   }),
 );
-
-app.get("/debug-sentry", () => {
-  // Send a log before throwing the error
-  Sentry.logger.info("User triggered test error", {
-    action: "test_error_endpoint",
-  });
-  // Send a test metric before throwing the error
-  Sentry.metrics.count("test_counter", 1);
-  throw new Error("My first Sentry error!");
-});
 
 app.onError((error, c) => {
   if (error instanceof HTTPException) {
@@ -65,12 +57,13 @@ app.use("/chat/*", requireAuth);
 const routes = app
   .route("/auth", auth)
   .route("/sessions", sessions)
-  .route("/chat", chat);
+  .route("/chat", chat)
+  .route("/", debug);
 
 export type AppType = typeof routes;
 
 export default {
-  port: 3000,
+  port: SERVER_PORT,
   fetch: app.fetch,
-  idleTimeout: 255,
+  idleTimeout: SERVER_IDLE_TIMEOUT,
 };

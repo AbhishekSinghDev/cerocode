@@ -1,36 +1,6 @@
 import { Container, SectionHeading } from "./section";
 import { Reveal } from "./reveal";
-
-type ModelRow = {
-  provider: string;
-  id: string;
-  tier: "free" | "paid";
-  isDefault?: boolean;
-};
-
-// Mirrors packages/shared/src/models.ts. This list grows without touching
-// the CLI or server: every model is one entry in a typed registry keyed by
-// provider and id.
-const MODELS: ModelRow[] = [
-  { provider: "groq", id: "openai/gpt-oss-20b", tier: "free" },
-  { provider: "groq", id: "openai/gpt-oss-120b", tier: "free" },
-  { provider: "groq", id: "qwen/qwen3.6-27b", tier: "free" },
-  { provider: "mistral", id: "ministral-8b-latest", tier: "free" },
-  { provider: "mistral", id: "mistral-small-latest", tier: "free" },
-  {
-    provider: "mistral",
-    id: "devstral-small-latest",
-    tier: "free",
-    isDefault: true,
-  },
-  { provider: "mistral", id: "codestral-latest", tier: "free" },
-  { provider: "mistral", id: "mistral-large-latest", tier: "free" },
-  { provider: "openrouter", id: "deepseek/deepseek-v4-flash-0731", tier: "paid" },
-  { provider: "google", id: "gemini-3.5-flash-lite", tier: "paid" },
-  { provider: "google", id: "gemini-2.5-flash", tier: "paid" },
-  { provider: "google", id: "gemini-3.6-flash", tier: "paid" },
-  { provider: "google", id: "gemini-3.1-pro-preview", tier: "paid" },
-];
+import { MODELS } from "@/lib/data/models";
 
 export function ModelsSection() {
   return (
@@ -61,7 +31,7 @@ export function ModelsSection() {
                   <span
                     className={
                       model.tier === "free"
-                        ? "w-9 shrink-0 text-[#82E0AA]"
+                        ? "w-9 shrink-0 text-success"
                         : "w-9 shrink-0 text-muted-foreground"
                     }
                   >

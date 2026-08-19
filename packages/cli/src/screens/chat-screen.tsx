@@ -13,6 +13,7 @@ import { useTheme } from "../providers/theme";
 import { SessionShell } from "../components/session-shell";
 import { Header } from "../components/header";
 import { UserMessage, BotMessage, ErrorMessage } from "../components/messages";
+import { SESSION_TITLE_MAX_LENGTH } from "../lib/constants";
 
 // A stable placeholder id passed to useChat before a real session exists.
 // Nothing is ever sent under this id — submit() only runs once a session
@@ -160,7 +161,7 @@ export function ChatScreen() {
       (async () => {
         try {
           const res = await apiClient.sessions.$post({
-            json: { title: text.slice(0, 50) },
+            json: { title: text.slice(0, SESSION_TITLE_MAX_LENGTH) },
           });
           if (!res.ok) throw new Error(await getErrorMessage(res));
 
