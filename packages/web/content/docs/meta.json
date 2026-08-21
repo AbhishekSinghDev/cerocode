@@ -1,0 +1,23 @@
+{
+  "title": "Documentation",
+  "pages": [
+    "index",
+    "---Getting started---",
+    "installation",
+    "authentication",
+    "---Core concepts---",
+    "agent-modes",
+    "tools",
+    "models",
+    "sessions",
+    "---Reference---",
+    "commands",
+    "keyboard-shortcuts",
+    "themes",
+    "---Configuration & self-hosting---",
+    "configuration",
+    "---For contributors---",
+    "architecture",
+    "contributing"
+  ]
+}

@@ -1,0 +1,67 @@
+---
+title: Installation
+description: Install the cerocode CLI and start your first session.
+---
+
+## Requirements
+
+- [Bun](https://bun.sh) >= 1.0 — cerocode runs on the Bun runtime. There is
+  no Node.js requirement.
+- A terminal. That's it.
+
+## Install
+
+```sh
+bun add -g cerocode
+```
+
+or with npm:
+
+```sh
+npm install -g cerocode
+```
+
+Verify it works:
+
+```sh
+cerocode --help
+```
+
+## First run
+
+`cd` into any project and start the agent:
+
+```sh
+cd /path/to/your/project
+cerocode
+```
+
+You'll land on an empty chat screen with three hints in the footer:
+`/ commands`, `@ files`, `tab agent`.
+
+The first thing to do is sign in — type `/login` and your browser opens for
+OAuth (see [Authentication](/docs/authentication)). Once signed in, just type
+what you want done.
+
+## The basics in 30 seconds
+
+| Action | How |
+| --- | --- |
+| Send a message | Type and press <Kbd>Enter</Kbd> |
+| New line | <Kbd>Shift</Kbd> + <Kbd>Enter</Kbd> |
+| Switch agent | <Kbd>Tab</Kbd> (BUILD ↔ PLAN) |
+| Command menu | Type `/` |
+| Mention a file | Type `@` and start typing a path |
+| Interrupt a response | <Kbd>Esc</Kbd> while streaming |
+
+Write actions (`writeFile`, `editFile`) and most shell commands ask for your
+approval before running — press <Kbd>Enter</Kbd> to approve or <Kbd>Esc</Kbd>
+to deny. See [Tools](/docs/tools) for how approvals work.
+
+## Updating
+
+The CLI is distributed through npm, so updating is the same as installing:
+
+```sh
+bun add -g cerocode
+```

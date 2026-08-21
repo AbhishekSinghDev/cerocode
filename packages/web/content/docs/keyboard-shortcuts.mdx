@@ -1,0 +1,61 @@
+---
+title: Keyboard shortcuts
+description: Every keybinding in the cerocode TUI — composer, menus, dialogs, and approvals.
+---
+
+## Composer
+
+| Key | Action |
+| --- | --- |
+| <Kbd>Enter</Kbd> | Send the message |
+| <Kbd>Shift</Kbd> + <Kbd>Enter</Kbd> | Insert a newline |
+| <Kbd>Tab</Kbd> | Toggle agent mode (BUILD ↔ PLAN) |
+| `@` | Start a file mention |
+| `/` | Open the command menu (first character only) |
+
+## While streaming
+
+| Key | Action |
+| --- | --- |
+| <Kbd>Esc</Kbd> | Interrupt the response mid-stream |
+
+Everything streamed before the interrupt is kept in the conversation.
+
+## Menus and dialogs
+
+| Key | Context | Action |
+| --- | --- | --- |
+| <Kbd>↑</Kbd> / <Kbd>↓</Kbd> | command menu, mention menu, dialogs | Move selection |
+| <Kbd>Enter</Kbd> | command / mention menu | Run or insert the selection |
+| <Kbd>Esc</Kbd> | any menu or dialog | Close it |
+
+## Approvals
+
+When a write tool or shell command asks for permission:
+
+| Key | Action |
+| --- | --- |
+| <Kbd>Enter</Kbd> | Approve this action |
+| <Kbd>A</Kbd> | Approve all actions for this session |
+| <Kbd>Esc</Kbd> | Deny |
+
+"Approve all" resets when you interrupt a response or start a new session.
+See [Tools](/docs/tools#approvals) for when dialogs appear.
+
+## File mentions
+
+Type `@` followed by a path fragment to autocomplete files and directories
+in your project:
+
+- Directories are listed before files; hidden entries appear when your query
+  starts with a dot.
+- If nothing matches at the top level, cerocode falls back to a recursive
+  search (skipping `node_modules`).
+- <Kbd>Enter</Kbd> inserts the selected path into your message so the agent
+  knows exactly which file you mean.
+
+## Global
+
+| Key | Action |
+| --- | --- |
+| <Kbd>Ctrl</Kbd> + <Kbd>C</Kbd> | Close the active menu/dialog or clear input — press again to exit |

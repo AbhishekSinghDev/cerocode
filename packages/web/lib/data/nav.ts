@@ -5,6 +5,7 @@ export const SECTION_LINKS = [
   { label: "Tools", href: "#tools" },
   { label: "Models", href: "#models" },
   { label: "Architecture", href: "#architecture" },
+  { label: "Docs", href: "/docs" },
 ];
 
 export type FooterLink = { label: string; href: string; external?: boolean };
@@ -17,6 +18,7 @@ export const FOOTER_COLUMNS: { heading: string; links: FooterLink[] }[] = [
   {
     heading: "Resources",
     links: [
+      { label: "Documentation", href: "/docs" },
       { label: "GitHub", href: GITHUB_URL, external: true },
       { label: "npm package", href: NPM_URL, external: true },
       {

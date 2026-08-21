@@ -1,0 +1,93 @@
+---
+title: Architecture
+description: How the cerocode monorepo fits together — packages, API surface, database schema, and the chat streaming flow.
+---
+
+cerocode is a Bun workspace monorepo with five packages. Only the CLI is
+published to npm; everything else is bundled into it at build time.
+
+## Packages
+
+| Package | What it is |
+| --- | --- |
+| `packages/cli` | The terminal UI — OpenTUI + React, published to npm as `cerocode` |
+| `packages/server` | Hono API — OAuth callback, session storage, streaming chat |
+| `packages/shared` | Model registry, agent modes, and tool schemas shared by CLI and server |
+| `packages/database` | Drizzle schema and Postgres client |
+| `packages/web` | This website and its docs |
+
+Cross-package imports (`@cerocode/shared`, `@cerocode/database`) resolve to
+source via workspace symlinks. The published CLI bundle inlines every
+workspace dependency, so the npm tarball has no `@cerocode/*` runtime
+dependencies.
+
+## Server API
+
+All routes except the OAuth callback require a valid Clerk OAuth token in
+the `Authorization: Bearer` header.
+
+| Method | Path | Description |
+| --- | --- | --- |
+| `GET` | `/auth/callback` | OAuth relay — redirects the authorization code back to the CLI's local callback server |
+| `GET` | `/sessions` | List the caller's sessions, newest first |
+| `POST` | `/sessions` | Create a session with a title |
+| `GET` | `/sessions/:id` | Fetch one session including messages (404 if not owned by caller) |
+| `POST` | `/chat` | Stream a chat response for a session |
+| `GET` | `/debug-sentry` | Throws a test error for Sentry verification |
+
+The exported `AppType` from the server gives the CLI a fully typed Hono
+client — endpoints are checked at compile time on both sides.
+
+## Chat flow
+
+A `POST /chat` request carries `{ id, messages, mode, model }`:
+
+1. The session is loaded and checked against the caller's user id.
+2. Incoming messages are merged into stored ones by id.
+3. Messages are validated against the tool contracts for the requested mode
+   — PLAN requests only ever see read-only tools.
+4. `streamText` runs the model with the mode-specific system prompt and
+   streams back UI message parts (text, reasoning, tool calls).
+5. On finish, the final messages persist back to the session — unless the
+   stream was aborted or ended with an unfinished tool call.
+
+Each message records metadata: `{ mode, model, durationMs, totalUsage }`,
+which the TUI renders in its message headers and footer token counter.
+
+## Database
+
+One table, defined with Drizzle:
+
+```ts
+export const sessions = pgTable("sessions", {
+  id: varchar("id", { length: 36 }).$defaultFn(() => uuidv7()).primaryKey(),
+  userId: varchar("user_id", { length: 36 }).notNull(),
+  title: text("title").notNull(),
+  messages: jsonb("messages").default([]),
+  createdAt: timestamp("created_at", { mode: "string", withTimezone: true })
+    .defaultNow(),
+  updatedAt: timestamp("updated_at", { mode: "string", withTimezone: true })
+    .defaultNow().$onUpdateFn(() => new Date().toISOString()),
+}, (table) => [index("session_user_id_idx").on(table.userId)]);
+```
+
+The client is a `postgres-js` pool (max 10 connections) wrapped in Drizzle,
+with `prepare: false` for compatibility with pooled/HTTP Postgres providers.
+
+## Shared contracts
+
+`packages/shared` is the single source of truth for:
+
+- **Models** — every supported model id, provider, and pricing tier.
+- **Modes** — the BUILD/PLAN definitions and their exact tool contracts
+  (zod schemas), used by both the server (validation) and the CLI
+  (enforcement).
+- **Chat types** — the UI message metadata shape shared across the wire.
+
+## System prompt
+
+The server builds one system prompt per request, parameterized by mode:
+identity ("an expert software engineer working as a coding agent inside a
+terminal application"), mode-specific rules (PLAN analyzes and proposes;
+BUILD implements and verifies), and tool-use rules — investigate before
+answering, parallelize independent calls, never invent paths.

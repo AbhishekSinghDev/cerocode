@@ -1,0 +1,70 @@
+---
+title: Tools
+description: The seven tools the agent can use, the approval system, and the safety limits around local execution.
+---
+
+The agent works through a fixed set of tools. Which ones are available
+depends on the active [agent mode](/docs/agent-modes).
+
+## The tool set
+
+| Tool | Mode | What it does |
+| --- | --- | --- |
+| `readFile` | both | Read a file from the current project directory (truncated at 10,000 characters) |
+| `listDirectory` | both | List files in a directory, defaulting to the project root |
+| `glob` | both | Find files matching a glob pattern (max 50 matches) |
+| `grep` | both | Search a regex pattern across files (max 200 results) |
+| `writeFile` | BUILD | Create or overwrite a file |
+| `editFile` | BUILD | Replace an exact, unique snippet of text in a file |
+| `bash` | BUILD | Run a shell command in the project directory |
+
+All paths resolve inside the directory cerocode was launched from — the agent
+cannot reach outside your project.
+
+## Approvals
+
+cerocode never lets writes happen silently. When the agent wants to modify
+something, a confirm dialog appears:
+
+- <Kbd>Enter</Kbd> — approve this action
+- <Kbd>A</Kbd> — approve all actions for this session
+- <Kbd>Esc</Kbd> — deny
+
+Denying returns "Action cancelled: not approved by the user" to the agent so
+it can adjust. Leaving the dialog open for 2 minutes counts as a denial.
+
+### When approvals appear
+
+- **`writeFile` / `editFile`** ask for approval only for *sensitive* paths:
+  anything inside a dot-directory, lockfiles (`package.json`, `bun.lock`,
+  `Cargo.lock`, …), and shell scripts (`.sh`, `.bat`, `.ps1`, …). Ordinary
+  source files are written without prompting.
+- **`bash`** asks for approval unless the command matches a whitelist of
+  read-only patterns: `ls`, `pwd`, `cat`, `head`, `tail`, `grep`, `find`,
+  `echo`, `date`, `whoami`, `uname`, `which`, and read-only git commands
+  (`git status`, `git diff`, `git log`, `git branch`, …).
+
+"Approve all" (<Kbd>A</Kbd>) trusts the rest of the session. It resets when
+you interrupt a response or start a new conversation.
+
+## Diffs
+
+Before you approve a write or edit, cerocode shows a unified diff of exactly
+what will change — computed locally from before/after snapshots.
+
+## Execution limits
+
+Local tool execution is bounded to keep the agent safe and responsive:
+
+| Limit | Value |
+| --- | --- |
+| `readFile` output | 10,000 characters |
+| `glob` matches | 50 files |
+| `grep` results | 200 lines |
+| `bash` output | 20,000 characters |
+| `bash` timeout | 30 seconds default |
+| Confirm dialog timeout | 120 seconds |
+
+Search tools skip `node_modules` and `.git`. Shell commands run with a
+minimal environment (PATH, TERM, LANG, HOME, TMPDIR) rather than your full
+shell profile.
