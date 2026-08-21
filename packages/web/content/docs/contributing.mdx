@@ -1,0 +1,104 @@
+---
+title: Contributing
+description: Setting up a development environment, the workflow, and how releases work.
+---
+
+Contributions are welcome — this guide covers everything you need to go from
+clone to merged PR. See [Architecture](/docs/architecture) first for how the
+packages fit together.
+
+## Prerequisites
+
+- [Bun](https://bun.sh) >= 1.0 — the whole repo (runtime, tooling, CLI
+  bundle) assumes Bun. There is no Node.js requirement.
+
+## Setup
+
+```sh
+git clone git@github.com:AbhishekSinghDev/cerocode.git
+cd cerocode
+bun install
+```
+
+`bun install` symlinks all workspace packages into the root `node_modules`,
+so cross-package imports resolve to source automatically.
+
+To run the server locally you'll need a Postgres database, a Clerk app, and
+model API keys — see [Configuration](/docs/configuration) for the full env
+var list and database setup.
+
+## Running in dev mode
+
+Two terminals:
+
+```sh
+bun run dev:server   # Hono server with hot reload on http://localhost:3000
+bun run dev:cli      # CLI in watch mode, pointed at localhost:3000
+```
+
+`dev:cli` sets `NODE_ENV=development`, which switches both packages to local
+endpoints and the dev Clerk app. Sign in with `/login` inside the TUI.
+
+To test a globally-installed-style binary instead:
+
+```sh
+bun run link:cli     # builds the CLI and registers it with bun link
+```
+
+## Verifying changes before a PR
+
+There is no test suite or linter configured. Before opening a PR:
+
+```sh
+bun run build        # bundles the CLI and the server
+bunx tsc --noEmit -p packages/cli
+bunx tsc --noEmit -p packages/server
+bunx tsc --noEmit -p packages/shared
+bunx tsc --noEmit -p packages/database
+```
+
+Then exercise the change in the TUI with `bun run dev:cli`.
+
+For website/docs changes:
+
+```sh
+bun run dev:web      # Next.js dev server
+bun run lint:web     # eslint
+bun run build:web    # production build check
+```
+
+## Commits and branches
+
+The git history uses conventional-commit prefixes and topic branches:
+
+```text
+feat: add session search to the sessions dialog
+fix: clear auth state when a 401 is returned mid-chat
+docs: document the approval system
+```
+
+Prefixes in use: `feat:`, `fix:`, `docs:`, `chore:`, `refactor:`, `wip:`.
+
+Branch names follow the same idea — a short prefix plus summary, e.g.
+`refactor/cli-theme-usage-improvements`. Open PRs against `main`.
+
+## Releases
+
+Only `packages/cli` is published, to npm as `cerocode`. The flow is manual:
+
+```sh
+# 1. bump "version" in packages/cli/package.json
+cd packages/cli
+npm publish          # prepublishOnly runs bun run build first
+```
+
+The build inlines every workspace dependency — never add `@cerocode/*`
+packages to the CLI's runtime dependencies, or the published tarball would
+reference packages npm can't resolve.
+
+## Where to help
+
+- Bug reports and feature ideas:
+  [github.com/AbhishekSinghDev/cerocode/issues](https://github.com/AbhishekSinghDev/cerocode/issues)
+- Docs live in `packages/web/content/docs/` — edits are plain MDX and always
+  appreciated.

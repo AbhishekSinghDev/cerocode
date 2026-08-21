@@ -1,0 +1,79 @@
+---
+title: Configuration
+description: CLI environment variables, the ~/.cerocode directory, and every setting needed to self-host the server.
+---
+
+cerocode works with zero configuration against the hosted service. Everything
+below is optional unless you're [self-hosting](#self-hosting-the-server).
+
+## CLI
+
+| Variable | Effect |
+| --- | --- |
+| `NODE_ENV` | Set to `development` to point the CLI at `http://localhost:3000` and a dev Clerk app instead of the hosted ones |
+
+The CLI keeps its state in `~/.cerocode/`:
+
+| File | Purpose |
+| --- | --- |
+| `auth.json` | Your OAuth access token (see [Authentication](/docs/authentication)) |
+| `settings.json` | UI settings — currently your theme id (see [Themes](/docs/themes)) |
+
+## Self-hosting the server
+
+The server is a Hono app backed by Postgres. It needs three things: a
+database, a Clerk application, and model provider keys.
+
+### 1. Environment
+
+Bun loads `.env` from the working directory automatically. Copy the example
+and fill it in:
+
+```sh
+cp .env.example .env
+```
+
+| Variable | Required | Purpose |
+| --- | --- | --- |
+| `DATABASE_URL` | yes | Postgres connection string |
+| `CLERK_SECRET_KEY` | yes | Clerk backend secret |
+| `CLERK_PUBLISHABLE_KEY` | yes | Clerk frontend API key |
+| `GOOGLE_GENERATIVE_AI_API_KEY` | no | Enables Google models |
+| `GROQ_API_KEY` | no | Enables Groq models |
+| `MISTRAL_API_KEY` | no | Enables Mistral models — required for the default model |
+| `OPENROUTER_API_KEY` | no | Enables OpenRouter models |
+
+Only providers whose keys are set will work; requests to other providers'
+models fail at runtime.
+
+### 2. Database
+
+Create the schema with drizzle-kit:
+
+```sh
+bun run --filter @cerocode/database push
+```
+
+This creates the single `sessions` table. For inspection there's also
+`bun run --filter @cerocode/database studio`.
+
+### 3. Run
+
+```sh
+bun run dev:server   # http://localhost:3000 with hot reload
+```
+
+With the server running locally, start the CLI in dev mode and they find
+each other automatically:
+
+```sh
+bun run dev:cli      # NODE_ENV=development is set for you
+```
+
+## Server behavior notes
+
+- The server listens on port 3000.
+- All `/sessions` and `/chat` routes require a valid OAuth token; anything
+  else returns 401.
+- Chat responses stream over HTTP using the AI SDK's UI message stream
+  format.

@@ -1,0 +1,64 @@
+---
+title: Models
+description: Every model cerocode supports, the providers behind them, and how to switch.
+---
+
+cerocode routes chat through the [AI SDK](https://ai-sdk.dev) with support
+for four providers: Groq, Mistral, Google, and OpenRouter. The default model
+is `devstral-small-latest` (Mistral).
+
+## Supported models
+
+| Model                             | Provider   | Input $/M | Output $/M |
+| --------------------------------- | ---------- | --------- | ---------- |
+| `openai/gpt-oss-20b`              | Groq       | free      | free       |
+| `openai/gpt-oss-120b`             | Groq       | free      | free       |
+| `qwen/qwen3.6-27b`                | Groq       | free      | free       |
+| `ministral-8b-latest`             | Mistral    | free      | free       |
+| `mistral-small-latest`            | Mistral    | free      | free       |
+| `devstral-small-latest` ★ default | Mistral    | free      | free       |
+| `codestral-latest`                | Mistral    | free      | free       |
+| `mistral-large-latest`            | Mistral    | free      | free       |
+| `deepseek/deepseek-v4-flash-0731` | OpenRouter | $0.078    | $0.157     |
+| `gemini-3.5-flash-lite`           | Google     | $0.30     | $2.50      |
+| `gemini-2.5-flash`                | Google     | $0.30     | $2.50      |
+| `gemini-3.6-flash`                | Google     | $1.50     | $7.50      |
+| `gemini-3.1-pro-preview`          | Google     | $2.00     | $12.00     |
+
+## Switching models
+
+Inside the TUI:
+
+```text
+/models
+```
+
+This opens a searchable dialog listing every supported model. The current
+selection is shown in the footer.
+
+Model choice is stored per message — you can change models mid-conversation
+and earlier messages keep the model that generated them.
+
+## Provider keys
+
+On the hosted service, provider access is managed for you. If you
+[self-host](/docs/configuration), each provider only works when its API key
+is set in the server environment:
+
+```sh
+GOOGLE_GENERATIVE_AI_API_KEY=   # Google models
+GROQ_API_KEY=                   # Groq models
+MISTRAL_API_KEY=                # Mistral models — required for the default
+OPENROUTER_API_KEY=             # OpenRouter models
+```
+
+## Reasoning models
+
+Several models expose their thinking as separate reasoning blocks, which
+cerocode renders inline:
+
+- Google Gemini models run with extended thinking enabled where available.
+- Groq's `openai/gpt-oss-120b` uses parsed reasoning output.
+
+Reasoning appears as a collapsible block above the answer when the model
+produces it.

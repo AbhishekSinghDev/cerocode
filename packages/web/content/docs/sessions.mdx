@@ -1,0 +1,39 @@
+---
+title: Sessions
+description: How conversations are stored, resumed, and managed.
+---
+
+Every conversation is a session. Sessions live server-side and are tied to
+your account, so your history follows you across machines.
+
+## What's in a session
+
+A session holds:
+
+- a **title** (max 50 characters),
+- the full **message history** — including tool calls and their results,
+- **metadata per message**: which agent mode and model produced it, how long
+  it took, and token usage.
+
+## Starting and resuming
+
+- `/new` starts a fresh session. The title is generated from your first
+  message.
+- `/sessions` opens a searchable list of your previous conversations,
+  newest first. Pick one to resume it with full context.
+
+## Persistence rules
+
+Messages are saved when a response finishes streaming. Two safety rules
+apply:
+
+- If you interrupt a response mid-stream (<Kbd>Esc</Kbd>), everything up to
+  that point is kept.
+- A response that ends with an unfinished tool call is never saved — this
+  prevents half-executed actions from being replayed into future context.
+
+## Managing
+
+`/sessions` shows the time each conversation was created, so you can pick
+between recent work and older threads. Sessions are scoped to your user id
+on the server — other users can never read yours.

@@ -1,0 +1,52 @@
+---
+title: Introduction
+description: cerocode is an AI coding agent that lives in your terminal — it reads, searches, edits, and writes files, and runs shell commands in your project.
+---
+
+cerocode is an open source AI coding agent that runs entirely in your
+terminal. You describe what you want in plain language, and the agent reads,
+searches, edits, and writes files in your project — streaming every response
+back as it works.
+
+It ships as a single CLI (`cerocode`) built on the Bun runtime with a
+full-screen terminal UI. Under the hood it talks to a hosted service that
+handles authentication, session storage, and model access through the
+[AI SDK](https://ai-sdk.dev), so there is nothing to configure before your
+first prompt.
+
+## How it works
+
+1. **Install** the CLI globally with `bun add -g cerocode`.
+2. **Run** `cerocode` inside any project directory.
+3. **Sign in** once with `/login` (opens your browser for OAuth).
+4. **Ask** for what you want done — fix a bug, write a feature, explore a
+   codebase.
+
+The agent works inside the directory you launched it from. It can read,
+search, edit, and write files, and run shell commands — write actions ask for
+your approval before anything touches disk.
+
+## Two ways of working
+
+cerocode has two agents you can switch between at any time with <Kbd>Tab</Kbd>:
+
+- **BUILD** — full access: read, write, edit, list, glob, grep, and bash.
+  File writes and shell commands are approval-gated.
+- **PLAN** — read-only: list, glob, grep, and read. Use it to analyze a
+  codebase or design an approach before changing anything.
+
+## Where to go next
+
+- [Installation](/docs/installation) — get the CLI running.
+- [Agent modes](/docs/agent-modes) — BUILD vs PLAN in detail.
+- [Commands](/docs/commands) — every slash command.
+- [Architecture](/docs/architecture) — how the monorepo fits together, if you
+  want to contribute.
+
+## Links
+
+- Source code: [github.com/AbhishekSinghDev/cerocode](https://github.com/AbhishekSinghDev/cerocode)
+- Package: [npmjs.com/package/cerocode](https://www.npmjs.com/package/cerocode)
+- Issues: [github.com/AbhishekSinghDev/cerocode/issues](https://github.com/AbhishekSinghDev/cerocode/issues)
+
+cerocode is MIT licensed — contributions are welcome.

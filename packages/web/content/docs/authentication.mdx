@@ -1,0 +1,53 @@
+---
+title: Authentication
+description: How /login works, where your credentials live, and how to sign out.
+---
+
+cerocode uses OAuth through [Clerk](https://clerk.com). You sign in once per
+machine; the session token is stored locally and reused until you sign out.
+
+## Signing in
+
+Inside the TUI:
+
+```text
+/login
+```
+
+This opens your browser to complete the OAuth flow. The CLI starts a local
+callback server, exchanges the authorization code using PKCE, and saves the
+access token. When it succeeds you'll see a confirmation toast in the
+terminal — the browser tab can be closed.
+
+The login attempt times out after 5 minutes. If nothing happens, make sure a
+browser can open on your machine and try again.
+
+## Where your token lives
+
+```text
+~/.cerocode/auth.json
+```
+
+The file contains your access token and is created with `0600` permissions
+inside a `0700` directory, so only your user can read it.
+
+To sign out without the command:
+
+```sh
+rm ~/.cerocode/auth.json
+```
+
+## Signing out
+
+```text
+/logout
+```
+
+This deletes `auth.json`. The next chat request will fail with an
+authentication error until you `/login` again.
+
+## What happens on a stale token
+
+If the server rejects your token (for example after it expires), the CLI
+clears the stored credentials automatically. Run `/login` again to get a new
+one.

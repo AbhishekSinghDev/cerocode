@@ -1,0 +1,53 @@
+---
+title: Themes
+description: The 16 built-in themes, how to switch, and where your choice is stored.
+---
+
+cerocode's TUI ships 16 built-in themes — dark terminal palettes including
+community classics alongside the default **Cero** theme that also powers
+this website.
+
+## Switching themes
+
+```text
+/theme
+```
+
+The theme dialog live-previews each palette as you highlight it, so you can
+cycle through before committing. Your choice persists across restarts.
+
+## Built-in themes
+
+| Theme | Notes |
+| --- | --- |
+| Cero | Default — teal accent on near-black |
+| Catppuccin Mocha | |
+| Dracula | |
+| Nord | |
+| Tokyo Night | |
+| Gruvbox Dark | |
+| Monokai | |
+| One Dark | |
+| Solarized Dark | |
+| Rosé Pine | |
+| Everforest | |
+| Kanagawa | |
+| Ayu Dark | |
+| GitHub Dark | |
+| Synthwave '84 | |
+| Matrix | |
+
+## Where the setting lives
+
+Your theme id is stored in:
+
+```text
+~/.cerocode/settings.json
+```
+
+Delete the file (or just the `themeId` key) to return to the default.
+
+## Syntax highlighting
+
+Code blocks in responses use their own syntax highlighting colors,
+independent of the UI theme, so markdown stays readable in every palette.

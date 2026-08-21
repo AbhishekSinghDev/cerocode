@@ -57,6 +57,7 @@ A Bun monorepo with four packages:
 | `packages/server`     | A Hono API handling OAuth, session storage, and streaming chat via the AI SDK        |
 | `packages/shared`     | Model registry, agent modes, and tool schemas shared by the CLI and server           |
 | `packages/database`   | Drizzle schema and Postgres client for session storage                              |
+| `packages/web`        | The website — landing page and [documentation](https://cerocode.heyabhishek.in/docs) |
 
 The CLI talks to the hosted cerocode service by default; point it at a local
 server instead by setting `NODE_ENV=development` (see [Configuration](#configuration)).

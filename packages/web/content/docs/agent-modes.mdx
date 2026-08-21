@@ -1,0 +1,54 @@
+---
+title: Agent modes
+description: BUILD and PLAN — the two agents cerocode offers, what each can do, and when to use which.
+---
+
+cerocode ships two agents with different tool access. Press <Kbd>Tab</Kbd> to
+switch between them at any time — the active mode is always visible in the
+footer.
+
+## BUILD
+
+The default mode. BUILD has full access to your project:
+
+| Tool | Access |
+| --- | --- |
+| `readFile` | ✓ |
+| `listDirectory` | ✓ |
+| `glob` | ✓ |
+| `grep` | ✓ |
+| `writeFile` | ✓ approval-gated |
+| `editFile` | ✓ approval-gated |
+| `bash` | ✓ approval-gated |
+
+Use BUILD when you want changes made: implementing features, fixing bugs,
+refactoring, running tests or builds.
+
+## PLAN
+
+A read-only agent. PLAN only gets:
+
+| Tool | Access |
+| --- | --- |
+| `readFile` | ✓ |
+| `listDirectory` | ✓ |
+| `glob` | ✓ |
+| `grep` | ✓ |
+
+Use PLAN to explore an unfamiliar codebase, trace how something works, or
+design an approach before touching anything. Because it cannot write files
+or run commands, nothing in your project can change while PLAN is active.
+
+## How the restriction is enforced
+
+PLAN is not a prompt-level suggestion — it's enforced on both sides:
+
+- The server only sends the read-only tool contracts to the model.
+- The CLI refuses to execute any write tool in PLAN mode, even if one is
+  requested.
+
+## Switching mid-conversation
+
+Mode is part of each message's metadata, so you can flip between BUILD and
+PLAN inside the same conversation — plan with PLAN, then switch to BUILD to
+implement, without losing context.
